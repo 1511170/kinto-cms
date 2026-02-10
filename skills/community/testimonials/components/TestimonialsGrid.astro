@@ -1,0 +1,65 @@
+---
+import TestimonialCard from './TestimonialCard.astro';
+
+interface Props {
+  testimonials?: Array<{
+    author: string;
+    company?: string;
+    quote: string;
+    image?: string;
+    rating?: number;
+    date?: string;
+  }>;
+  limit?: number;
+  showRatings?: boolean;
+  columns?: 2 | 3 | 4;
+}
+
+const { 
+  testimonials = [], 
+  limit,
+  showRatings = true,
+  columns = 3
+} = Astro.props;
+
+const displayTestimonials = limit ? testimonials.slice(0, limit) : testimonials;
+
+const colClasses = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'md:grid-cols-2 lg:grid-cols-4'
+};
+---
+
+<section class="py-16" aria-label="Testimonios de clientes">
+  <div class="container mx-auto px-4">
+    {testimonials.length === 0 ? (
+      <div class="text-center text-gray-500">
+        <p>No hay testimonios aún. Agrega algunos desde el CMS.</p>
+      </div>
+    ) : (
+      <div class={`grid gap-8 ${colClasses[columns]}`}>
+        {displayTestimonials.map((testimonial) => (
+          <TestimonialCard 
+            {...testimonial} 
+            showRating={showRatings}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+  
+  <!-- Schema.org AggregateRating si hay suficientes -->
+  {testimonials.length >= 3 && (
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": Astro.site?.hostname || '',
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": (testimonials.reduce((acc, t) => acc + (t.rating || 5), 0) / testimonials.length).toFixed(1),
+        "reviewCount": testimonials.length
+      }
+    })} />
+  )}
+</section>
