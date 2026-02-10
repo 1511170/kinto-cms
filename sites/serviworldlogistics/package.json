@@ -1,7 +1,7 @@
 {
   "name": "serviworldlogistics",
   "version": "1.0.0",
-  "description": "Serviworld Logistics - Sitio estático con KINTO CSM",
+  "description": "Serviworld Logistics - Sitio estático con KINTO CMS",
   "type": "module",
   "scripts": {
     "dev": "astro dev",

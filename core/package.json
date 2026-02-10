@@ -1,7 +1,7 @@
 {
   "name": "@kinto/core",
   "version": "1.0.0",
-  "description": "Core motor for KINTO CSM - Minimal Astro + Tailwind base",
+  "description": "Core motor for KINTO CMS - Minimal Astro + Tailwind base",
   "type": "module",
   "scripts": {
     "dev": "astro dev",

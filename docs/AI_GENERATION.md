@@ -1,6 +1,6 @@
 # Guía de Generación con IA
 
-Esta guía es para modelos de IA (Kimi Code, Claude Code, etc.) que generan sitios con KINTO CSM.
+Esta guía es para modelos de IA (Kimi Code, Claude Code, etc.) que generan sitios con KINTO CMS.
 
 ## 🎯 Principios Fundamentales
 
@@ -9,7 +9,7 @@ Esta guía es para modelos de IA (Kimi Code, Claude Code, etc.) que generan siti
 - NO añadas funcionalidad que ya existe como skill
 
 ### 2. REUSAR SKILLS
-- Antes de escribir código, revisa: `kinto-csm/skills/`
+- Antes de escribir código, revisa: `kinto-cms/skills/`
 - Si existe una skill similar, úsala o extiéndela
 
 ### 3. CREAR SKILLS PARA REUSO
@@ -34,7 +34,7 @@ Necesita:
 ### Paso 2: Revisar Skills Existentes
 
 ```bash
-cd kinto-csm/sites/serviworldlogistics
+cd kinto-cms/sites/serviworldlogistics
 node scripts/skill-list.js
 ```
 
@@ -84,11 +84,11 @@ import ServicesGrid from '@skills/community/services-grid/components/ServicesGri
 Cuando un usuario te pide generar un sitio, usa este prompt interno:
 
 ```
-=== KINTO CSM GENERATION SESSION ===
+=== KINTO CMS GENERATION SESSION ===
 
 CONTEXTO:
 - Proyecto: [NOMBRE_DEL_SITIO]
-- Ubicación: kinto-csm/sites/[NOMBRE]/
+- Ubicación: kinto-cms/sites/[NOMBRE]/
 - Core: Astro 5 + Tailwind 4
 - Estado actual: Core limpio (0 skills activas)
 
@@ -167,7 +167,7 @@ OUTPUT ESPERADO:
 
 ```bash
 # Listar todas las skills
-cd kinto-csm/sites/serviworldlogistics
+cd kinto-cms/sites/serviworldlogistics
 node scripts/skill-list.js
 
 # Ver documentación de una skill
@@ -279,7 +279,7 @@ Antes de entregar un sitio generado:
 
 ```bash
 # 1. Setup
-cd kinto-csm/sites/serviworldlogistics
+cd kinto-cms/sites/serviworldlogistics
 
 # 2. IA revisa skills disponibles
 node scripts/skill-list.js

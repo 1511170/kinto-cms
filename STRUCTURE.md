@@ -1,7 +1,7 @@
-# Estructura de KINTO CSM
+# Estructura de KINTO CMS
 
 ```
-kinto-csm/
+kinto-cms/
 ├── README.md                          # Documentación principal
 ├── STRUCTURE.md                       # Este archivo
 ├── package.json                       # Root package
@@ -175,7 +175,7 @@ Cada uno: core + skills específicas
 
 **Prompt clave:**
 ```
-Estás usando KINTO CSM.
+Estás usando KINTO CMS.
 1. Revisa skills/ antes de escribir código
 2. Si existe skill similar → ÚSALA
 3. Si no existe → CREA skill reutilizable

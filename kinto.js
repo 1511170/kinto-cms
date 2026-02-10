@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * KINTO CSM CLI
+ * KINTO CMS CLI
  * Comando central para gestionar sitios y skills
  */
 
@@ -15,7 +15,7 @@ const KINTO_ROOT = resolve(CWD);
 
 function showHelp() {
   console.log(`
-🚀 KINTO CSM - Content Site Manager
+🚀 KINTO CMS - Content Management System
 
 Comandos:
   kinto init <site-name>           Crear nuevo sitio

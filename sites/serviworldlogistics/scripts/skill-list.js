@@ -10,7 +10,7 @@ import { join, resolve } from 'path';
 const skillsRoot = resolve(process.cwd(), '../../skills');
 const activeSkillsPath = join(process.cwd(), 'skills-active.json');
 
-console.log('🧩 KINTO CSM - Skills\n');
+console.log('🧩 KINTO CMS - Skills\n');
 
 // Skills activas en este sitio
 const activeConfig = JSON.parse(readFileSync(activeSkillsPath, 'utf-8'));

@@ -1,4 +1,4 @@
-# KINTO Content Site Manager (kinto-csm)
+# KINTO Content Management System (kinto-cms)
 
 Sistema generador de sitios web estáticos empresariales con arquitectura de skills/plugins bajo demanda.
 
@@ -6,7 +6,7 @@ Sistema generador de sitios web estáticos empresariales con arquitectura de ski
 
 ```
 ┌─────────────────────────────────────────────┐
-│           KINTO CSM Architecture            │
+│           KINTO CMS Architecture            │
 ├─────────────────────────────────────────────┤
 │  CORE (Astro + Tailwind) - Mínimo, limpio   │
 │  └── Sin skills activas por defecto         │
@@ -20,7 +20,7 @@ Sistema generador de sitios web estáticos empresariales con arquitectura de ski
 ## 🏗️ Estructura
 
 ```
-kinto-csm/
+kinto-cms/
 ├── core/                    # Motor mínimo (sin skills)
 ├── skills/                  # Marketplace de skills
 │   ├── official/            # Skills oficiales (SEO, CMS, etc)
@@ -117,10 +117,10 @@ kinto skill:create fleet-tracker --site=serviworldlogistics
 ### Prompt para Kimi Code / Claude Code
 
 ```
-Estás usando KINTO CSM - sistema de sitios estáticos con skills.
+Estás usando KINTO CMS - sistema de sitios estáticos con skills.
 
 CONTEXTO ACTUAL:
-- Ubicación: /home/5toai/kinto-csm/
+- Ubicación: /home/5toai/kinto-cms/
 - Site de trabajo: sites/serviworldlogistics/
 - Core: Astro 5 + Tailwind 4 (sin skills activas)
 - Skills disponibles: [ver en skills/]
@@ -226,4 +226,4 @@ kinto deploy
 - [CMS Setup](docs/CMS_SETUP.md)
 
 ---
-**KINTO CSM**: Core mínimo + Skills bajo demanda = Sitios ultra-rápidos, escalables.
+**KINTO CMS**: Core mínimo + Skills bajo demanda = Sitios ultra-rápidos, escalables.

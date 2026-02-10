@@ -1,6 +1,6 @@
 /**
  * Skill: cms-sveltia
- * Framework de CMS para KINTO CSM
+ * Framework de CMS para KINTO CMS
  */
 
 export const config = {
