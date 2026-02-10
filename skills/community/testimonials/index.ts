@@ -4,6 +4,10 @@
  * Reutilizable para cualquier sitio
  */
 
+// Exportar componentes para uso directo
+export { default as TestimonialsGrid } from './components/TestimonialsGrid.astro';
+export { default as TestimonialCard } from './components/TestimonialCard.astro';
+
 export const config = {
   name: 'testimonials',
   version: '1.0.0',

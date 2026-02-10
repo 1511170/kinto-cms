@@ -1,0 +1,24 @@
+#!/bin/bash
+# start - Inicio rápido para cualquier IA CLI
+# Uso: ./start
+
+# Detectar qué CLI está disponible
+if command -v kimi &> /dev/null; then
+    CLI="kimi"
+    CLI_NAME="Kimi Code"
+elif command -v claude &> /dev/null; then
+    CLI="claude"
+    CLI_NAME="Claude Code"
+else
+    echo "❌ No se encontró kimi ni claude. Instala uno primero:"
+    echo "   npm install -g @moonshot-ai/kimi-cli"
+    exit 1
+fi
+
+echo "🚀 KINTO CMS - Inicio Rápido"
+echo "🤖 CLI: $CLI_NAME"
+echo "📁 Dir: $(pwd)"
+echo ""
+
+# Iniciar la CLI con prompt pre-cargado
+exec $CLI -p "Lee el archivo AGENTS.md y dime qué debo hacer para empezar a trabajar en este proyecto."

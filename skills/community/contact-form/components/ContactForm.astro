@@ -1,0 +1,202 @@
+---
+interface Props {
+  title?: string;
+  subtitle?: string;
+  submitLabel?: string;
+  showPhone?: boolean;
+  showCompany?: boolean;
+  serviceSelect?: boolean;
+  action?: string;
+}
+
+const { 
+  title = "Contáctanos", 
+  subtitle = "",
+  submitLabel = "Enviar mensaje",
+  showPhone = true,
+  showCompany = true,
+  serviceSelect = false,
+  action = "/api/contact"
+} = Astro.props;
+
+const services = [
+  { value: "", label: "Selecciona un servicio" },
+  { value: "aereo", label: "Transporte Aéreo" },
+  { value: "maritimo", label: "Transporte Marítimo" },
+  { value: "terrestre", label: "Transporte Terrestre" },
+  { value: "almacenamiento", label: "Almacenamiento" },
+  { value: "multiple", label: "Múltiples servicios" },
+];
+---
+
+<div class="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+  {title && <h3 class="text-2xl font-bold text-gray-900 mb-2">{title}</h3>}
+  {subtitle && <p class="text-gray-600 mb-6">{subtitle}</p>}
+  
+  <form action={action} method="POST" class="space-y-6" id="contact-form">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+          Nombre completo <span class="text-red-500">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          required
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+          placeholder="Tu nombre"
+        />
+      </div>
+      
+      {showCompany && (
+        <div>
+          <label for="company" class="block text-sm font-medium text-gray-700 mb-2">
+            Empresa
+          </label>
+          <input 
+            type="text" 
+            id="company" 
+            name="company"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+            placeholder="Nombre de tu empresa"
+          />
+        </div>
+      )}
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+          Email <span class="text-red-500">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+          placeholder="tu@email.com"
+        />
+      </div>
+      
+      {showPhone && (
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+            Teléfono
+          </label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+            placeholder="+1 (234) 567-890"
+          />
+        </div>
+      )}
+    </div>
+    
+    {serviceSelect && (
+      <div>
+        <label for="service" class="block text-sm font-medium text-gray-700 mb-2">
+          Servicio de interés
+        </label>
+        <select 
+          id="service" 
+          name="service"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all bg-white"
+        >
+          {services.map((s) => (
+            <option value={s.value}>{s.label}</option>
+          ))}
+        </select>
+      </div>
+    )}
+    
+    <div>
+      <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
+        Mensaje <span class="text-red-500">*</span>
+      </label>
+      <textarea 
+        id="message" 
+        name="message" 
+        rows="5" 
+        required
+        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all resize-y"
+        placeholder="Cuéntanos sobre tu necesidad..."
+      ></textarea>
+    </div>
+    
+    <div class="flex items-start gap-3">
+      <input 
+        type="checkbox" 
+        id="privacy" 
+        name="privacy" 
+        required
+        class="mt-1 w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+      />
+      <label for="privacy" class="text-sm text-gray-600">
+        Acepto la <a href="/privacidad" class="text-brand-600 hover:underline">política de privacidad</a> y el tratamiento de mis datos para responder a esta consulta. <span class="text-red-500">*</span>
+      </label>
+    </div>
+    
+    <button 
+      type="submit"
+      class="w-full md:w-auto inline-flex items-center justify-center px-8 py-4 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all shadow-lg hover:shadow-xl"
+    >
+      {submitLabel}
+      <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+      </svg>
+    </button>
+  </form>
+  
+  <!-- Mensaje de éxito (oculto por defecto) -->
+  <div id="form-success" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <div>
+        <h4 class="font-semibold text-green-900">¡Mensaje enviado!</h4>
+        <p class="text-green-700 text-sm">Te responderemos en menos de 24 horas.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mensaje de error (oculto por defecto) -->
+  <div id="form-error" class="hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <div>
+        <h4 class="font-semibold text-red-900">Error al enviar</h4>
+        <p class="text-red-700 text-sm">Por favor intenta nuevamente o contáctanos por teléfono.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Manejo básico del formulario (puede extenderse)
+  const form = document.getElementById('contact-form');
+  const successMsg = document.getElementById('form-success');
+  const errorMsg = document.getElementById('form-error');
+  
+  form?.addEventListener('submit', async (e) => {
+    // Si no hay backend configurado, mostrar mensaje
+    const action = form.getAttribute('action');
+    if (action === '/api/contact' || action === '#') {
+      e.preventDefault();
+      successMsg?.classList.remove('hidden');
+      form.reset();
+      
+      // Ocultar después de 5 segundos
+      setTimeout(() => {
+        successMsg?.classList.add('hidden');
+      }, 5000);
+    }
+    // Si hay backend real, el formulario se envía normalmente
+  });
+</script>

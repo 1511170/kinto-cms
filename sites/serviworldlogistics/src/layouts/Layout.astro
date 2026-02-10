@@ -10,6 +10,14 @@ const {
   title = siteConfig.site.name,
   description = siteConfig.site.description 
 } = Astro.props;
+
+const navLinks = [
+  { href: "/", label: "Inicio" },
+  { href: "/servicios", label: "Servicios" },
+  { href: "/nosotros", label: "Nosotros" },
+  { href: "/blog", label: "Blog" },
+  { href: "/contacto", label: "Contacto" },
+];
 ---
 
 <!DOCTYPE html>
@@ -28,6 +36,170 @@ const {
     )}
   </head>
   <body class="antialiased">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <a href="/" class="flex items-center gap-2">
+            <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center">
+              <span class="text-white font-bold text-xl">S</span>
+            </div>
+            <span class="font-bold text-xl text-gray-900 hidden sm:block">Serviworld</span>
+          </a>
+          
+          <!-- Desktop Nav -->
+          <nav class="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a 
+                href={link.href} 
+                class="text-gray-600 hover:text-brand-600 font-medium transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+          
+          <!-- CTA -->
+          <div class="hidden md:block">
+            <a 
+              href="/contacto" 
+              class="inline-flex items-center px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors"
+            >
+              Cotizar
+            </a>
+          </div>
+          
+          <!-- Mobile Menu Button -->
+          <button 
+            id="mobile-menu-btn"
+            class="md:hidden p-2 text-gray-600 hover:text-gray-900"
+            aria-label="Menu"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden pb-4">
+          <nav class="flex flex-col gap-2">
+            {navLinks.map((link) => (
+              <a 
+                href={link.href} 
+                class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg"
+              >
+                {link.label}
+              </a>
+            ))}
+            <a 
+              href="/contacto" 
+              class="mt-2 mx-4 px-4 py-2 bg-brand-600 text-white text-center font-medium rounded-lg"
+            >
+              Cotizar ahora
+            </a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
     <slot />
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+      <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          <!-- Brand -->
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <div class="w-10 h-10 bg-brand-600 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-xl">S</span>
+              </div>
+              <span class="font-bold text-xl">Serviworld</span>
+            </div>
+            <p class="text-gray-400 mb-4">
+              Soluciones logísticas integrales con cobertura global. Conectamos tu negocio con el mundo.
+            </p>
+            <div class="flex gap-4">
+              <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-brand-600 transition-colors">
+                <span>📘</span>
+              </a>
+              <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-brand-600 transition-colors">
+                <span>💼</span>
+              </a>
+              <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-brand-600 transition-colors">
+                <span>📸</span>
+              </a>
+            </div>
+          </div>
+          
+          <!-- Quick Links -->
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Enlaces Rápidos</h3>
+            <ul class="space-y-2">
+              <li><a href="/" class="text-gray-400 hover:text-white transition-colors">Inicio</a></li>
+              <li><a href="/servicios" class="text-gray-400 hover:text-white transition-colors">Servicios</a></li>
+              <li><a href="/nosotros" class="text-gray-400 hover:text-white transition-colors">Nosotros</a></li>
+              <li><a href="/blog" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+              <li><a href="/contacto" class="text-gray-400 hover:text-white transition-colors">Contacto</a></li>
+            </ul>
+          </div>
+          
+          <!-- Services -->
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Servicios</h3>
+            <ul class="space-y-2">
+              <li><a href="/servicios" class="text-gray-400 hover:text-white transition-colors">Transporte Aéreo</a></li>
+              <li><a href="/servicios" class="text-gray-400 hover:text-white transition-colors">Transporte Marítimo</a></li>
+              <li><a href="/servicios" class="text-gray-400 hover:text-white transition-colors">Transporte Terrestre</a></li>
+              <li><a href="/servicios" class="text-gray-400 hover:text-white transition-colors">Almacenamiento</a></li>
+            </ul>
+          </div>
+          
+          <!-- Contact -->
+          <div>
+            <h3 class="font-semibold text-lg mb-4">Contacto</h3>
+            <ul class="space-y-3 text-gray-400">
+              <li class="flex items-start gap-3">
+                <span>📍</span>
+                <span>123 Logistics Blvd, Miami, FL 33131</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span>📞</span>
+                <span>+1 (234) 567-890</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span>✉️</span>
+                <span>info@serviworldlogistics.com</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Bottom -->
+        <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p class="text-gray-500 text-sm">
+            © {new Date().getFullYear()} Serviworld Logistics. Todos los derechos reservados.
+          </p>
+          <div class="flex gap-6 text-sm text-gray-500">
+            <a href="#" class="hover:text-white transition-colors">Privacidad</a>
+            <a href="#" class="hover:text-white transition-colors">Términos</a>
+            <a href="#" class="hover:text-white transition-colors">Cookies</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+      const btn = document.getElementById('mobile-menu-btn');
+      const menu = document.getElementById('mobile-menu');
+      
+      btn?.addEventListener('click', () => {
+        menu?.classList.toggle('hidden');
+      });
+    </script>
   </body>
 </html>

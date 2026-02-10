@@ -1,0 +1,108 @@
+---
+interface Props {
+  title: string;
+  content: string;
+  excerpt: string;
+  date: Date;
+  author: string;
+  authorRole?: string;
+  category?: string;
+}
+
+const { 
+  title, 
+  content, 
+  excerpt,
+  date, 
+  author, 
+  authorRole = "",
+  category = "General"
+} = Astro.props;
+
+const formattedDate = date.toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+---
+
+<article class="max-w-3xl mx-auto">
+  <!-- Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+      {category && (
+        <span class="bg-brand-100 text-brand-700 px-3 py-1 rounded-full font-medium">
+          {category}
+        </span>
+      )}
+      <span>{formattedDate}</span>
+    </div>
+    
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{title}</h1>
+    
+    <p class="text-xl text-gray-600">{excerpt}</p>
+  </header>
+  
+  <!-- Author -->
+  <div class="flex items-center gap-4 pb-8 mb-8 border-b border-gray-200">
+    <div class="w-14 h-14 bg-brand-100 rounded-full flex items-center justify-center text-xl font-bold text-brand-700">
+      {author.split(' ').map(n => n[0]).join('')}
+    </div>
+    <div>
+      <div class="font-semibold text-gray-900">{author}</div>
+      {authorRole && <div class="text-gray-500 text-sm">{authorRole}</div>}
+    </div>
+  </div>
+  
+  <!-- Content -->
+  <div class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-brand-600 hover:prose-a:text-brand-700 prose-ul:text-gray-600 prose-ol:text-gray-600">
+    <slot />
+  </div>
+  
+  <!-- Share -->
+  <div class="pt-8 mt-12 border-t border-gray-200">
+    <p class="text-gray-600 mb-4">Compartir artículo:</p>
+    <div class="flex gap-3">
+      <a 
+        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}`}
+        target="_blank"
+        rel="noopener"
+        class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-brand-100 transition-colors"
+      >
+        <span>𝕏</span>
+      </a>
+      <a 
+        href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(Astro.url.href)}`}
+        target="_blank"
+        rel="noopener"
+        class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-brand-100 transition-colors"
+      >
+        <span>in</span>
+      </a>
+      <button 
+        onclick="navigator.clipboard.writeText(window.location.href)"
+        class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-brand-100 transition-colors"
+        title="Copiar enlace"
+      >
+        <span>🔗</span>
+      </button>
+    </div>
+  </div>
+</article>
+
+<!-- Schema.org -->
+<script type="application/ld+json" slot="head" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": title,
+  "description": excerpt,
+  "datePublished": date.toISOString(),
+  "author": {
+    "@type": "Person",
+    "name": author
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Serviworld Logistics"
+  }
+})} />

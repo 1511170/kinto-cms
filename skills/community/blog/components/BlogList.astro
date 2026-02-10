@@ -1,0 +1,86 @@
+---
+import BlogCard from './BlogCard.astro';
+
+interface Post {
+  id: string;
+  slug: string;
+  data: {
+    title: string;
+    excerpt: string;
+    date: Date;
+    author: string;
+    category?: string;
+    image?: string;
+    published: boolean;
+  };
+}
+
+interface Props {
+  posts: Post[];
+  columns?: 2 | 3;
+  showFilters?: boolean;
+}
+
+const { 
+  posts, 
+  columns = 3,
+  showFilters = true
+} = Astro.props;
+
+// Filtrar solo publicados y ordenar por fecha
+const publishedPosts = posts
+  .filter(p => p.data.published !== false)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Extraer categorías únicas
+const categories = ['Todos', ...new Set(publishedPosts.map(p => p.data.category || 'General'))];
+
+const gridCols = columns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3';
+---
+
+<div class="blog-list">
+  {showFilters && categories.length > 1 && (
+    <div class="flex flex-wrap gap-2 mb-8">
+      {categories.map((cat) => (
+        <button 
+          class="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-brand-50 hover:border-brand-300 transition-colors text-sm"
+          data-category={cat}
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+  )}
+  
+  {publishedPosts.length === 0 ? (
+    <div class="text-center py-12">
+      <p class="text-gray-500">No hay artículos publicados aún.</p>
+    </div>
+  ) : (
+    <div class={`grid gap-8 ${gridCols}`}>
+      {publishedPosts.map((post) => (
+        <BlogCard 
+          title={post.data.title}
+          excerpt={post.data.excerpt}
+          date={post.data.date.toISOString()}
+          author={post.data.author}
+          category={post.data.category}
+          slug={post.slug}
+          image={post.data.image}
+        />
+      ))}
+    </div>
+  )}
+</div>
+
+<script>
+  // Filtro simple por categoría (mejorable)
+  const buttons = document.querySelectorAll('[data-category]');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Toggle active state visual
+      buttons.forEach(b => b.classList.remove('bg-brand-100', 'border-brand-500'));
+      btn.classList.add('bg-brand-100', 'border-brand-500');
+    });
+  });
+</script>

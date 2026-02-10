@@ -1,5 +1,10 @@
 {
   "site": "serviworldlogistics",
-  "skills": [],
+  "skills": [
+    "cms-sveltia",
+    "testimonials",
+    "contact-form",
+    "blog"
+  ],
   "_comment": "Skills se añaden con: kinto skill add [nombre]"
 }

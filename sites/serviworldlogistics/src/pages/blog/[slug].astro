@@ -1,0 +1,220 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import siteConfig from '../../../config/site.config.ts';
+
+// En producción esto vendría del CMS
+export function getStaticPaths() {
+  return [
+    {
+      params: { slug: "tendencias-logistica-2024" },
+      props: {
+        title: "Tendencias en Logística 2024: Lo que viene",
+        excerpt: "Descubre las tecnologías y estrategias que están transformando la industria logística este año.",
+        content: `
+          <p>La industria logística está experimentando una transformación sin precedentes impulsada por la tecnología y las nuevas demandas del consumidor. En este artículo, exploramos las tendencias clave que definirán el sector en 2024.</p>
+          
+          <h2>1. Inteligencia Artificial y Machine Learning</h2>
+          <p>La IA ya no es el futuro, es el presente. Las empresas logísticas están implementando algoritmos de machine learning para:</p>
+          <ul>
+            <li>Optimizar rutas de transporte en tiempo real</li>
+            <li>Predecir la demanda con mayor precisión</li>
+            <li>Automatizar la gestión de inventarios</li>
+            <li>Mejorar la experiencia del cliente con chatbots inteligentes</li>
+          </ul>
+          
+          <h2>2. Logística Sostenible</h2>
+          <p>La sostenibilidad dejó de ser una opción para convertirse en una necesidad. Las empresas están adoptando:</p>
+          <ul>
+            <li>Flotas de vehículos eléctricos e híbridos</li>
+            <li>Embalajes biodegradables y reutilizables</li>
+            <li>Optimización de rutas para reducir emisiones</li>
+            <li>Centros de distribución con energía renovable</li>
+          </ul>
+          
+          <h2>3. Blockchain en la Cadena de Suministro</h2>
+          <p>La tecnología blockchain está revolucionando la trazabilidad y transparencia en la cadena de suministro global, permitiendo:</p>
+          <ul>
+            <li>Seguimiento inmutable de productos</li>
+            <li>Verificación automática de documentos</li>
+            <li>Reducción de fraude y contrabando</li>
+            <li>Mayor confianza entre todos los actores</li>
+          </ul>
+          
+          <h2>Conclusión</h2>
+          <p>2024 será un año de consolidación tecnológica en la industria logística. Las empresas que adopten estas tendencias temprano tendrán una ventaja competitiva significativa.</p>
+        `,
+        date: "2024-01-15",
+        author: "Ana Torres",
+        authorRole: "Directora de Operaciones",
+        category: "Tendencias",
+        readTime: "5 min"
+      }
+    },
+    {
+      params: { slug: "optimizar-cadena-suministro" },
+      props: {
+        title: "Cómo Optimizar tu Cadena de Suministro",
+        excerpt: "Consejos prácticos para reducir costos y mejorar tiempos de entrega en tu operación logística.",
+        content: `
+          <p>La optimización de la cadena de suministro es crucial para cualquier empresa que busque reducir costos y mejorar la satisfacción del cliente. Aquí te compartimos estrategias probadas.</p>
+          
+          <h2>Análisis de Datos</h2>
+          <p>El primer paso es entender tu operación actual mediante el análisis de datos. Identifica cuellos de botella, tiempos muertos y oportunidades de mejora.</p>
+          
+          <h2>Diversificación de Proveedores</h2>
+          <p>No pongas todos los huevos en la misma canasta. Tener múltiples proveedores reduce riesgos y mejora tu poder de negociación.</p>
+          
+          <h2>Tecnología de Gestión</h2>
+          <p>Implementa un sistema TMS (Transportation Management System) para automatizar y optimizar tus operaciones de transporte.</p>
+        `,
+        date: "2024-01-10",
+        author: "Carlos Ruiz",
+        authorRole: "Director Comercial",
+        category: "Consejos",
+        readTime: "8 min"
+      }
+    },
+    {
+      params: { slug: "comercio-internacional-basico" },
+      props: {
+        title: "Guía Básica de Comercio Internacional",
+        excerpt: "Todo lo que necesitas saber para empezar a importar y exportar sin complicaciones.",
+        content: `
+          <p>El comercio internacional puede parecer abrumador al principio, pero con los conocimientos básicos correctos, cualquier empresa puede expandirse globalmente.</p>
+          
+          <h2>Incoterms</h2>
+          <p>Los Incoterms son términos internacionales que definen las responsabilidades del comprador y vendedor en una transacción internacional.</p>
+          
+          <h2>Documentación</h2>
+          <p>La documentación correcta es esencial. Factura comercial, packing list, certificado de origen y documentos de transporte son los básicos.</p>
+          
+          <h2>Aduanas</h2>
+          <p>Cada país tiene sus propias regulaciones aduaneras. Trabaja con un agente de aduanas experimentado para evitar demoras.</p>
+        `,
+        date: "2024-01-05",
+        author: "Roberto Mendez",
+        authorRole: "CEO & Fundador",
+        category: "Guías",
+        readTime: "10 min"
+      }
+    }
+  ];
+}
+
+const { title, excerpt, content, date, author, authorRole, category, readTime } = Astro.props;
+---
+
+<Layout 
+  title={`${title} - Blog - ${siteConfig.site.name}`} 
+  description={excerpt}
+>
+  <main>
+    <!-- Article Header -->
+    <section class="bg-gradient-to-br from-brand-900 to-brand-700 text-white py-20">
+      <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+          <div class="flex items-center justify-center gap-3 text-brand-200 text-sm mb-4">
+            <span class="bg-brand-800 px-3 py-1 rounded-full">{category}</span>
+            <span>•</span>
+            <span>{date}</span>
+            <span>•</span>
+            <span>{readTime} de lectura</span>
+          </div>
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">{title}</h1>
+          <p class="text-xl text-brand-100">{excerpt}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Article Content -->
+    <article class="py-16">
+      <div class="container mx-auto px-4 max-w-3xl">
+        <!-- Author -->
+        <div class="flex items-center gap-4 pb-8 mb-8 border-b border-gray-200">
+          <div class="w-14 h-14 bg-brand-100 rounded-full flex items-center justify-center text-xl font-bold text-brand-700">
+            {author.split(' ').map(n => n[0]).join('')}
+          </div>
+          <div>
+            <div class="font-semibold text-gray-900">{author}</div>
+            <div class="text-gray-500 text-sm">{authorRole}</div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-brand-600 hover:prose-a:text-brand-700 prose-ul:text-gray-600">
+          <Fragment set:html={content} />
+        </div>
+
+        <!-- Share -->
+        <div class="pt-8 mt-12 border-t border-gray-200">
+          <p class="text-gray-600 mb-4">Compartir artículo:</p>
+          <div class="flex gap-3">
+            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-brand-100 transition-colors">
+              <span class="text-lg">📱</span>
+            </button>
+            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-brand-100 transition-colors">
+              <span class="text-lg">💼</span>
+            </button>
+            <button class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-brand-100 transition-colors">
+              <span class="text-lg">✉️</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Related Posts -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4 max-w-3xl">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">Artículos relacionados</h2>
+        <div class="space-y-4">
+          <a href="/blog/optimizar-cadena-suministro" class="block bg-white p-6 rounded-xl border border-gray-200 hover:border-brand-300 transition-colors">
+            <h3 class="font-semibold text-gray-900 mb-2">Cómo Optimizar tu Cadena de Suministro</h3>
+            <p class="text-gray-600 text-sm">Consejos prácticos para reducir costos y mejorar tiempos de entrega...</p>
+          </a>
+          <a href="/blog/comercio-internacional-basico" class="block bg-white p-6 rounded-xl border border-gray-200 hover:border-brand-300 transition-colors">
+            <h3 class="font-semibold text-gray-900 mb-2">Guía Básica de Comercio Internacional</h3>
+            <p class="text-gray-600 text-sm">Todo lo que necesitas saber para empezar a importar y exportar...</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 bg-brand-600">
+      <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">
+          ¿Necesitas ayuda con tu logística?
+        </h2>
+        <p class="text-xl text-brand-100 mb-8 max-w-2xl mx-auto">
+          Nuestros expertos están listos para ayudarte a optimizar tus operaciones.
+        </p>
+        <a 
+          href="/contacto" 
+          class="inline-flex items-center px-8 py-4 bg-white text-brand-700 font-semibold rounded-lg hover:bg-brand-50 transition-colors shadow-lg"
+        >
+          Contactar ahora
+        </a>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<!-- Schema.org BlogPosting -->
+<script type="application/ld+json" slot="head">
+{{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{title}",
+  "description": "{excerpt}",
+  "datePublished": "{date}",
+  "author": {{
+    "@type": "Person",
+    "name": "{author}"
+  }},
+  "publisher": {{
+    "@type": "Organization",
+    "name": "Serviworld Logistics"
+  }}
+}}
+</script>

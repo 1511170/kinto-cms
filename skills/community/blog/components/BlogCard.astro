@@ -1,0 +1,67 @@
+---
+interface Props {
+  title: string;
+  excerpt: string;
+  date: string;
+  author: string;
+  category?: string;
+  slug: string;
+  image?: string;
+  readTime?: string;
+}
+
+const { 
+  title, 
+  excerpt, 
+  date, 
+  author, 
+  category = "General", 
+  slug,
+  image,
+  readTime = "5 min"
+} = Astro.props;
+
+const formattedDate = new Date(date).toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+---
+
+<article class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+  <a href={`/blog/${slug}`} class="block">
+    <div class="aspect-video bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center">
+      {image ? (
+        <img src={image} alt={title} class="w-full h-full object-cover" />
+      ) : (
+        <span class="text-6xl">📝</span>
+      )}
+    </div>
+  </a>
+  
+  <div class="p-6">
+    <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
+      {category && (
+        <span class="text-brand-600 font-medium bg-brand-50 px-2 py-1 rounded">{category}</span>
+      )}
+      <span>{formattedDate}</span>
+      <span>•</span>
+      <span>{readTime} lectura</span>
+    </div>
+    
+    <h3 class="text-xl font-bold text-gray-900 mb-2">
+      <a href={`/blog/${slug}`} class="hover:text-brand-600 transition-colors">
+        {title}
+      </a>
+    </h3>
+    
+    <p class="text-gray-600 mb-4 line-clamp-3">{excerpt}</p>
+    
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-sm font-bold text-brand-700">
+        {author.split(' ').map(n => n[0]).join('')}
+      </div>
+      <span class="text-sm text-gray-600">{author}</span>
+    </div>
+  </div>
+</article>

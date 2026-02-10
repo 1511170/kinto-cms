@@ -1,0 +1,130 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import siteConfig from '../../../config/site.config.ts';
+
+// Posts de ejemplo (en producción vendrían del CMS)
+const posts = [
+  {
+    slug: "tendencias-logistica-2024",
+    title: "Tendencias en Logística 2024: Lo que viene",
+    excerpt: "Descubre las tecnologías y estrategias que están transformando la industria logística este año.",
+    date: "2024-01-15",
+    author: "Ana Torres",
+    category: "Tendencias",
+    readTime: "5 min"
+  },
+  {
+    slug: "optimizar-cadena-suministro",
+    title: "Cómo Optimizar tu Cadena de Suministro",
+    excerpt: "Consejos prácticos para reducir costos y mejorar tiempos de entrega en tu operación logística.",
+    date: "2024-01-10",
+    author: "Carlos Ruiz",
+    category: "Consejos",
+    readTime: "8 min"
+  },
+  {
+    slug: "comercio-internacional-basico",
+    title: "Guía Básica de Comercio Internacional",
+    excerpt: "Todo lo que necesitas saber para empezar a importar y exportar sin complicaciones.",
+    date: "2024-01-05",
+    author: "Roberto Mendez",
+    category: "Guías",
+    readTime: "10 min"
+  }
+];
+
+const categories = ["Todos", "Tendencias", "Consejos", "Guías", "Casos de Éxito"];
+---
+
+<Layout 
+  title={`Blog - ${siteConfig.site.name}`} 
+  description="Artículos, noticias y consejos sobre logística internacional, comercio exterior y optimización de cadenas de suministro."
+>
+  <main>
+    <!-- Hero -->
+    <section class="bg-gradient-to-br from-brand-900 to-brand-700 text-white py-20">
+      <div class="container mx-auto px-4">
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-5xl font-bold mb-6">Blog</h1>
+          <p class="text-xl text-brand-100">
+            Noticias, consejos y tendencias del mundo de la logística internacional.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="py-8 border-b border-gray-200">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-wrap gap-3">
+          {categories.map((cat) => (
+            <button class="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-brand-50 hover:border-brand-300 transition-colors">
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Posts Grid -->
+    <section class="py-16">
+      <div class="container mx-auto px-4">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.map((post) => (
+            <article class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+              <a href={`/blog/${post.slug}`}>
+                <div class="aspect-video bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center">
+                  <span class="text-6xl">📦</span>
+                </div>
+              </a>
+              <div class="p-6">
+                <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
+                  <span class="text-brand-600 font-medium">{post.category}</span>
+                  <span>•</span>
+                  <span>{post.date}</span>
+                  <span>•</span>
+                  <span>{post.readTime} lectura</span>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-3">
+                  <a href={`/blog/${post.slug}`} class="hover:text-brand-600 transition-colors">
+                    {post.title}
+                  </a>
+                </h2>
+                <p class="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-sm font-bold text-brand-700">
+                    {post.author.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <span class="text-sm text-gray-600">{post.author}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-20 bg-gray-50">
+      <div class="container mx-auto px-4 max-w-2xl text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">Suscríbete a nuestro newsletter</h2>
+        <p class="text-gray-600 mb-8">
+          Recibe las últimas noticias y consejos sobre logística internacional directamente en tu inbox.
+        </p>
+        <form class="flex flex-col sm:flex-row gap-4">
+          <input 
+            type="email" 
+            placeholder="Tu email" 
+            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+          />
+          <button 
+            type="submit"
+            class="px-8 py-3 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-colors"
+          >
+            Suscribirse
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+</Layout>

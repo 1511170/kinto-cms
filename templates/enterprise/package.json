@@ -7,7 +7,9 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "validate": "node scripts/validate.js",
+    "skills:list": "node scripts/skill-list.js"
   },
   "dependencies": {
     "astro": "^5.0.0",
@@ -16,6 +18,6 @@
   },
   "devDependencies": {
     "tailwindcss": "^4.0.0",
-    "@tailwindcss/vite": "^4.0.0"
+    "@tailwindcss/postcss": "^4.0.0"
   }
 }
