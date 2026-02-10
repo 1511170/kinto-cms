@@ -1,0 +1,59 @@
+# KINTO CMS - Rules for AI
+
+## System Overview
+KINTO CMS is an Astro-based static site generator with a **skills/plugins architecture**.
+- **Core**: Minimal Astro + Tailwind (no features by default)
+- **Skills**: Install-on-demand plugins in `skills/{official,community}/`
+- **Sites**: Each site = Core + Active Skills
+
+## Critical Rules
+
+1. **NEVER modify core/** - Core is read-only. Extend via skills only.
+
+2. **Check skills first** - Before writing new code, check if a skill exists:
+   ```bash
+   ls skills/official/
+   ls skills/community/
+   ```
+
+3. **Create skills for reuse** - If functionality doesn't exist as a skill, create one:
+   ```bash
+   node scripts/skill-create.js skill-name
+   ```
+   Skills go in `skills/community/` and become available for all sites.
+
+4. **Skills are opt-in** - Sites start with zero skills. Install only what's needed:
+   ```bash
+   node scripts/skill-add.js cms-sveltia
+   ```
+
+5. **Hidden CMS** - Public site and CMS are separate:
+   - Public: `example.com`
+   - CMS (hidden): `subdomain.kinto.info/admin`
+
+## File Locations
+- Site config: `sites/{site}/config/site.config.ts`
+- Active skills: `sites/{site}/skills-active.json`
+- Available skills: `kinto-cms/skills/`
+- Entry guide: `KINTO.md`
+
+## Tech Stack
+- Framework: Astro 5 (SSG)
+- Styling: Tailwind CSS 4
+- CMS: Sveltia (Git-based)
+- Hosting: Cloudflare Pages
+
+## Skill Pattern
+```typescript
+// skills/community/my-skill/index.ts
+export { default as MyComponent } from './components/MyComponent.astro';
+export { default as config } from './config/index.ts';
+```
+
+## Commands
+- `node scripts/skill-list.js` - List available skills
+- `node scripts/skill-add.js <name>` - Install skill
+- `node scripts/skill-create.js <name>` - Create new skill
+
+## First Action on New Site
+Read `KINTO.md` then check `sites/{site}/skills-active.json` to see what's installed.
