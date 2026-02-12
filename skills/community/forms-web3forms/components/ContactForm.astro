@@ -1,0 +1,266 @@
+---
+import siteConfig from '../../../../sites/serviworldlogistics/config/site.config.ts';
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  recipientEmail?: string;
+  submitLabel?: string;
+  showPhone?: boolean;
+  showCompany?: boolean;
+  serviceSelect?: boolean;
+  subject?: string;
+}
+
+const { 
+  title = "Contáctanos", 
+  subtitle = "",
+  recipientEmail = siteConfig.site?.contactEmail || "",
+  submitLabel = "Enviar mensaje",
+  showPhone = true,
+  showCompany = true,
+  serviceSelect = false,
+  subject = `Nuevo mensaje de ${siteConfig.site?.name || 'sitio web'}`
+} = Astro.props;
+
+// Web3Forms config
+const web3formsKey = (siteConfig as any).forms?.web3formsKey || '';
+const isConfigured = web3formsKey && web3formsKey.length > 10;
+
+const services = [
+  { value: "", label: "Selecciona un servicio" },
+  { value: "aereo", label: "Transporte Aéreo" },
+  { value: "maritimo", label: "Transporte Marítimo" },
+  { value: "terrestre", label: "Transporte Terrestre" },
+  { value: "aduanero", label: "Agenciamiento Aduanero" },
+  { value: "almacenamiento", label: "Almacenamiento" },
+  { value: "multiple", label: "Múltiples servicios" },
+];
+---
+
+<div class="bg-white rounded-xl p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
+  {title && <h3 class="text-2xl font-bold text-slate-900 mb-2">{title}</h3>}
+  {subtitle && <p class="text-slate-500 mb-6">{subtitle}</p>}
+  
+  {!isConfigured && (
+    <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+      <p class="text-amber-800 text-sm">
+        <strong>Modo Demo:</strong> El formulario está en modo demostración. 
+        Para recibir emails reales, configura <code>forms.web3formsKey</code> en 
+        <code>config/site.config.ts</code>. Obtén tu key gratis en 
+        <a href="https://web3forms.com/" target="_blank" class="underline">web3forms.com</a>
+      </p>
+    </div>
+  )}
+  
+  <form 
+    action={isConfigured ? "https://api.web3forms.com/submit" : "#"} 
+    method="POST" 
+    class="space-y-6" 
+    id="contact-form"
+  >
+    {isConfigured && (
+      <>
+        <input type="hidden" name="access_key" value={web3formsKey} />
+        <input type="hidden" name="subject" value={subject} />
+        {recipientEmail && <input type="hidden" name="from_name" value={recipientEmail} />}
+        <input type="checkbox" name="botcheck" class="hidden" style="display: none;" />
+      </>
+    )}
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-2">
+        <label for="name" class="block text-sm font-semibold text-slate-700">
+          Nombre Completo <span class="text-red-500">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          required
+          class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
+          placeholder="Tu nombre"
+        />
+      </div>
+      
+      {showCompany && (
+        <div class="space-y-2">
+          <label for="company" class="block text-sm font-semibold text-slate-700">
+            Empresa
+          </label>
+          <input 
+            type="text" 
+            id="company" 
+            name="company"
+            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
+            placeholder="Nombre de tu empresa"
+          />
+        </div>
+      )}
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-2">
+        <label for="email" class="block text-sm font-semibold text-slate-700">
+          Email <span class="text-red-500">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          required
+          class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
+          placeholder="tu@email.com"
+        />
+      </div>
+      
+      {showPhone && (
+        <div class="space-y-2">
+          <label for="phone" class="block text-sm font-semibold text-slate-700">
+            Teléfono
+          </label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" 
+            placeholder="+57 (300) 123-4567"
+          />
+        </div>
+      )}
+    </div>
+    
+    {serviceSelect && (
+      <div class="space-y-2">
+        <label for="service" class="block text-sm font-semibold text-slate-700">
+          Servicio de interés
+        </label>
+        <select 
+          id="service" 
+          name="service"
+          class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-white"
+        >
+          {services.map((s) => (
+            <option value={s.value}>{s.label}</option>
+          ))}
+        </select>
+      </div>
+    )}
+    
+    <div class="space-y-2">
+      <label for="message" class="block text-sm font-semibold text-slate-700">
+        Mensaje <span class="text-red-500">*</span>
+      </label>
+      <textarea 
+        id="message" 
+        name="message" 
+        rows="5" 
+        required
+        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-y" 
+        placeholder="Cuéntanos sobre tu necesidad logística..."
+      ></textarea>
+    </div>
+    
+    <div class="flex items-start gap-3">
+      <input 
+        type="checkbox" 
+        id="privacy" 
+        name="privacy" 
+        required
+        class="mt-1 w-5 h-5 text-primary border-slate-300 rounded focus:ring-primary" 
+      />
+      <label for="privacy" class="text-sm text-slate-600">
+        Acepto la <a href="/privacidad" class="text-primary hover:underline font-medium">política de privacidad</a> y el tratamiento de mis datos para responder a esta consulta. <span class="text-red-500">*</span>
+      </label>
+    </div>
+    
+    <button 
+      type="submit"
+      class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2"
+    >
+      {submitLabel}
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+      </svg>
+    </button>
+  </form>
+  
+  <!-- Mensaje de éxito -->
+  <div id="form-success" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <div>
+        <h4 class="font-semibold text-green-900">¡Mensaje enviado!</h4>
+        <p class="text-green-700 text-sm">Te responderemos en menos de 24 horas.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mensaje de error -->
+  <div id="form-error" class="hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <div>
+        <h4 class="font-semibold text-red-900">Error al enviar</h4>
+        <p class="text-red-700 text-sm">Por favor intenta nuevamente o contáctanos por teléfono.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const successMsg = document.getElementById('form-success');
+  const errorMsg = document.getElementById('form-error');
+  
+  form?.addEventListener('submit', async (e) => {
+    const action = form.getAttribute('action');
+    
+    // Si no está configurado (modo demo), mostrar éxito simulado
+    if (action === '#') {
+      e.preventDefault();
+      successMsg?.classList.remove('hidden');
+      errorMsg?.classList.add('hidden');
+      form.reset();
+      
+      setTimeout(() => {
+        successMsg?.classList.add('hidden');
+      }, 5000);
+      return;
+    }
+    
+    // Si está configurado con Web3Forms, manejar con fetch
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    
+    try {
+      const response = await fetch(action, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        successMsg?.classList.remove('hidden');
+        errorMsg?.classList.add('hidden');
+        form.reset();
+        
+        setTimeout(() => {
+          successMsg?.classList.add('hidden');
+        }, 5000);
+      } else {
+        throw new Error(data.message || 'Error desconocido');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      errorMsg?.classList.remove('hidden');
+      successMsg?.classList.add('hidden');
+    }
+  });
+</script>

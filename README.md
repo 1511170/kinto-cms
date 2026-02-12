@@ -38,6 +38,25 @@ kinto-cms/
 | Styling | Tailwind CSS 4 |
 | CMS | Sveltia CMS (Git-based) |
 | Hosting | Cloudflare Pages |
+| Testing | Puppeteer + Browser Automation |
+| Animaciones | GSAP + ScrollTrigger |
+
+## 📦 Skills Disponibles (9 total)
+
+### Oficiales
+- `cms-sveltia` - Gestión de contenido
+
+### Community
+- `blog` - Sistema de blog con schema.org
+- `contact-form` - Formularios profesionales
+- `forms-web3forms` - Formularios sin backend
+- `testimonials` - Testimonios con AI citations
+- `cloudflare-tunnel` - Túneles permanentes
+- `web-scraper` - Scraping de contenido
+- `browser-automation` - Testing visual/E2E
+- `webflow-effects` - Animaciones premium GSAP
+
+[Ver catálogo completo →](SKILLS_CATALOG.md)
 
 ## 🧩 Sistema de Skills
 
@@ -220,10 +239,20 @@ kinto deploy
 
 ## 📚 Documentación
 
+- [Catálogo de Skills](SKILLS_CATALOG.md) - Todas las skills disponibles
 - [Guía de Skills](docs/SKILLS.md) - Crear y usar skills
-- [Catálogo de Skills](docs/SKILLS_CATALOG.md) - Skills disponibles
 - [AI Generation](docs/AI_GENERATION.md) - Workflows con IA
 - [CMS Setup](docs/CMS_SETUP.md)
+
+## 🆕 Novedades v2.0
+
+- ✅ **9 skills disponibles** (vs 5 en v1.0)
+- ✅ **Testing automatizado** con browser-automation
+- ✅ **Web scraping** para migrar contenido existente
+- ✅ **Animaciones premium** tipo Webflow con GSAP
+- ✅ **Formularios sin backend** vía Web3Forms
+- ✅ **Túneles Cloudflare** con setup automatizado
+- ✅ **Exports automáticos** en skill-create.js
 
 ---
 **KINTO CMS**: Core mínimo + Skills bajo demanda = Sitios ultra-rápidos, escalables.
