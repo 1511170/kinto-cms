@@ -1,0 +1,65 @@
+---
+// Ejemplo de uso completo de la skill seo-ai-citations
+import { SEOHead, SchemaOrg } from '@skills/community/seo-ai-citations';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- SEOHead maneja todos los meta tags -->
+  <SEOHead 
+    title="Mi Sitio - Título Optimizado para SEO y AI"
+    description="Descripción completa que será usada por buscadores y LLMs para entender el contenido."
+    type="website"
+    keywords={["keyword1", "keyword2", "keyword3"]}
+    siteName="Mi Sitio"
+    siteUrl="https://misitio.com"
+  />
+  
+  <!-- SchemaOrg agrega structured data para rich snippets -->
+  <SchemaOrg 
+    type={["Organization", "WebSite"]}
+    data={{
+      name: "Mi Empresa",
+      description: "Descripción de la empresa",
+      url: "https://misitio.com"
+    }}
+  />
+</head>
+<body>
+  <main id="main-content">
+    <h1>Ejemplo de SEO + AI Citations</h1>
+    <p>Esta página incluye meta tags optimizados para AI citations y Schema.org</p>
+  </main>
+</body>
+</html>
+
+---
+
+## Ejemplo de Página de Servicio con FAQ
+
+```astro
+---
+import { SEOHead, SchemaOrg } from '@skills/community/seo-ai-citations';
+---
+
+<head>
+  <SEOHead 
+    title="Servicio de Ejemplo - Mi Sitio"
+    description="Descripción del servicio ofrecido"
+    type="article"
+  />
+  <SchemaOrg 
+    type={["Organization", "Service", "FAQPage"]}
+    data={{
+      name: "Mi Servicio",
+      description: "Descripción detallada",
+      serviceType: "Professional Service"
+    }}
+    faqs={[
+      { q: "¿Pregunta 1?", a: "Respuesta 1" },
+      { q: "¿Pregunta 2?", a: "Respuesta 2" }
+    ]}
+  />
+</head>
+```

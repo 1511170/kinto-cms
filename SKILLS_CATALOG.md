@@ -1,8 +1,8 @@
 # 📚 Catálogo de Skills - KINTO CMS
 
-> **Versión:** 2.0  
-> **Última actualización:** 2026-02-12  
-> **Total de skills disponibles:** 9
+> **Versión:** 2.1  
+> **Última actualización:** 2026-02-26  
+> **Total de skills disponibles:** 14
 
 ---
 
@@ -10,6 +10,27 @@
 
 ### `cms-sveltia`
 Sistema de gestión de contenido basado en Git con Sveltia CMS.
+
+---
+
+### `kinto-cms`
+Sistema de gestión de contenidos ligero basado en archivos JSON para sitios Astro.
+
+**Instalación:**
+```bash
+node scripts/skill-add.js kinto-cms
+```
+
+**Scripts:**
+- `create-collection.sh` - Crear nueva colección
+- `add-content.sh` - Agregar contenido a colección
+
+**Características:**
+- ✅ Solo archivos JSON (sin DB externa)
+- ✅ Type-safe con TypeScript
+- ✅ Git-friendly (version control)
+- ✅ Funciona en Cloudflare Pages
+- ✅ Rápido (sin queries de DB)
 
 **Instalación:**
 ```bash
@@ -154,8 +175,24 @@ node scripts/skill-add.js testimonials
 
 ---
 
+### `cloudflare-pages`
+Deploy automatizado a Cloudflare Pages con configuración optimizada.
+
+**Instalación:**
+```bash
+node scripts/skill-add.js cloudflare-pages
+```
+
+**Características:**
+- ✅ Build commands pre-configurados
+- ✅ Variables de entorno para Cloudflare
+- ✅ Wrangler CLI integration
+- ✅ Deploy previews
+
+---
+
 ### `cloudflare-tunnel`
-Setup automatizado de túneles permanentes de Cloudflare.
+Skill para crear túneles seguros de desarrollo con Cloudflare Tunnel.
 
 **Instalación:**
 ```bash
@@ -239,6 +276,84 @@ npm run test:e2e
 
 ---
 
+### `image-optimizer`
+Optimización de imágenes con conversión a WebP/AVIF y generación de srcsets.
+
+**Instalación:**
+```bash
+node scripts/skill-add.js image-optimizer
+```
+
+**Scripts:**
+- `optimize.js` - Optimizar imágenes en batch
+- `convert.js` - Convertir formatos
+
+**Características:**
+- ✅ Conversión a WebP/AVIF
+- ✅ Generación automática de srcsets
+- ✅ Compresión sin pérdida visible
+- ✅ Backup de originales
+
+---
+
+### `seo-ai-citations`
+SEO + AEO (AI Citation Optimization) con Schema.org completo para máxima visibilidad en buscadores y LLMs.
+
+**Instalación:**
+```bash
+node scripts/skill-add.js seo-ai-citations
+```
+
+**Componentes:**
+- `SEOHead.astro` - Meta tags completos (Open Graph, Twitter Cards, Canonical, AI Citations)
+- `SchemaOrg.astro` - JSON-LD structured data para rich snippets
+
+**Schemas soportados:**
+- ✅ Organization, WebSite, LocalBusiness
+- ✅ Service, FinancialService (fintech)
+- ✅ FAQPage (para AI citations)
+- ✅ HowTo, BlogPosting
+- ✅ BreadcrumbList, SoftwareApplication
+
+**Uso:**
+```astro
+---
+import { SEOHead, SchemaOrg } from '@skills/community/seo-ai-citations';
+---
+<head>
+  <SEOHead 
+    title="Mi Sitio"
+    description="Descripción optimizada"
+    keywords={["keyword1", "keyword2"]}
+  />
+  <SchemaOrg type={["Organization", "WebSite"]} />
+</head>
+```
+
+---
+
+### `webflow-migration`
+Skill para migrar sitios Webflow a Astro manteniendo el diseño original.
+
+**Instalación:**
+```bash
+node scripts/skill-add.js webflow-migration
+```
+
+**Flujo de Migración:**
+1. Exportar código desde Webflow
+2. Copiar CSS/JS/Imágenes a public/
+3. Crear Layout.astro con CSS original
+4. Componentizar secciones gradualmente
+
+**Características:**
+- ✅ Mantiene CSS original de Webflow
+- ✅ Migración progresiva
+- ✅ Checklist de verificación
+- ✅ Solución de problemas comunes
+
+---
+
 ### `webflow-effects`
 Efectos premium tipo Webflow - GSAP, animaciones, glassmorphism.
 
@@ -292,6 +407,16 @@ node scripts/skill-add.js cms-sveltia blog testimonials contact-form webflow-eff
 ### Sitio con Testing
 ```bash
 node scripts/skill-add.js browser-automation web-scraper
+```
+
+### Sitio con CMS JSON (Sin DB externa)
+```bash
+node scripts/skill-add.js kinto-cms contact-form
+```
+
+### Migración desde Webflow
+```bash
+node scripts/skill-add.js webflow-migration image-optimizer
 ```
 
 ---

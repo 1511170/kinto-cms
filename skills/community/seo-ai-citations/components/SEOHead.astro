@@ -1,0 +1,109 @@
+---
+/**
+ * SEOHead.astro - Meta tags completos para SEO + AEO (AI Citation Optimization)
+ *
+ * Incluye: Open Graph, Twitter Cards, Canonical, Geo, Author, Robots, AI Citations
+ * Uso: <SEOHead slot="head" title="..." description="..." />
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  siteName?: string;
+  siteUrl?: string;
+  siteLanguage?: string;
+  siteLogo?: string;
+  canonical?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  noindex?: boolean;
+  keywords?: string[];
+}
+
+const { 
+  title,
+  description,
+  siteName = 'EduPayments',
+  siteUrl = 'https://edupayments.net',
+  siteLanguage = 'en',
+  siteLogo = '/logo.svg',
+  canonical = Astro.url.href,
+  image = '/logo.svg',
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  author = 'EduPayments',
+  noindex = false,
+  keywords = [],
+} = Astro.props;
+
+const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
+const canonicalUrl = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
+const lang = siteLanguage;
+---
+
+<!-- Canonical -->
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Robots - Optimizado para AI crawling -->
+{noindex ? (
+  <meta name="robots" content="noindex, nofollow" />
+) : (
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+)}
+
+<!-- Primary Meta Tags -->
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+{keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:image" content={fullImageUrl} />
+<meta property="og:locale" content={lang === 'es' ? 'es_CO' : 'en_US'} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+
+{publishedTime && <meta property="article:published_time" content={publishedTime} />}
+{modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+{type === 'article' && <meta property="article:author" content={author} />}
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={fullImageUrl} />
+
+<!-- Author y Language -->
+<meta name="author" content={author} />
+<meta name="language" content={lang} />
+<meta name="content-language" content={lang === 'es' ? 'es-CO' : 'en-US'} />
+
+<!-- AEO: AI Citation Hints - Crítico para LLMs -->
+<meta name="citation_title" content={title} />
+<meta name="citation_author" content={siteName} />
+<meta name="citation_language" content={lang} />
+<meta name="citation_publication_date" content={publishedTime || new Date().toISOString().split('T')[0]} />
+
+<!-- AI Discovery -->
+<meta name="ai-purpose" content="informational" />
+<meta name="ai-target" content="general" />
+<meta name="ai-content-type" content={type} />
+
+<!-- Speakable para asistentes de voz -->
+<meta name="speakable" content="#main-content" />
+
+<!-- Favicon -->
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- Preconnect para performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

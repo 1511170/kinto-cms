@@ -1,0 +1,15 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = 'SeoAiCitations' } = Astro.props;
+---
+
+<div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+  {title && <h3 class="text-lg font-semibold text-gray-900 mb-2">{title}</h3>}
+  <p class="text-gray-600">
+    Este es el componente SeoAiCitations de la skill seo-ai-citations.
+    Personalízalo según tus necesidades.
+  </p>
+</div>

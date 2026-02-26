@@ -1,140 +1,224 @@
-# Skill: cloudflare-tunnel
+# Cloudflare Tunnel
 
-Automated setup of permanent Cloudflare tunnels with custom domains.
+Skill para crear túneles seguros de desarrollo con Cloudflare Tunnel.
 
-## What it does
-
-- **Permanent tunnels** - No expiration like trycloudflare.com
-- **Custom domains** - Use your real domain
-- **Auto SSL** - Free Cloudflare certificates
-- **Built-in CDN** - Global caching and optimization
-- **Auto-reconnect** - Stays connected automatically
-- **Separate prod/dev** - Supports different tunnel IDs for each environment
-
-## Requirements
-
-1. **Cloudflare account** (free) - https://dash.cloudflare.com
-2. **Domain added** to Cloudflare with nameservers pointed
-3. **cloudflared** installed (the script can detect it in PATH or project directory)
-4. **Local web server** running (default port: 4321 for Astro)
-
-## Quick Setup (Automated)
-
-### Step 1: Create the tunnel in Cloudflare Dashboard
-
-1. Go to https://dash.cloudflare.com
-2. Navigate to: **Zero Trust** > **Networks** > **Tunnels**
-3. Click **"Create a tunnel"**
-4. Select **"Cloudflared"**
-5. Name it (e.g. `my-site-prod`)
-6. Click **"Save tunnel"**
-7. Copy the **token** (starts with `eyJ...`)
-
-### Step 2: Run the setup script
+## Uso Rápido
 
 ```bash
-# Automated (recommended)
-node skills/community/cloudflare-tunnel/setup-tunnel.js \
-  --token="eyJ..." \
-  --domain="yourdomain.com" \
-  --dev-domain="dev.yourdomain.com" \
-  --port=4321
+# Setup inicial (una vez)
+./setup.sh <subdomain> <port>
 
-# Interactive alternative
-bash skills/community/cloudflare-tunnel/setup.sh --port=4321
+# Ejemplo
+./setup.sh swl 4321
+
+# Iniciar tunnel
+cloudflared tunnel run swl
 ```
 
-### Step 3: Using separate tunnels for prod/dev
+## Configuración
 
-If you created two different tunnels in Cloudflare Dashboard (recommended for production):
+### 1. Instalar cloudflared
 
 ```bash
-node skills/community/cloudflare-tunnel/setup-tunnel.js \
-  --token="eyJ...PROD_TOKEN" \
-  --domain="yourdomain.com" \
-  --dev-token="eyJ...DEV_TOKEN" \
-  --dev-domain="dev.yourdomain.com" \
-  --port=4321
+# Linux
+wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+sudo dpkg -i cloudflared-linux-amd64.deb
+
+# macOS
+brew install cloudflared
+
+# Verificar
+cloudflared --version
 ```
 
-## For AI Assistants
-
-See [README-ASSISTANT.md](./README-ASSISTANT.md) for the full AI-guided setup flow.
-
-## Managing Tunnels
-
-After setup, use the generated `start-tunnels.sh`:
+### 2. Autenticar
 
 ```bash
-./start-tunnels.sh          # Start all tunnels
-./start-tunnels.sh prod     # Production only
-./start-tunnels.sh dev      # Development only
-./start-tunnels.sh status   # Check status and connectivity
-./start-tunnels.sh stop     # Stop all tunnels
+cloudflared tunnel login
+# Abre navegador, selecciona dominio, autoriza
 ```
 
-## Persistence with systemd
-
-For tunnels that survive reboots, use the included systemd template:
+### 3. Crear tunnel
 
 ```bash
-# Copy and edit the template
-sudo cp skills/community/cloudflare-tunnel/cloudflared@.service /etc/systemd/system/
-sudo systemctl daemon-reload
-
-# Enable production tunnel
-sudo systemctl enable --now cloudflared@prod
-
-# Enable development tunnel
-sudo systemctl enable --now cloudflared@dev
-
-# Check status
-sudo systemctl status cloudflared@prod
+cloudflared tunnel create <nombre>
+# Guarda el Tunnel ID que aparece
 ```
 
-## Useful Commands
+### 4. Configurar DNS
 
 ```bash
-cloudflared tunnel list                    # List all tunnels
-cloudflared tunnel info TUNNEL_NAME        # Tunnel details
-cloudflared tunnel --url http://localhost:4321  # Quick temporary tunnel
-tail -f /tmp/tunnel-*.log                  # Watch logs
+cloudflared tunnel route dns <nombre> <subdomain>.<tudominio.com>
 ```
 
-## Permanent vs Temporary Tunnels
+## Script de Setup Automático
 
-| Feature | Permanent Tunnel | Quick Tunnel |
-|---------|-----------------|--------------|
-| URL | Your domain | Random (changes each time) |
-| Stability | 99.9% uptime | Variable |
-| SSL | Automatic | Limited |
-| CDN | Included | No |
-| Analytics | Yes | No |
-| Setup | Once | Every time |
+```bash
+#!/bin/bash
+# setup.sh
+
+TUNNEL_NAME=$1
+PORT=$2
+DOMAIN="1511170.xyz"  # o tu dominio
+
+# Crear tunnel
+cloudflared tunnel create $TUNNEL_NAME
+
+# Configurar DNS
+cloudflared tunnel route dns $TUNNEL_NAME "$TUNNEL_NAME.$DOMAIN"
+
+# Crear config.yml
+mkdir -p ~/.cloudflared
+cat > ~/.cloudflared/${TUNNEL_NAME}.yml << EOF
+tunnel: $(cloudflared tunnel list | grep $TUNNEL_NAME | awk '{print $1}')
+credentials-file: ~/.cloudflared/$(cloudflared tunnel list | grep $TUNNEL_NAME | awk '{print $1}').json
+
+ingress:
+  - hostname: ${TUNNEL_NAME}.${DOMAIN}
+    service: http://localhost:${PORT}
+  - service: http_status:404
+EOF
+
+echo "Tunnel configurado: https://${TUNNEL_NAME}.${DOMAIN} → localhost:${PORT}"
+```
+
+## Flujo de Trabajo Dev/Prod
+
+### Desarrollo (Dev)
+- **URL:** `*.1511170.xyz` (tunnel)
+- **Servidor:** Localhost con hot reload
+- **Uso:** Testing, previews, desarrollo activo
+
+### Producción (Prod)
+- **URL:** `*.kinto.info` (Cloudflare Pages)
+- **Servidor:** CDN global
+- **Uso:** Sitio público final
+
+## Servicio Systemd (Opcional)
+
+```bash
+# Crear servicio
+sudo cloudflared service install
+sudo systemctl start cloudflared
+sudo systemctl enable cloudflared
+```
+
+## Comandos Útiles
+
+```bash
+# Listar tunnels
+cloudflared tunnel list
+
+# Iniciar tunnel
+cloudflared tunnel run <nombre>
+
+# Iniciar con config específica
+cloudflared tunnel --config ~/.cloudflared/mi-tunnel.yml run
+
+# Ver logs
+cloudflared tunnel info <nombre>
+
+# Eliminar tunnel
+cloudflared tunnel delete <nombre>
+
+# Cleanup
+cloudflared tunnel cleanup
+```
 
 ## Troubleshooting
 
-### Tunnel shows "Down" in dashboard
-1. Check process: `ps aux | grep cloudflared`
-2. Check logs: `tail -20 /tmp/tunnel-prod.log`
-3. Restart: `./start-tunnels.sh stop && ./start-tunnels.sh`
+### Error: "Cannot determine default origin certificate"
 
-### HTTP 502 Bad Gateway
-1. Verify local server is running: `curl http://localhost:4321/`
-2. Check config uses `http://` not `https://` for local service
-3. In Cloudflare Dashboard, verify the service URL matches
+```bash
+# Re-autenticar
+cloudflared tunnel login
+```
 
-### Domain doesn't resolve
-1. Verify DNS is configured in Cloudflare
-2. Check nameservers point to Cloudflare
-3. Flush local DNS cache
+### Error: "Tunnel already exists"
 
-### "credentials file doesn't exist"
-1. Check file exists: `ls ~/.cloudflared/*.json`
-2. File must be named `TUNNEL_ID.json`
-3. Recreate from token if needed
+```bash
+# Usar nombre diferente o eliminar existente
+cloudflared tunnel delete <nombre>
+```
 
-### "Failed to create QUIC connection"
-- Usually a network/firewall issue
-- Cloudflared uses port 7844 (UDP) for QUIC
-- Falls back to HTTP/2 if QUIC is blocked
+### Tunnel no conecta
+
+```bash
+# Verificar tunnel está running
+cloudflared tunnel list
+
+# Reiniciar
+cloudflared tunnel run <nombre>
+```
+
+## Configuración Avanzada
+
+### Múltiples servicios en un tunnel
+
+```yaml
+# config.yml
+tunnel: <tunnel-id>
+credentials-file: /home/user/.cloudflared/<tunnel-id>.json
+
+ingress:
+  - hostname: api.misitio.com
+    service: http://localhost:3000
+  - hostname: app.misitio.com
+    service: http://localhost:4321
+  - hostname: admin.misitio.com
+    service: http://localhost:8080
+  - service: http_status:404
+```
+
+### Con headers personalizados
+
+```yaml
+ingress:
+  - hostname: api.misitio.com
+    service: http://localhost:3000
+    originRequest:
+      httpHostHeader: api.local
+      noTLSVerify: true
+```
+
+## Ejemplos
+
+### Tunnel para Astro dev
+
+```bash
+# Setup
+./setup.sh edupayments 4322
+
+# En desarrollo - Terminal 1
+cd sites/edupayments && npm run dev -- --port 4322
+
+# En desarrollo - Terminal 2
+cloudflared tunnel run edupayments
+
+# Resultado: https://edupayments.1511170.xyz
+```
+
+### Múltiples proyectos
+
+```bash
+# Proyecto 1: SWL
+./setup.sh swl 4321
+cloudflared tunnel run swl
+
+# Proyecto 2: Edupayments
+./setup.sh edupayments 4322
+cloudflared tunnel run edupayments
+```
+
+## Recursos
+
+- [Cloudflare Tunnel Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
+- [TryCloudflare](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/do-more-with-tunnels/trycloudflare/)
+
+## Notas
+
+- **Gratuito** para uso personal
+- No requiere IP pública
+- Encriptación TLS end-to-end
+- Ideal para desarrollo y testing
+- No usar para producción (usar Cloudflare Pages en su lugar)

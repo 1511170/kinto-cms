@@ -1,0 +1,7 @@
+{
+  "quality": 82,
+  "extensions": [".jpg", ".jpeg", ".png"],
+  "scanDir": "public",
+  "refDirs": ["src"],
+  "refExtensions": [".astro", ".html", ".md", ".mdx", ".ts", ".js", ".json"]
+}

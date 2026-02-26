@@ -1,0 +1,295 @@
+---
+/**
+ * SchemaOrg.astro - JSON-LD Structured Data para SEO + AEO
+ *
+ * Schemas disponibles: Organization, WebSite, LocalBusiness, Service,
+ * FinancialService, BreadcrumbList, FAQPage, HowTo, BlogPosting, 
+ * AboutPage, ContactPage, Product, SoftwareApplication
+ *
+ * Uso: <SchemaOrg type="WebSite" />
+ *      <SchemaOrg type="Service" data={{...}} />
+ */
+
+type SchemaType =
+  | 'Organization'
+  | 'WebSite'
+  | 'LocalBusiness'
+  | 'Service'
+  | 'FinancialService'
+  | 'BreadcrumbList'
+  | 'FAQPage'
+  | 'HowTo'
+  | 'BlogPosting'
+  | 'AboutPage'
+  | 'ContactPage'
+  | 'Product'
+  | 'SoftwareApplication';
+
+interface Props {
+  type: SchemaType | SchemaType[];
+  siteUrl?: string;
+  siteName?: string;
+  siteDescription?: string;
+  siteLanguage?: string;
+  siteLogo?: string;
+  data?: Record<string, any>;
+  breadcrumbs?: Array<{ name: string; url: string }>;
+  faqs?: Array<{ q: string; a: string }>;
+  steps?: Array<{ name: string; text: string; url?: string }>;
+}
+
+const { 
+  type, 
+  siteUrl = 'https://edupayments.net',
+  siteName = 'EduPayments',
+  siteDescription = 'Global payment platform for international education',
+  siteLanguage = 'en',
+  siteLogo = '/logo.svg',
+  data = {}, 
+  breadcrumbs = [], 
+  faqs = [], 
+  steps = [] 
+} = Astro.props;
+
+const types = Array.isArray(type) ? type : [type];
+const lang = siteLanguage;
+
+// -- Schema builders --
+
+const organizationSchema = {
+  "@type": "Organization",
+  "@id": `${siteUrl}/#organization`,
+  "name": siteName,
+  "alternateName": data.alternateName || siteName,
+  "url": siteUrl,
+  "logo": {
+    "@type": "ImageObject",
+    "url": `${siteUrl}${siteLogo}`
+  },
+  "description": siteDescription,
+  "areaServed": data.areaServed || [
+    { "@type": "Place", "name": "Global" }
+  ],
+  "knowsAbout": data.knowsAbout || [
+    "International education payments",
+    "Student financial services"
+  ],
+  ...(data.foundingDate && { "foundingDate": data.foundingDate }),
+  ...(data.sameAs && { "sameAs": data.sameAs }),
+  ...(data.contactPoint && { "contactPoint": data.contactPoint })
+};
+
+const webSiteSchema = {
+  "@type": "WebSite",
+  "@id": `${siteUrl}/#website`,
+  "url": siteUrl,
+  "name": siteName,
+  "description": siteDescription,
+  "publisher": { "@id": `${siteUrl}/#organization` },
+  "inLanguage": lang === 'es' ? 'es-CO' : 'en-US',
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": `${siteUrl}/blog/?q={search_term_string}`
+    },
+    "query-input": "required name=search_term_string"
+  }
+};
+
+const localBusinessSchema = {
+  "@type": "LocalBusiness",
+  "@id": `${siteUrl}/#localbusiness`,
+  "name": siteName,
+  "image": `${siteUrl}${siteLogo}`,
+  "url": siteUrl,
+  ...(data.telephone && { "telephone": data.telephone }),
+  ...(data.email && { "email": data.email }),
+  ...(data.priceRange && { "priceRange": data.priceRange }),
+  ...(data.address && { "address": data.address }),
+  ...(data.geo && { "geo": data.geo }),
+  ...(data.openingHours && { "openingHoursSpecification": data.openingHours })
+};
+
+function buildServiceSchema(serviceData: Record<string, any>) {
+  return {
+    "@type": "Service",
+    "provider": { "@id": `${siteUrl}/#organization` },
+    "areaServed": serviceData.areaServed || "Global",
+    "name": serviceData.name || "",
+    "description": serviceData.description || "",
+    "serviceType": serviceData.serviceType || serviceData.name || "",
+    ...(serviceData.url && { "url": serviceData.url }),
+    ...(serviceData.image && { "image": serviceData.image }),
+    ...(serviceData.offers && {
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/InStock",
+        ...serviceData.offers
+      }
+    }),
+    ...(serviceData.aggregateRating && { "aggregateRating": serviceData.aggregateRating })
+  };
+}
+
+function buildFinancialServiceSchema(serviceData: Record<string, any>) {
+  return {
+    "@type": "FinancialService",
+    "provider": { "@id": `${siteUrl}/#organization` },
+    "areaServed": serviceData.areaServed || "Global",
+    "name": serviceData.name || "",
+    "description": serviceData.description || "",
+    "serviceType": serviceData.serviceType || "Payment Service",
+    "feesAndCommissionsSpecification": serviceData.fees || "Contact for pricing",
+    ...(serviceData.url && { "url": serviceData.url }),
+    ...(serviceData.aggregateRating && { "aggregateRating": serviceData.aggregateRating })
+  };
+}
+
+function buildBreadcrumbSchema(items: Array<{ name: string; url: string }>) {
+  return {
+    "@type": "BreadcrumbList",
+    "itemListElement": items.map((item, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": item.name,
+      "item": item.url.startsWith('http') ? item.url : `${siteUrl}${item.url}`
+    }))
+  };
+}
+
+function buildFAQSchema(items: Array<{ q: string; a: string }>) {
+  return {
+    "@type": "FAQPage",
+    "mainEntity": items.map((faq) => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a
+      }
+    }))
+  };
+}
+
+function buildHowToSchema(items: Array<{ name: string; text: string; url?: string }>, howToData: Record<string, any>) {
+  return {
+    "@type": "HowTo",
+    "name": howToData.howToName || "How to use our service",
+    "description": howToData.howToDescription || "Step by step guide",
+    "step": items.map((step, i) => ({
+      "@type": "HowToStep",
+      "position": i + 1,
+      "name": step.name,
+      "text": step.text,
+      ...(step.url && { "url": step.url })
+    }))
+  };
+}
+
+function buildBlogPostingSchema(postData: Record<string, any>) {
+  return {
+    "@type": "BlogPosting",
+    "headline": postData.title || "",
+    "description": postData.description || postData.excerpt || "",
+    "author": {
+      "@type": "Person",
+      "name": postData.author || siteName
+    },
+    "publisher": { "@id": `${siteUrl}/#organization` },
+    "datePublished": postData.datePublished || "",
+    "dateModified": postData.dateModified || postData.datePublished || "",
+    "mainEntityOfPage": postData.url || Astro.url.href,
+    "inLanguage": lang === 'es' ? 'es-CO' : 'en-US',
+    ...(postData.image && {
+      "image": {
+        "@type": "ImageObject",
+        "url": postData.image
+      }
+    })
+  };
+}
+
+function buildSoftwareApplicationSchema(appData: Record<string, any>) {
+  return {
+    "@type": "SoftwareApplication",
+    "name": appData.name || siteName,
+    "applicationCategory": appData.category || "FinanceApplication",
+    "operatingSystem": appData.os || "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": appData.price || "0",
+      "priceCurrency": appData.currency || "USD"
+    },
+    ...(appData.aggregateRating && { "aggregateRating": appData.aggregateRating }),
+    ...(appData.downloadUrl && { "downloadUrl": appData.downloadUrl })
+  };
+}
+
+const aboutPageSchema = {
+  "@type": "AboutPage",
+  "mainEntity": { "@id": `${siteUrl}/#organization` },
+  "url": `${siteUrl}/about`,
+  "name": `About ${siteName}`,
+  "description": siteDescription
+};
+
+const contactPageSchema = {
+  "@type": "ContactPage",
+  "mainEntity": { "@id": `${siteUrl}/#organization` },
+  "url": `${siteUrl}/contact`,
+  "name": `Contact - ${siteName}`,
+  "description": `Contact ${siteName} for more information`
+};
+
+// -- Build final graph --
+const graph: any[] = [];
+
+for (const t of types) {
+  switch (t) {
+    case 'Organization':
+      graph.push(organizationSchema);
+      break;
+    case 'WebSite':
+      graph.push(webSiteSchema);
+      break;
+    case 'LocalBusiness':
+      graph.push(localBusinessSchema);
+      break;
+    case 'Service':
+      graph.push(buildServiceSchema(data));
+      break;
+    case 'FinancialService':
+      graph.push(buildFinancialServiceSchema(data));
+      break;
+    case 'BreadcrumbList':
+      if (breadcrumbs.length > 0) graph.push(buildBreadcrumbSchema(breadcrumbs));
+      break;
+    case 'FAQPage':
+      if (faqs.length > 0) graph.push(buildFAQSchema(faqs));
+      break;
+    case 'HowTo':
+      if (steps.length > 0) graph.push(buildHowToSchema(steps, data));
+      break;
+    case 'BlogPosting':
+      graph.push(buildBlogPostingSchema(data));
+      break;
+    case 'SoftwareApplication':
+      graph.push(buildSoftwareApplicationSchema(data));
+      break;
+    case 'AboutPage':
+      graph.push(aboutPageSchema);
+      break;
+    case 'ContactPage':
+      graph.push(contactPageSchema);
+      break;
+  }
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": graph
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
