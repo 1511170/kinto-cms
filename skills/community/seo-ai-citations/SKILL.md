@@ -156,6 +156,54 @@ import Layout from '../layouts/Layout.astro';
 />
 ```
 
+## Optimización de Imágenes SEO
+
+### Open Graph / WhatsApp / redes sociales
+
+El componente genera automáticamente los meta tags necesarios para que el thumbnail se vea correctamente al compartir en WhatsApp, Telegram, Facebook, Twitter/X y LinkedIn:
+
+```html
+<meta property="og:image"        content="https://tusitio.com/images/og-home.png" />
+<meta property="og:image:alt"    content="Título de la página" />
+<meta property="og:image:width"  content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type"   content="image/png" />
+<meta name="twitter:image"       content="https://tusitio.com/images/og-home.png" />
+<meta name="twitter:image:alt"   content="Título de la página" />
+```
+
+**Recomendaciones para la imagen OG:**
+- Tamaño ideal: **1200 × 630 px** (ratio 1.91:1)
+- Formato: PNG o JPG (< 8 MB, idealmente < 1 MB)
+- Asigna una imagen diferente por página para mejor CTR: `<Layout image="/images/og-pagina.png">`
+
+### Estrategia de carga de imágenes en página
+
+Para maximizar LCP (Largest Contentful Paint) y minimizar CLS:
+
+**Imágenes hero / above-the-fold (primera imagen visible):**
+```astro
+<img
+  src="/images/hero.png"
+  alt="Descripción detallada con keywords"
+  loading="eager"
+  fetchpriority="high"
+  decoding="sync"
+/>
+```
+
+**Imágenes below-the-fold (catálogo, bio, extras):**
+```astro
+<img
+  src="/images/product.png"
+  alt="Descripción detallada con keywords"
+  loading="lazy"
+  decoding="async"
+/>
+```
+
+**Alt text SEO-optimizado:** Incluye nombre de persona/producto, año, ubicación y contexto. Ejemplo: `"Portada del libro Una Voz al paso del Eclipse — Adriana Cristina Rueda, Bogotá 2026"`.
+
 ## Props SEOHead
 
 | Prop | Tipo | Default | Descripción |
@@ -163,7 +211,7 @@ import Layout from '../layouts/Layout.astro';
 | title | string | required | Título de la página |
 | description | string | required | Meta description |
 | canonical | string | Astro.url.href | URL canónica |
-| image | string | '/logo.png' | Imagen OG/Twitter |
+| image | string | '/logo.png' | Imagen OG/Twitter (1200×630 px recomendado) |
 | type | 'website' \| 'article' | 'website' | Tipo de contenido |
 | publishedTime | string | - | Fecha de publicación |
 | modifiedTime | string | - | Fecha de modificación |
@@ -185,6 +233,6 @@ import Layout from '../layouts/Layout.astro';
 
 - **Categoría**: community
 - **Creada**: 2026-02-12
-- **Versión**: 1.0.0
+- **Versión**: 1.1.0
 - **Basada en**: Trabajo de serviworldlogistics
 - **Reutilizable**: Sí
