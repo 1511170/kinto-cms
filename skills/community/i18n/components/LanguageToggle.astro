@@ -1,0 +1,92 @@
+---
+/**
+ * Skill: i18n
+ * Componente LanguageToggle
+ *
+ * Muestra un botón para cambiar entre idiomas.
+ * Soporta modo inline (navbar) y modo sticky (flotante en móvil).
+ *
+ * @example
+ * import { LanguageToggle } from '@skills/community/i18n';
+ *
+ * // En el navbar (modo inline)
+ * <LanguageToggle currentLocale={locale} currentPath={Astro.url.pathname} />
+ *
+ * // Botón flotante en móvil
+ * <LanguageToggle currentLocale={locale} currentPath={Astro.url.pathname} sticky />
+ */
+
+interface LocaleOption {
+  /** Código de idioma: 'en', 'es', etc. */
+  code: string;
+  /** Etiqueta visible: 'EN', 'ES', etc. */
+  label: string;
+  /** Ruta al ícono de bandera (SVG/PNG). Opcional. */
+  flagSrc?: string;
+  /** Texto accesible para el botón. */
+  ariaLabel?: string;
+}
+
+interface Props {
+  /** Locale actual de la página. */
+  currentLocale: string;
+  /** Ruta actual (Astro.url.pathname). */
+  currentPath: string;
+  /**
+   * Lista de idiomas alternativos con sus rutas.
+   * Se genera llamando a getLocalizedPath() para cada locale.
+   *
+   * @example
+   * const locales = getLocales().filter(l => l !== locale).map(l => ({
+   *   code: l,
+   *   label: l.toUpperCase(),
+   *   href: getLocalizedPath(getPathWithoutLocale(Astro.url.pathname), l),
+   *   flagSrc: `/images/flags/${l}.svg`,
+   * }));
+   */
+  alternates: Array<LocaleOption & { href: string }>;
+  /** Si true, muestra el toggle como botón flotante (solo visible en pantallas pequeñas). */
+  sticky?: boolean;
+}
+
+const { alternates, sticky = false } = Astro.props;
+
+const inlineClass =
+  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 hover:border-gray-400 transition-colors text-sm font-medium text-gray-700 hover:text-gray-900';
+const stickyClass =
+  'inline-flex items-center gap-2 px-4 py-3 rounded-full border-2 border-gray-200 bg-white shadow-lg hover:border-gray-400 hover:shadow-xl transition-all text-base font-semibold text-gray-800 hover:text-gray-900 active:scale-[0.98]';
+---
+
+{sticky ? (
+  <div class="fixed bottom-6 left-6 z-40 lg:hidden">
+    {alternates.map((alt) => (
+      <a
+        href={alt.href}
+        class={stickyClass}
+        aria-label={alt.ariaLabel ?? `Switch to ${alt.label}`}
+        hreflang={alt.code}
+      >
+        {alt.flagSrc && (
+          <img src={alt.flagSrc} alt="" width={24} height={18} class="object-cover rounded-sm flex-shrink-0" />
+        )}
+        <span>{alt.label}</span>
+      </a>
+    ))}
+  </div>
+) : (
+  <div class="inline-flex items-center gap-1">
+    {alternates.map((alt) => (
+      <a
+        href={alt.href}
+        class={inlineClass}
+        aria-label={alt.ariaLabel ?? `Switch to ${alt.label}`}
+        hreflang={alt.code}
+      >
+        {alt.flagSrc && (
+          <img src={alt.flagSrc} alt="" width="20" height="14" class="object-cover rounded-sm" />
+        )}
+        <span>{alt.label}</span>
+      </a>
+    ))}
+  </div>
+)}

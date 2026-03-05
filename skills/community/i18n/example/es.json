@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "about": "Nosotros",
+    "contact": "Contacto"
+  },
+  "hero": {
+    "title": "Bienvenido a mi sitio",
+    "subtitle": "La mejor solución para tus necesidades.",
+    "cta": "Comenzar"
+  },
+  "footer": {
+    "copyright": "Copyright © Mi Sitio"
+  },
+  "meta": {
+    "home_title": "Mi Sitio — Bienvenido",
+    "home_description": "La mejor solución para tus necesidades."
+  }
+}

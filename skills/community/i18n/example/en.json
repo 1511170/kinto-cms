@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Welcome to my site",
+    "subtitle": "The best solution for your needs.",
+    "cta": "Get started"
+  },
+  "footer": {
+    "copyright": "Copyright © My Site"
+  },
+  "meta": {
+    "home_title": "My Site — Welcome",
+    "home_description": "The best solution for your needs."
+  }
+}
