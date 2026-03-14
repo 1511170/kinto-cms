@@ -1,0 +1,29 @@
+---
+const items = [
+  { icon: 'payments', title: 'Asesoría 100% Gratis', text: 'Sin cargos ocultos por nuestra gestión personalizada.' },
+  { icon: 'task_alt', title: '99% Éxito en Visas', text: 'Expertos en procesos migratorios complicados.' },
+  { icon: 'school', title: '+200 Instituciones', text: 'Convenios directos con las mejores escuelas.' },
+  { icon: 'support_agent', title: 'Apoyo en Destino', text: 'Te acompañamos antes, durante y después del viaje.' },
+  { icon: 'flight_takeoff', title: 'Plan a Tu Medida', text: 'Diseñamos el plan basado en tu presupuesto.' },
+];
+---
+
+<section class="py-20 bg-primary text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-black mb-4">Por Qué Más de 500 Estudiantes Confían en Nosotros</h2>
+      <div class="w-24 h-1 bg-white/40 mx-auto rounded-full"></div>
+    </div>
+    <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-8">
+      {items.map((item) => (
+        <div class="flex flex-col items-center text-center">
+          <div class="size-16 rounded-full bg-white/10 flex items-center justify-center mb-4">
+            <span class="material-symbols-outlined text-3xl">{item.icon}</span>
+          </div>
+          <h4 class="font-bold mb-2">{item.title}</h4>
+          <p class="text-sm text-white/80 opacity-90">{item.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

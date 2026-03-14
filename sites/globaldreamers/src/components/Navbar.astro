@@ -1,0 +1,274 @@
+---
+import { destinations } from '../data/destinations';
+
+interface Props {
+  ctaText?: string;
+}
+
+const { ctaText = 'Agendar Asesoría' } = Astro.props;
+
+// Navegación principal del sitio
+const mainNav = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Destinos', href: '/#destinos', hasDropdown: true },
+  { label: 'Servicios', href: '/servicios' },
+  { label: 'Nosotros', href: '/nosotros' },
+  { label: 'Blog', href: '/blog' },
+];
+
+// Mapa de códigos de país para banderas SVG
+const countryCodes: Record<string, string> = {
+  'canada': 'ca',
+  'malta': 'mt',
+  'dubai': 'ae',
+  'reino-unido': 'gb',
+  'nueva-zelanda': 'nz',
+  'irlanda': 'ie',
+  'espana': 'es',
+  'alemania': 'de',
+  'italia': 'it',
+  'estados-unidos': 'us',
+  'australia': 'au',
+};
+
+// Destinos para el dropdown (todos los disponibles)
+const destNavItems = destinations.map((d) => ({ 
+  label: d.name, 
+  href: d.canonical,
+  code: countryCodes[d.country] || 'un'
+}));
+---
+
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      {/* Logo */}
+      <a href="/" class="flex items-center gap-2 shrink-0">
+        <span class="text-2xl">🌎</span>
+        <span class="text-xl font-extrabold tracking-tight text-primary">Global Dreamers</span>
+      </a>
+
+      {/* Desktop Navigation */}
+      <nav class="hidden lg:flex items-center gap-1">
+        {mainNav.map((item) => (
+          item.hasDropdown ? (
+            <div class="relative group">
+              <button class="flex items-center gap-1 px-3 py-2 text-sm font-semibold text-slate-600 hover:text-primary transition-colors rounded-lg hover:bg-slate-50">
+                {item.label}
+                <span class="material-symbols-outlined text-base transition-transform group-hover:rotate-180">expand_more</span>
+              </button>
+              {/* Dropdown de Destinos */}
+              <div class="absolute left-0 mt-1 w-[420px] bg-white border border-slate-200 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-3">
+                <div class="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-2">
+                  Elige tu destino
+                </div>
+                <div class="grid grid-cols-2 gap-1 px-2">
+                  {destNavItems.map((dest) => (
+                    <a
+                      href={dest.href}
+                      class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors rounded-lg"
+                    >
+                      <span class="inline-block w-6 h-4 rounded-sm overflow-hidden shadow-sm flex-shrink-0">
+                        {dest.code === 'ca' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#fff" d="M150 0h340v480H150z"/>
+                            <path fill="#d52b1e" d="M0 0h150v480H0zm340 0h300v480H340z"/>
+                            <path fill="#d52b1e" d="m265 200l-20 10 20 10-15 15 20 5-10 20 20-10v20l15-15 15 15v-20l20 10-10-20 20-5-15-15 20-10-20-10 15-15-20-5 10-20-20 10v-20l-15 15-15-15v20l-20-10 10 20-20 5z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'mt' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#fff" d="M0 0h640v480H0z"/>
+                            <path fill="#cf142b" d="M0 432h640v48H0zm0-384h640v48H0zm224 96h64v96h-64z"/>
+                            <path fill="#a7a6a4" d="M256 120h32v312h-32z"/>
+                            <path fill="#cf142b" d="M288 144h64v48h-64zm-96 0h64v48h-64z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'ae' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#00732f" d="M0 0h640v160H0z"/>
+                            <path fill="#fff" d="M0 160h640v160H0z"/>
+                            <path fill="#000" d="M0 320h640v160H0z"/>
+                            <path fill="#f00" d="M0 0h220v480H0z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'gb' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#012169" d="M0 0h640v480H0z"/>
+                            <path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/>
+                            <path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/>
+                            <path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/>
+                            <path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'nz' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#012169" d="M0 0h640v480H0z"/>
+                            <path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/>
+                            <path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/>
+                            <path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/>
+                            <path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'ie' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#169b62" d="M0 0h213.3v480H0z"/>
+                            <path fill="#fff" d="M213.3 0h213.4v480H213.3z"/>
+                            <path fill="#ff883e" d="M426.7 0H640v480H426.7z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'es' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#aa151b" d="M0 0h640v120H0zm0 360h640v120H0z"/>
+                            <path fill="#f1bf00" d="M0 120h640v240H0z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'de' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#000" d="M0 0h640v160H0z"/>
+                            <path fill="#f00" d="M0 160h640v160H0z"/>
+                            <path fill="#fc0" d="M0 320h640v160H0z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'it' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#009246" d="M0 0h213.3v480H0z"/>
+                            <path fill="#fff" d="M213.3 0h213.4v480H213.3z"/>
+                            <path fill="#ce2b37" d="M426.7 0H640v480H426.7z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'us' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#b22234" d="M0 0h640v480H0z"/>
+                            <path fill="#fff" d="M0 36.9h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0z"/>
+                            <path fill="#3c3b6e" d="M0 0h256.8v258.5H0z"/>
+                          </svg>
+                        )}
+                        {dest.code === 'au' && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-full h-full">
+                            <path fill="#012169" d="M0 0h640v480H0z"/>
+                            <path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/>
+                            <path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/>
+                            <path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/>
+                            <path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/>
+                          </svg>
+                        )}
+                      </span>
+                      <span class="font-medium">{dest.label}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <a 
+              href={item.href}
+              class="px-3 py-2 text-sm font-semibold text-slate-600 hover:text-primary transition-colors rounded-lg hover:bg-slate-50"
+            >
+              {item.label}
+            </a>
+          )
+        ))}
+      </nav>
+
+      {/* CTA y Mobile Menu Button */}
+      <div class="flex items-center gap-3">
+        <a
+          href="/#contacto"
+          class="hidden md:flex bg-primary text-white text-sm font-bold py-2 px-5 rounded-lg hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30"
+        >
+          {ctaText}
+        </a>
+        
+        <button 
+          id="mobile-menu-btn" 
+          class="lg:hidden text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition-colors" 
+          aria-label="Abrir menú" 
+          aria-expanded="false"
+        >
+          <span id="icon-open" class="material-symbols-outlined text-2xl">menu</span>
+          <span id="icon-close" class="material-symbols-outlined text-2xl hidden">close</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {/* Mobile Menu */}
+  <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white">
+    <div class="max-w-7xl mx-auto px-4 py-4 space-y-4">
+      {/* Links principales */}
+      <nav class="space-y-1">
+        {mainNav.filter(item => !item.hasDropdown).map((item) => (
+          <a 
+            href={item.href}
+            class="block px-4 py-3 text-sm font-semibold text-slate-700 hover:text-primary hover:bg-slate-50 rounded-lg transition-colors"
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+
+      {/* Destinos en móvil */}
+      <div class="pt-4 border-t border-slate-100">
+        <p class="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          Destinos Populares
+        </p>
+        <div class="grid grid-cols-2 gap-1">
+          {destNavItems.slice(0, 6).map((dest) => (
+            <a
+              href={dest.href}
+              class="px-4 py-2 text-sm text-slate-700 hover:text-primary hover:bg-slate-50 rounded-lg transition-colors"
+            >
+              {dest.label}
+            </a>
+          ))}
+        </div>
+        <a 
+          href="/destinos" 
+          class="block px-4 py-2 mt-2 text-sm font-semibold text-primary hover:bg-slate-50 rounded-lg transition-colors"
+        >
+          Ver todos los destinos →
+        </a>
+      </div>
+
+      {/* CTA en móvil */}
+      <div class="pt-4 border-t border-slate-100">
+        <a 
+          href="/#contacto" 
+          class="flex items-center justify-center w-full py-3 bg-primary text-white text-sm font-bold rounded-lg shadow-lg"
+        >
+          {ctaText}
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  (function() {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+    
+    if (!btn || !menu) return;
+    
+    btn.addEventListener('click', function() {
+      const isOpen = !menu.classList.contains('hidden');
+      menu.classList.toggle('hidden', isOpen);
+      if (iconOpen) iconOpen.classList.toggle('hidden', !isOpen);
+      if (iconClose) iconClose.classList.toggle('hidden', isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+    });
+    
+    // Cerrar menú al hacer clic en un link
+    menu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        menu.classList.add('hidden');
+        if (iconOpen) iconOpen.classList.remove('hidden');
+        if (iconClose) iconClose.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  })();
+</script>

@@ -1,0 +1,187 @@
+---
+// Fotos de alta calidad por destino (Unsplash). Para usar imágenes locales, sustituye por rutas en /public/images/destinations/
+const IMG = (id: string) => `https://images.unsplash.com/photo-${id}?w=600&h=440&fit=crop&q=80`;
+
+const destinations = [
+  {
+    name: 'Australia',
+    flag: '🇦🇺',
+    currency: 'AUD',
+    image: IMG('1523482580671-f087145539cc'), // Sydney Harbour
+    description: 'Trabaja 48hrs/quincena',
+    tag: 'Trabajo',
+    tagBg: 'bg-blue-50',
+    tagColor: 'text-blue-600',
+    slug: '/estudiar-en-australia',
+  },
+  {
+    name: 'Canadá',
+    flag: '🇨🇦',
+    currency: 'CAD',
+    image: IMG('1519832979-7fa2b768b0c6'), // Lake Moraine
+    description: 'Vía a residencia permanente (PGWP)',
+    tag: 'Trabajo',
+    tagBg: 'bg-blue-50',
+    tagColor: 'text-blue-600',
+    slug: '/estudiar-en-canada',
+  },
+  {
+    name: 'Malta',
+    flag: '🇲🇹',
+    currency: 'EUR',
+    image: IMG('1605649487212-47bdab064df7'), // Malta blue waters
+    description: 'Inglés oficial en el corazón de Europa',
+    tag: 'Clima Ideal',
+    tagBg: 'bg-yellow-50',
+    tagColor: 'text-yellow-600',
+    slug: '/estudiar-en-malta',
+  },
+  {
+    name: 'Dubai',
+    flag: '🇦🇪',
+    currency: 'AED',
+    image: IMG('1512453979798-5ea266f8880c'), // Burj Khalifa skyline
+    description: '0% impuestos + estilo de vida premium',
+    tag: 'Trabajo',
+    tagBg: 'bg-blue-50',
+    tagColor: 'text-blue-600',
+    slug: '/estudiar-en-dubai',
+  },
+  {
+    name: 'Reino Unido',
+    flag: '🇬🇧',
+    currency: 'GBP',
+    image: IMG('1513635269975-59663e0ac1ad'), // London
+    description: 'Universidades top + Graduate Route Visa',
+    tag: 'Cultura',
+    tagBg: 'bg-purple-50',
+    tagColor: 'text-purple-600',
+    slug: '/estudiar-en-reino-unido',
+  },
+  {
+    name: 'Irlanda',
+    flag: '🇮🇪',
+    currency: 'EUR',
+    image: IMG('1548092372-2a903fa2ba28'), // Irish cliffs / green
+    description: 'Hub tech europeo (Google, Meta, Apple)',
+    tag: 'Trabajo',
+    tagBg: 'bg-blue-50',
+    tagColor: 'text-blue-600',
+    slug: '/estudiar-en-irlanda',
+  },
+  {
+    name: 'Nueva Zelanda',
+    flag: '🇳🇿',
+    currency: 'NZD',
+    image: IMG('1507699629798-687146645633'), // NZ mountains
+    description: 'Calidad de vida #1 en el mundo',
+    tag: 'Aventura',
+    tagBg: 'bg-green-50',
+    tagColor: 'text-green-600',
+    slug: '/estudiar-en-nueva-zelanda',
+  },
+  {
+    name: 'Estados Unidos',
+    flag: '🇺🇸',
+    currency: 'USD',
+    image: IMG('1496442226666-8d4d0b62b1b2'), // NYC skyline
+    description: 'Harvard, MIT, Stanford + OPT Visa',
+    tag: 'Cultura',
+    tagBg: 'bg-purple-50',
+    tagColor: 'text-purple-600',
+    slug: '/estudiar-en-estados-unidos',
+  },
+  {
+    name: 'Italia',
+    flag: '🇮🇹',
+    currency: 'EUR',
+    image: IMG('1552832230-c0197dd311b5'), // Rome Colosseum
+    description: 'Arte, moda, cultura y patrimonio UNESCO',
+    tag: 'Cultura',
+    tagBg: 'bg-purple-50',
+    tagColor: 'text-purple-600',
+    slug: '/estudiar-en-italia',
+  },
+  {
+    name: 'Alemania',
+    flag: '🇩🇪',
+    currency: 'EUR',
+    image: IMG('1560930950-5cc20e80e8f0'), // Berlin
+    description: 'Universidades casi gratuitas en Europa',
+    tag: 'Tecnología',
+    tagBg: 'bg-gray-100',
+    tagColor: 'text-gray-600',
+    slug: '/estudiar-en-alemania',
+  },
+  {
+    name: 'España',
+    flag: '🇪🇸',
+    currency: 'EUR',
+    image: IMG('1583422409516-2895a77efded'), // Barcelona
+    description: 'Sin barrera de idioma · Acceso a la UE',
+    tag: 'Calidad de Vida',
+    tagBg: 'bg-orange-50',
+    tagColor: 'text-orange-600',
+    slug: '/estudiar-en-espana',
+  },
+];
+---
+
+<section id="destinos" class="bg-gray-50 py-20">
+  <div class="max-w-7xl mx-auto px-8 flex flex-col gap-12">
+    <!-- Header -->
+    <div class="flex flex-col gap-2 text-center">
+      <h2 class="font-display font-bold text-4xl text-gray-900">Explora el mundo</h2>
+      <p class="text-lg text-gray-500">Elige tu próximo destino</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {destinations.map(dest => (
+        <article class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300 group">
+          <!-- Image -->
+          <div class="relative h-44 overflow-hidden">
+            <img
+              src={dest.image}
+              alt={`${dest.name}, ${dest.description}`}
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              loading="lazy"
+              decoding="async"
+            />
+            <!-- Currency overlay -->
+            <div class="absolute top-3 left-3 bg-gray-900/80 rounded-lg px-2.5 py-1">
+              <span class="text-white text-xs font-bold">{dest.flag} {dest.currency}</span>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="flex flex-col gap-3 p-5 flex-1">
+            <h3 class="font-display font-bold text-lg text-gray-900">{dest.name}</h3>
+            <p class="text-sm text-gray-500 leading-relaxed flex-1">{dest.description}</p>
+
+            <div class="flex items-center justify-between">
+              <!-- Tag -->
+              <div class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                <span class={`text-xs font-semibold px-2.5 py-1 rounded-lg ${dest.tagBg} ${dest.tagColor}`}>
+                  {dest.tag}
+                </span>
+              </div>
+
+              <!-- Ver más -->
+              <a
+                href={dest.slug ?? `#${dest.name.toLowerCase().replace(/\s+/g, '-')}`}
+                class="text-sm font-bold text-brand-600 hover:text-brand-700 border border-brand-200 hover:border-brand-400 rounded-lg px-3 py-1.5 transition-colors"
+              >
+                Ver más
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

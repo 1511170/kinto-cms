@@ -1,0 +1,59 @@
+---
+const faqs = [
+  { q: '¿Realmente la asesoría es gratuita?', a: 'Sí. Nuestra asesoría y gestión es 100% gratuita para el estudiante. Trabajamos directamente con las instituciones educativas.' },
+  { q: '¿Qué pasa si me niegan la visa?', a: 'Te orientamos sobre las opciones: revisión de documentos, nueva aplicación o alternativas de destino. Nuestra tasa de aprobación es del 99%.' },
+  { q: '¿Cuánto dinero necesito para empezar?', a: 'Depende del destino y del programa. En la primera asesoría te damos un presupuesto claro y opciones de financiación.' },
+  { q: '¿Puedo trabajar mientras estudio?', a: 'Sí, en la mayoría de destinos (Australia, Canadá, Irlanda, etc.) la visa de estudiante permite trabajar un número de horas semanales legalmente.' },
+];
+---
+
+<section class="py-20 bg-white" id="faq">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-bold text-center mb-12 text-slate-900">Preguntas Frecuentes</h2>
+    <div class="space-y-4" id="faq-container">
+      {faqs.map((faq, index) => (
+        <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+          <button 
+            class="w-full flex items-center justify-between p-6 text-left cursor-pointer hover:bg-slate-100 transition-colors faq-toggle"
+            data-index={index}
+            aria-expanded="false"
+          >
+            <span class="font-bold text-slate-900 pr-4">{faq.q}</span>
+            <span class="material-symbols-outlined text-primary transition-transform duration-200 flex-shrink-0">expand_more</span>
+          </button>
+          <div class="hidden px-6 pb-6 text-slate-600 text-sm leading-relaxed faq-answer">
+            {faq.a}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function() {
+    const toggles = document.querySelectorAll('.faq-toggle');
+    
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const answer = this.nextElementSibling;
+        const icon = this.querySelector('.material-symbols-outlined');
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        
+        // Close all others
+        toggles.forEach(t => {
+          t.setAttribute('aria-expanded', 'false');
+          t.nextElementSibling.classList.add('hidden');
+          t.querySelector('.material-symbols-outlined').style.transform = 'rotate(0deg)';
+        });
+        
+        // Toggle current
+        if (!isExpanded) {
+          this.setAttribute('aria-expanded', 'true');
+          answer.classList.remove('hidden');
+          icon.style.transform = 'rotate(180deg)';
+        }
+      });
+    });
+  })();
+</script>

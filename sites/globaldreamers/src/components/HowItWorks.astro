@@ -1,0 +1,64 @@
+---
+const steps = [
+  {
+    number: '1',
+    title: 'Agenda',
+    body: 'Reserva tu cita gratuita con uno de nuestros expertos educativos.',
+  },
+  {
+    number: '2',
+    title: 'Plan Personalizado',
+    body: 'Diseñamos contigo el programa ideal según tu perfil, metas y presupuesto.',
+  },
+  {
+    number: '3',
+    title: 'Viaja',
+    body: 'Tramitamos tu visa, coordinamos tu llegada y te acompañamos en destino.',
+  },
+];
+---
+
+<section class="bg-white py-20">
+  <div class="max-w-7xl mx-auto px-8 flex flex-col gap-14">
+    <!-- Header -->
+    <h2 class="font-display font-bold text-4xl text-gray-900 text-center">
+      Tu viaje en 3 pasos simples
+    </h2>
+
+    <!-- Steps -->
+    <div class="relative grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Connector line (desktop) -->
+      <div class="hidden md:block absolute top-10 left-[calc(16.66%+24px)] right-[calc(16.66%+24px)] h-0.5 bg-gray-200"></div>
+
+      {steps.map(step => (
+        <div class="relative bg-white rounded-3xl border border-gray-100 shadow-lg p-8 flex flex-col gap-5 transform hover:-translate-y-2 transition-all duration-300">
+          <!-- Shadow overlay -->
+          <div class="absolute inset-0 rounded-3xl bg-gradient-to-b from-transparent to-black/[0.02] pointer-events-none"></div>
+
+          <!-- Number circle -->
+          <div class="relative w-12 h-12 bg-brand-600 rounded-full flex items-center justify-center shadow-lg shadow-brand-600/30 z-10">
+            <span class="text-white font-display font-bold text-xl">{step.number}</span>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <h3 class="font-display font-bold text-xl text-gray-900">{step.title}</h3>
+            <p class="text-sm text-gray-500 leading-relaxed">{step.body}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- CTA -->
+    <div class="flex justify-center">
+      <a
+        href="#contacto"
+        class="inline-flex items-center gap-2 px-8 py-4 bg-brand-600 text-white font-bold rounded-full hover:bg-brand-700 transition-all duration-300 shadow-lg hover:shadow-xl shadow-brand-600/30 transform hover:-translate-y-1"
+      >
+        ¡Comenzar Ahora!
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

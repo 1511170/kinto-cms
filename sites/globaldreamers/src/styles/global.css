@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* =====================================================
+   Tailwind v4: tokens via @theme (Global Dreamers)
+   ===================================================== */
+@theme {
+  /* Primary color: #694796 */
+  --color-primary: #694796;
+
+  /* Brand scale */
+  --color-brand-50:  #f5f3f9;
+  --color-brand-100: #ede9f5;
+  --color-brand-200: #ddd6ed;
+  --color-brand-300: #c4b5e0;
+  --color-brand-400: #a78bd0;
+  --color-brand-500: #8b5cc0;
+  --color-brand-600: #694796;
+  --color-brand-700: #5a3d80;
+  --color-brand-800: #4b3369;
+  --color-brand-900: #3c2952;
+
+  --font-sans:    "Inter", system-ui, sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
+}
+
+/* Base */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  color: #111827;
+  line-height: 1.6;
+  background-color: white;
+}
+
+body ::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(to right, #694796, #a78bd0);
+}
+
+.blob {
+  position: absolute;
+  filter: blur(50px);
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Bounce lento para floating cards */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(-5%); }
+  50% { transform: translateY(5%); }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 3s ease-in-out infinite;
+}
+
+/* Material Symbols Outlined */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+.material-symbols-outlined.fill-1 {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}

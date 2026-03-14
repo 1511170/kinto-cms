@@ -1,0 +1,14 @@
+---
+const partners = ['UNIVERSITY.CO', 'GLOBAL.EDU', 'ACADEMY.NZ', 'INSTITUTE.AU', 'LEARN.CA'];
+---
+
+<section class="bg-white py-10 border-y border-slate-100">
+  <div class="max-w-7xl mx-auto px-4">
+    <p class="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Nuestras Alianzas e Instituciones Partners</p>
+    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+      {partners.map((name) => (
+        <span class="text-2xl font-black italic text-slate-600">{name}</span>
+      ))}
+    </div>
+  </div>
+</section>

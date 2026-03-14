@@ -1,0 +1,74 @@
+---
+const features = [
+  {
+    title: 'Asesoría Gratuita',
+    body: 'Te guiamos sin costo para elegir el programa ideal según tu perfil.',
+    iconBg: 'bg-purple-100',
+    iconColor: 'text-purple-600',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />`,
+  },
+  {
+    title: 'Trámite de Visas',
+    body: 'Expertos en procesos migratorios con una tasa del 99% de éxito.',
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-600',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />`,
+  },
+  {
+    title: 'Acompañamiento',
+    body: 'No estarás solo. Soporte antes, durante y después de tu viaje.',
+    iconBg: 'bg-green-100',
+    iconColor: 'text-green-600',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />`,
+  },
+  {
+    title: 'Financiación',
+    body: 'Planes de pago flexibles y convenios con entidades financieras.',
+    iconBg: 'bg-yellow-100',
+    iconColor: 'text-yellow-600',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />`,
+  },
+  {
+    title: 'Trabajo',
+    body: 'Te ayudamos a preparar tu CV y encontrar ofertas laborales en destino.',
+    iconBg: 'bg-pink-100',
+    iconColor: 'text-pink-600',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />`,
+  },
+];
+---
+
+<section id="servicios" class="bg-gray-50 py-20">
+  <div class="max-w-7xl mx-auto px-8 flex flex-col gap-16">
+    <!-- Header -->
+    <div class="flex flex-col gap-4 max-w-2xl">
+      <h2 class="font-display font-bold text-4xl text-gray-900">
+        ¿Por qué elegir Global Dreamers?
+      </h2>
+      <p class="text-lg text-gray-500">
+        Más que una agencia, somos tus compañeros de viaje.
+        Nos encargamos de lo difícil para que tú disfrutes la experiencia.
+      </p>
+    </div>
+
+    <!-- Cards grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {features.map(f => (
+        <article class="group bg-white rounded-3xl border border-gray-100 shadow-sm p-8 flex flex-col gap-5 hover:shadow-lg transition-all duration-300">
+          <div class={`w-14 h-14 rounded-full ${f.iconBg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+            <svg class={`w-7 h-7 ${f.iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" set:html={f.icon} />
+          </div>
+          <div class="flex flex-col gap-2">
+            <h3 class="font-display font-bold text-xl text-gray-900">{f.title}</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">{f.body}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

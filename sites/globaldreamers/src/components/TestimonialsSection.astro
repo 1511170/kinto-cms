@@ -1,0 +1,32 @@
+---
+const testimonials = [
+  { quote: 'Gracias a Global Dreamers pude cumplir mi meta de estudiar en Australia. Su asesoría en la visa fue clave para que me la aprobaran en tiempo récord.', name: 'Camila Rojas', role: 'Estudiante en Brisbane', avatar: '/images/testimonial-camila.png' },
+  { quote: 'Canadá era mi sueño y ellos lo hicieron posible. La atención es personalizada y siempre estuvieron pendientes de mis dudas.', name: 'Marcos Silva', role: 'Estudiante en Toronto', avatar: '/images/testimonial-marcos.png' },
+  { quote: 'Malta fue la mejor decisión. Es increíble cómo Global Dreamers te ayuda con todo, desde el curso hasta el seguro médico.', name: 'Sofia Méndez', role: 'Estudiante en St. Julians', avatar: '/images/testimonial-sofia.png' },
+];
+---
+
+<section class="py-20 overflow-hidden bg-slate-50" id="testimonios">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-bold text-center mb-12 text-slate-900">Historias Reales de Nuestros Dreamers</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      {testimonials.map((t) => (
+        <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100">
+          <div class="flex gap-1 text-yellow-400 mb-4">
+            {[1,2,3,4,5].map(() => (
+              <span class="material-symbols-outlined fill-1 text-xl">star</span>
+            ))}
+          </div>
+          <p class="italic text-slate-600 mb-6">"{t.quote}"</p>
+          <div class="flex items-center gap-4">
+            <img alt={t.name} class="size-12 rounded-full border-2 border-primary object-cover" src={t.avatar} loading="lazy" />
+            <div>
+              <p class="font-bold text-slate-900">{t.name}</p>
+              <p class="text-xs text-slate-500 uppercase">{t.role}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

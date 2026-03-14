@@ -1,0 +1,323 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import { destinations } from '../data/destinations';
+import type { DestinationData } from '../data/destinations';
+
+export function getStaticPaths() {
+  return destinations.map((dest) => ({
+    params: { country: dest.country },
+    props: { dest },
+  }));
+}
+
+interface Props { dest: DestinationData }
+const { dest } = Astro.props;
+
+// Definir cursos según el destino
+const courses = [
+  {
+    title: 'Inglés General',
+    desc: 'Perfecciona tu nivel desde principiante hasta avanzado con profesores nativos.',
+    features: ['Desde 4 semanas', 'Enfoque comunicativo'],
+    popular: false
+  },
+  {
+    title: dest.country === 'canada' ? 'Co-op Work & Study' : 
+            dest.country === 'australia' ? 'Cursos VET (Técnicos)' :
+            dest.country === 'reino-unido' ? 'Cursos Profesionales' :
+            'Cursos Vocacionales',
+    desc: 'Especialízate mientras trabajas. Programas prácticos con alta empleabilidad.',
+    features: ['Muy económicos', 'Horarios flexibles'],
+    popular: true
+  },
+  {
+    title: 'Universidad',
+    desc: 'Grados y Masters con alta proyección migratoria y laboral.',
+    features: ['Prestigio internacional', 'Post-study work visa'],
+    popular: false
+  }
+];
+
+// Pasos del proceso
+const steps = [
+  {
+    num: '1',
+    title: 'Planificación a Medida',
+    desc: 'Elegimos el curso y la ciudad ideal según tu perfil y presupuesto. Sin costos ocultos.'
+  },
+  {
+    num: '2',
+    title: 'Gestión de Visa Exitosa',
+    desc: 'Nuestros expertos revisan cada documento para garantizar una aprobación rápida y segura.'
+  },
+  {
+    num: '3',
+    title: 'Soporte en Destino',
+    desc: `Te recibimos en ${dest.name}, te ayudamos con tu cuenta bancaria y a buscar tu primer empleo.`
+  }
+];
+
+// Beneficios específicos según destino
+const getBenefits = (country: string) => {
+  const benefits: Record<string, Array<{icon: string, title: string, desc: string}>> = {
+    australia: [
+      { icon: 'payments', title: 'Salario Mínimo Alto', desc: 'Gana desde $23.23 AUD por hora. El país con mejor paga del mundo.' },
+      { icon: 'work_history', title: 'Permiso de Trabajo', desc: 'Trabaja legalmente 48 horas quincenales mientras estudias.' },
+      { icon: 'sunny', title: 'Calidad de Vida', desc: 'Ciudades seguras, playas increíbles y un clima espectacular.' },
+      { icon: 'school', title: 'Educación Elite', desc: 'Instituciones de prestigio mundial reconocidas globalmente.' }
+    ],
+    canada: [
+      { icon: 'payments', title: 'Camino a la PR', desc: 'Estudiar es la vía más directa a la residencia permanente.' },
+      { icon: 'work_history', title: 'Trabajo Garantizado', desc: '20hrs/semana durante estudios + PGWP post-grado hasta 3 años.' },
+      { icon: 'school', title: 'Educación Top', desc: 'Universidades en ranking mundial con programas en inglés y francés.' },
+      { icon: 'sunny', title: 'Multicultural', desc: 'Comunidad latina enorme y bienvenida a inmigrantes.' }
+    ],
+    default: [
+      { icon: 'payments', title: 'Inversión Inteligente', desc: 'Relación calidad-precio inmejorable en educación y vida.' },
+      { icon: 'work_history', title: 'Trabajo Legal', desc: 'Permiso de trabajo mientras estudias para cubrir tus gastos.' },
+      { icon: 'sunny', title: 'Experiencia Única', desc: 'Descubre una nueva cultura mientras avanzas profesionalmente.' },
+      { icon: 'school', title: 'Educación de Calidad', desc: 'Instituciones reconocidas internacionalmente.' }
+    ]
+  };
+  return benefits[country] || benefits.default;
+};
+
+const benefits = getBenefits(dest.country);
+---
+
+<Layout
+  title={dest.seoTitle}
+  description={dest.seoDescription}
+  canonical={dest.canonical}
+  image={dest.heroBg}
+>
+  <Navbar />
+  
+  <main>
+    <!-- Hero Section -->
+    <section class="relative min-h-[80vh] flex items-center pt-12 pb-20 px-4">
+      <div class="absolute inset-0 z-0">
+        <div class="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent z-10"></div>
+        <img 
+          class="w-full h-full object-cover" 
+          alt={`${dest.name} - Estudiar en el exterior`}
+          src={dest.heroBg}
+        />
+      </div>
+      <div class="relative z-20 max-w-7xl mx-auto w-full">
+        <div class="max-w-2xl">
+          <span class="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-4 border border-primary/20">
+            {dest.name} 2024
+          </span>
+          <h1 class="text-5xl md:text-7xl font-black leading-tight tracking-tight mb-6 text-slate-900">
+            {dest.heroTitle.split('—')[0]} — <span class="text-primary">{dest.heroTitle.split('—')[1]?.trim() || dest.heroBadge}</span>
+          </h1>
+          <p class="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed">
+            Todo lo que necesitas para tu aventura en {dest.name}: gestión de visa, elección de curso y soporte personalizado en el destino. No camines solo.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a 
+              href={`https://wa.me/?text=${dest.whatsappMsg}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="bg-primary text-white px-8 py-4 rounded-xl text-lg font-extrabold hover:scale-105 transition-transform shadow-xl shadow-primary/30 text-center"
+            >
+              Quiero Mi Asesoría GRATIS para {dest.name}
+            </a>
+            <div class="flex items-center gap-3 px-4">
+              <div class="flex -space-x-2">
+                <img class="w-10 h-10 rounded-full border-2 border-white object-cover" alt="Student" src="/images/testimonial-camila.png" />
+                <img class="w-10 h-10 rounded-full border-2 border-white object-cover" alt="Student" src="/images/testimonial-marcos.png" />
+                <img class="w-10 h-10 rounded-full border-2 border-white object-cover" alt="Student" src="/images/testimonial-sofia.png" />
+              </div>
+              <span class="text-sm font-medium text-slate-500">+500 estudiantes este mes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem/Agitation Section -->
+    <section class="py-24 bg-white">
+      <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-12 text-slate-900">¿Te Identificas con Esto?</h2>
+        <div class="grid gap-4">
+          {dest.painPoints.map((point) => (
+            <div class="flex items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-100">
+              <p class="text-lg font-medium text-slate-800">"{point.title}"</p>
+              <svg class={`w-8 h-8 ${point.colorIcon}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={point.iconPath} />
+              </svg>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="py-24 px-4 bg-primary/5">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-black mb-4 text-slate-900">Global Dreamers Hace Todo Por Ti</h2>
+          <p class="text-slate-600 max-w-2xl mx-auto text-lg">Simplificamos tu proceso en 3 pasos claros para que solo te preocupes por empacar.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+          {steps.map((step) => (
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+              <div class="w-12 h-12 bg-primary text-white rounded-lg flex items-center justify-center font-bold text-xl mb-6">
+                {step.num}
+              </div>
+              <h3 class="text-xl font-bold mb-3 text-slate-900">{step.title}</h3>
+              <p class="text-slate-600 leading-relaxed">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits Grid -->
+    <section class="py-24 px-4 bg-white" id="beneficios">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-bold mb-12 text-center text-slate-900">¿Por qué {dest.name} es tu mejor opción?</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {dest.benefits.slice(0, 4).map((benefit) => (
+            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center hover:border-primary/30 transition-colors">
+              <span class="material-symbols-outlined text-primary text-4xl mb-4">{benefit.iconPath.includes('payments') ? 'payments' : benefit.iconPath.includes('briefcase') ? 'work_history' : benefit.iconPath.includes('sun') ? 'sunny' : 'school'}</span>
+              <h4 class="font-bold text-lg mb-2 text-slate-900">{benefit.title}</h4>
+              <p class="text-sm text-slate-500">{benefit.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Cities Cards -->
+    <section class="py-24 px-4 bg-slate-50" id="ciudades">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-bold mb-12 text-slate-900">Elige tu Ciudad Ideal</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+          {dest.cities.slice(0, 3).map((city) => (
+            <div class="group relative h-[400px] rounded-3xl overflow-hidden shadow-xl cursor-pointer">
+              <img 
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                alt={city.name}
+                src={city.image}
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-8 text-white">
+                <h3 class="text-2xl font-bold mb-2">{city.name}</h3>
+                <p class="text-sm opacity-90 mb-4">{city.para}</p>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary">Ver Opciones</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="py-24 px-4 bg-white" id="cursos">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-bold mb-12 text-center text-slate-900">Cursos Disponibles</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+          {courses.map((course, idx) => (
+            <div class={`flex flex-col p-8 rounded-2xl border transition-colors ${course.popular ? 'border-2 border-primary bg-primary/5' : 'border-slate-200 hover:border-primary'}`}>
+              <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xl font-extrabold text-slate-900">{course.title}</h3>
+                {course.popular && (
+                  <span class="bg-primary text-white text-[10px] px-2 py-1 rounded font-bold uppercase">Más Popular</span>
+                )}
+              </div>
+              <p class="text-slate-600 mb-6 flex-grow">{course.desc}</p>
+              <ul class="space-y-3 mb-8 text-sm">
+                {course.features.map((feature) => (
+                  <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">check_circle</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Investment Table -->
+    <section class="py-24 px-4 bg-slate-50" id="costos">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold mb-4 text-center text-slate-900">Inversión Transparente</h2>
+        <p class="text-center text-slate-500 mb-12">{dest.investmentCurrencyNote}</p>
+        <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200">
+                <th class="p-6 font-bold text-slate-900">Concepto</th>
+                <th class="p-6 font-bold text-right text-slate-900">Costo Estimado</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {dest.investmentRows.map((row) => (
+                <tr>
+                  <td class="p-6 text-slate-700">{row.concept}</td>
+                  <td class="p-6 text-right font-medium text-slate-900">{row.cost}</td>
+                </tr>
+              ))}
+              <tr class="bg-primary/5">
+                <td class="p-6 font-bold text-primary">TOTAL ESTIMADO</td>
+                <td class="p-6 text-right font-bold text-primary text-xl">{dest.investmentTotal}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-8 text-sm text-center text-slate-400 italic">Los precios varían según la escuela, ciudad y duración del curso.</p>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-24 px-4 bg-white" id="faq">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-3xl font-bold mb-12 text-center text-slate-900">Preguntas Frecuentes</h2>
+        <div class="space-y-4">
+          {dest.faqs.slice(0, 3).map((faq, idx) => (
+            <details class="group border border-slate-200 rounded-xl bg-white p-6" open={idx === 0}>
+              <summary class="flex justify-between items-center font-bold cursor-pointer list-none text-slate-900">
+                {faq.q}
+                <span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+              </summary>
+              <p class="mt-4 text-slate-600">{faq.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-24 px-4 relative overflow-hidden">
+      <div class="absolute inset-0 bg-primary z-0"></div>
+      <div class="relative z-10 max-w-4xl mx-auto text-center text-white">
+        <h2 class="text-4xl md:text-5xl font-black mb-6 leading-tight">
+          {dest.ctaTitle}
+        </h2>
+        <p class="text-xl mb-10 opacity-90">{dest.ctaSubtext}</p>
+        <div class="flex flex-col items-center gap-4">
+          <a 
+            href={`https://wa.me/?text=${dest.whatsappMsg}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white text-primary px-10 py-5 rounded-2xl text-xl font-black hover:scale-105 transition-transform shadow-2xl"
+          >
+            ¡Solicitar Mi Asesoría GRATIS Ahora!
+          </a>
+          <p class="text-sm font-medium opacity-80 flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">schedule</span> 
+            Cupos limitados para asesorías esta semana
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <Footer />
+</Layout>

@@ -1,0 +1,51 @@
+---
+// Logos de instituciones educativas australianas aliadas
+const partners = [
+  { src: '/images/partners/logo-ilsc.png', alt: 'ILSC Education Group' },
+  { src: '/images/partners/logo-kaplan.png', alt: 'Kaplan International' },
+  { src: '/images/partners/logo-navitas.png', alt: 'Navitas' },
+  { src: '/images/partners/logo-embassy.png', alt: 'Embassy English' },
+  { src: '/images/partners/logo-studygroup.png', alt: 'Study Group' },
+  { src: '/images/partners/logo-curtin.png', alt: 'Curtin College' },
+];
+
+const stats = [
+  { value: '99%',  label: 'Visas Aprobadas' },
+  { value: '+15',  label: 'Años de Experiencia' },
+  { value: '11',   label: 'Destinos Globales' },
+  { value: '24/7', label: 'Soporte en Destino' },
+];
+---
+
+<section class="bg-white border border-gray-100">
+  <div class="max-w-7xl mx-auto px-8 py-12 flex flex-col gap-8">
+    <!-- Título -->
+    <p class="text-center text-sm font-semibold text-gray-400 uppercase tracking-widest">
+      Trabajamos con las mejores instituciones
+    </p>
+
+    <!-- Fila de logos (6 columnas) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center">
+      {partners.map((p) => (
+        <div class="flex justify-center items-center w-full min-h-[60px] grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-500">
+          <img
+            src={p.src}
+            alt={p.alt}
+            class="max-h-12 w-auto object-contain"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+
+    <!-- Stats -->
+    <div class="border-t border-gray-100 pt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+      {stats.map(stat => (
+        <div class="flex flex-col items-center gap-1">
+          <span class="font-sans font-extrabold text-4xl text-brand-600">{stat.value}</span>
+          <span class="text-sm font-medium text-gray-500 text-center">{stat.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

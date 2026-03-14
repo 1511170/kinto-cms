@@ -1,0 +1,27 @@
+---
+const steps = [
+  { num: '1', icon: 'calendar_month', title: 'Agenda Tu Cita', text: 'Hablamos sobre tus metas, presupuesto y destinos favoritos.' },
+  { num: '2', icon: 'edit_document', title: 'Diseño de Plan', text: 'Seleccionamos curso, alojamiento y preparamos tu visa.' },
+  { num: '3', icon: 'flight', title: '¡Vuela y Sueña!', text: 'Recibes tu visa y despegarás hacia tu nueva vida.' },
+];
+---
+
+<section class="py-20 bg-slate-50" id="proceso">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold mb-2 text-slate-900">Tu camino al éxito en 3 pasos</h2>
+      <p class="text-slate-500">Simplificamos lo complejo para que tú solo te preocupes por empacar.</p>
+    </div>
+    <div class="relative grid md:grid-cols-3 gap-12">
+      <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -z-10" aria-hidden="true"></div>
+      {steps.map((step) => (
+        <div class="bg-white p-8 rounded-2xl border border-slate-100 relative shadow-sm">
+          <div class="absolute -top-4 -left-4 size-10 bg-primary text-white rounded-full flex items-center justify-center font-black text-xl">{step.num}</div>
+          <span class="material-symbols-outlined text-4xl text-primary mb-4 block">{step.icon}</span>
+          <h3 class="text-xl font-bold mb-3 text-slate-900">{step.title}</h3>
+          <p class="text-slate-500">{step.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

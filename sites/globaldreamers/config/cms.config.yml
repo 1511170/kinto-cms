@@ -1,0 +1,32 @@
+# Sveltia CMS Configuration
+# Auto-generado de skills activas + overrides manuales
+
+backend:
+  name: github
+  repo: kinto-cms/serviworldlogistics-content
+  branch: main
+  base_url: https://swl-auth.kinto.workers.dev
+  auth_endpoint: auth
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+# Las collections se generan dinámicamente según skills activas
+# Ejemplo de estructura que skills pueden añadir:
+
+collections: []
+  # Skills añaden sus collections aquí vía:
+  # kinto skill add cms-sveltia
+  # 
+  # Ejemplo skill "pages":
+  # - name: "pages"
+  #   label: "Páginas"
+  #   folder: "src/content/pages"
+  #   create: true
+  #   fields:
+  #     - { label: "Título", name: "title", widget: "string" }
+  #     - { label: "Contenido", name: "body", widget: "markdown" }
+
+# Config de editor
+editor:
+  preview: true

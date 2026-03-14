@@ -1,0 +1,59 @@
+---
+const heroImage = '/images/hero-students.png';
+const avatars = [
+  '/images/testimonial-camila.png',
+  '/images/testimonial-marcos.png', 
+  '/images/testimonial-sofia.png',
+];
+---
+
+<section class="relative py-12 lg:py-24 overflow-hidden bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold mb-6">
+          <span class="material-symbols-outlined text-sm">verified</span>
+          99% Tasa de Aprobación de Visas
+        </div>
+        <h1 class="text-4xl md:text-6xl font-black leading-tight mb-6 text-slate-900">
+          Estudia, Trabaja y Vive en el Exterior — <span class="text-primary">Hacemos Tu Sueño Realidad</span>
+        </h1>
+        <p class="text-lg text-slate-600 mb-8 max-w-lg">
+          Asesoría 100% gratuita para que logres tu meta internacional. Más de 500 estudiantes ya están viviendo su experiencia.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a href="/#contacto" class="bg-primary text-white text-lg font-bold py-4 px-8 rounded-xl hover:scale-105 transition-transform shadow-xl shadow-primary/30 inline-flex items-center justify-center text-center">
+            Agenda Tu Asesoría GRATIS
+          </a>
+          <div class="flex items-center gap-3 px-4">
+            <div class="flex -space-x-2">
+              {avatars.map((src, i) => (
+                <img 
+                  alt={`Student ${i + 1}`} 
+                  class="size-10 rounded-full border-2 border-white object-cover" 
+                  src={src} 
+                  loading="lazy" 
+                />
+              ))}
+            </div>
+            <span class="text-sm font-medium text-slate-500">+500 estudiantes felices</span>
+          </div>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="rounded-3xl overflow-hidden shadow-2xl rotate-2">
+          <img 
+            alt="Estudiantes internacionales felices" 
+            class="w-full h-auto object-cover" 
+            src={heroImage} 
+            loading="eager" 
+          />
+        </div>
+        <div class="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl border border-slate-100 -rotate-3">
+          <p class="text-primary font-bold text-3xl">100%</p>
+          <p class="text-xs font-semibold text-slate-500">Gratuito para Estudiantes</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

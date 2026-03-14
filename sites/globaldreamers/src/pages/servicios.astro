@@ -1,0 +1,220 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const services = [
+  {
+    icon: 'chat',
+    title: 'Asesoría Gratuita',
+    desc: 'Orientación personalizada sin costo inicial para definir tu mejor destino y programa académico.'
+  },
+  {
+    icon: 'account_balance',
+    title: 'Gestión Institucional',
+    desc: 'Tramitamos tu admisión y vinculación directa con las instituciones educativas de mayor prestigio global.'
+  },
+  {
+    icon: 'badge',
+    title: 'Trámite de Visas',
+    desc: 'Expertos en procesos migratorios que preparan tu documentación para maximizar la aprobación.'
+  },
+  {
+    icon: 'flight_takeoff',
+    title: 'Acompañamiento Pre-viaje',
+    desc: 'Sesiones informativas sobre cultura, seguros médicos y maletas para que nada te tome por sorpresa.'
+  },
+  {
+    icon: 'home_pin',
+    title: 'Apoyo en Destino',
+    desc: 'Te recibimos al aterrizar y te ayudamos con tu instalación inicial para que te sientas como en casa.'
+  },
+  {
+    icon: 'payments',
+    title: 'Opciones de Financiamiento',
+    desc: 'Facilitamos planes de pago flexibles y asesoría en becas para que tu inversión sea sostenible.'
+  }
+];
+
+const benefits = [
+  'Red de +200 instituciones globales',
+  'Soporte 24/7 en emergencias durante el viaje',
+  'Expertos certificados en migración'
+];
+---
+
+<Layout 
+  title="Servicios | Global Dreamers"
+  description="Descubre nuestros servicios integrales para estudiar en el exterior: asesoría gratuita, gestión de visas, acompañamiento en destino y más. Agencia registrada en Australia."
+  canonical="/servicios/"
+>
+  <Navbar />
+  
+  <main class="flex-1">
+    <!-- Hero Section -->
+    <section class="py-12 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div class="flex flex-col gap-6 order-2 lg:order-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-100 text-brand-600 text-sm font-bold w-fit">
+              <span class="material-symbols-outlined text-sm">rocket_launch</span>
+              Tu futuro comienza aquí
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-slate-900">
+              Te Acompañamos en Cada Paso del Camino
+            </h1>
+            <p class="text-lg text-slate-600 leading-relaxed">
+              Tu sueño de estudiar en el extranjero comienza con una asesoría experta y personalizada. Nos encargamos de la complejidad para que tú te enfoques en aprender.
+            </p>
+            <div class="flex items-center gap-4 pt-4">
+              <a 
+                href="/#contacto"
+                class="inline-flex items-center gap-2 bg-brand-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/25"
+              >
+                Ver Planes
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+          <div class="order-1 lg:order-2">
+            <div class="rounded-3xl overflow-hidden shadow-2xl">
+              <img 
+                src="/images/hero-students.png" 
+                alt="Estudiante feliz en aeropuerto internacional"
+                class="w-full h-auto object-cover"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Grid Section -->
+    <section class="py-16 lg:py-20 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-slate-900 mb-4">Servicios Integrales</h2>
+          <div class="w-20 h-1 bg-brand-600 mx-auto rounded-full"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service) => (
+            <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:border-brand-600 transition-all group shadow-sm hover:shadow-lg">
+              <div class="size-14 bg-brand-100 rounded-xl flex items-center justify-center text-brand-600 mb-6 group-hover:bg-brand-600 group-hover:text-white transition-colors">
+                <span class="material-symbols-outlined text-3xl">{service.icon}</span>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 mb-3">{service.title}</h3>
+              <p class="text-slate-600 leading-relaxed">{service.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Us Section / Stats -->
+    <section class="py-16 lg:py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-slate-900 rounded-3xl overflow-hidden relative">
+          <!-- Decorative gradient -->
+          <div class="absolute inset-0 opacity-20 bg-gradient-to-br from-brand-600 via-transparent to-transparent"></div>
+          
+          <div class="grid md:grid-cols-2 p-8 md:p-16 items-center gap-12 relative z-10">
+            <div>
+              <h2 class="text-white text-3xl md:text-4xl font-bold mb-6">¿Por qué elegir Global Dreamers?</h2>
+              <p class="text-slate-300 text-lg mb-8">
+                Nuestra experiencia nos permite garantizar procesos seguros y eficientes. No solo somos asesores, somos tus aliados estratégicos en el exterior.
+              </p>
+              <ul class="space-y-4">
+                {benefits.map((benefit) => (
+                  <li class="flex items-center gap-3 text-white font-medium">
+                    <span class="material-symbols-outlined text-brand-600 bg-white rounded-full p-0.5">check</span>
+                    {benefit}
+                  </li>
+                ))}
+              </ul>
+              
+              <!-- Australia Badge -->
+              <div class="mt-8 inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-lg">
+                <span class="text-lg">🇦🇺</span>
+                <span class="text-sm font-medium text-white">Empresa registrada en Australia</span>
+              </div>
+            </div>
+            
+            <div class="flex flex-col items-center justify-center bg-white/5 backdrop-blur-sm rounded-2xl p-10 border border-white/10 text-center">
+              <div class="text-brand-400 text-7xl md:text-8xl font-black mb-2">99%</div>
+              <div class="text-white text-xl font-bold mb-1">Tasa de Éxito en Visas</div>
+              <div class="flex items-center gap-2 text-emerald-400 font-bold">
+                <span class="material-symbols-outlined">trending_up</span>
+                <span>+5% anual</span>
+              </div>
+              <p class="text-slate-400 text-sm mt-6 italic">
+                Resultados auditados basados en más de 5,000 aplicaciones exitosas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="py-16 lg:py-20 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-slate-900 mb-4">¿Cómo funciona?</h2>
+          <p class="text-slate-500 max-w-2xl mx-auto">Un proceso simple y transparente para que cumplas tu sueño de estudiar en el exterior.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-4 gap-8">
+          <div class="text-center">
+            <div class="w-16 h-16 bg-brand-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
+            <h4 class="font-bold text-lg mb-2">Asesoría Inicial</h4>
+            <p class="text-sm text-slate-600">Conversamos sobre tus metas y te presentamos las mejores opciones.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-brand-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
+            <h4 class="font-bold text-lg mb-2">Documentación</h4>
+            <p class="text-sm text-slate-600">Te guiamos en la preparación de todos los documentos necesarios.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-brand-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+            <h4 class="font-bold text-lg mb-2">Aplicación</h4>
+            <p class="text-sm text-slate-600">Gestionamos tu admisión y tramitamos tu visa de estudiante.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-brand-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+            <h4 class="font-bold text-lg mb-2">¡A volar!</h4>
+            <p class="text-sm text-slate-600">Te acompañamos en tu llegada y te ayudamos a instalarte.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-white">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-6">Inicia tu proceso hoy</h2>
+        <p class="text-lg text-slate-600 mb-10">
+          Estamos listos para escucharte. Agenda una cita informativa gratuita con uno de nuestros especialistas y descubre tus posibilidades.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a 
+            href="/#contacto"
+            class="inline-flex items-center justify-center gap-2 bg-brand-600 text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/30"
+          >
+            Agendar Cita Gratis
+          </a>
+          <a 
+            href="https://wa.me/61412345678?text=Hola%2C%20me%20interesa%20conocer%20más%20sobre%20sus%20servicios"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-slate-300 text-slate-700 px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition-all"
+          >
+            <span class="material-symbols-outlined">chat</span>
+            Hablar con un Experto
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

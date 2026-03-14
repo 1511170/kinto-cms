@@ -1,0 +1,53 @@
+---
+const mainDests = [
+  { name: 'Australia', tag: 'Trabaja 48hrs/quincena', desc: 'Educación de clase mundial y sol.', href: '/estudiar-en-australia', image: '/images/hero-australia.png' },
+  { name: 'Canadá', tag: 'Camino a Residencia', desc: 'Naturaleza y oportunidades infinitas.', href: '/estudiar-en-canada', image: '/images/hero-canada.png' },
+  { name: 'Malta', tag: 'Sin Visa (Latam)', desc: 'El corazón del Mediterráneo.', href: '/estudiar-en-malta', image: '/images/hero-malta.png' },
+  { name: 'Dubai', tag: 'Visa 100% garantizada', desc: 'Lujo, trabajo y futuro.', href: '/estudiar-en-dubai', image: '/images/hero-dubai.png' },
+];
+const miniDests = [
+  { name: 'Irlanda', sub: 'Work & Study', href: '/estudiar-en-irlanda' },
+  { name: 'Nueva Zelanda', sub: 'Aventura', href: '/estudiar-en-nueva-zelanda' },
+  { name: 'USA', sub: 'Universidades', href: '/estudiar-en-estados-unidos' },
+  { name: 'España', sub: 'Masterados', href: '/estudiar-en-espana' },
+  { name: 'Francia', sub: 'Gastronomía', href: '#' },
+  { name: 'Alemania', sub: 'Ingeniería', href: '/estudiar-en-alemania' },
+  { name: 'Reino Unido', sub: 'Prestigio', href: '/estudiar-en-reino-unido' },
+];
+---
+
+<section class="py-20 bg-white" id="destinos">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+      <div>
+        <h2 class="text-3xl font-bold mb-2 text-slate-900">Destinos Populares</h2>
+        <p class="text-slate-600">Encuentra el lugar perfecto para tu próximo gran paso.</p>
+      </div>
+      <a class="text-primary font-bold flex items-center gap-1 group" href="/destinos">
+        Ver todos los destinos
+        <span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+      </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {mainDests.map((d) => (
+        <a href={d.href} class="group relative overflow-hidden rounded-2xl bg-slate-200 aspect-[4/5] block">
+          <img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={d.name} src={d.image} loading="lazy" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="absolute bottom-0 p-6 text-white w-full">
+            <span class="bg-primary/90 text-[10px] font-bold px-2 py-1 rounded uppercase mb-2 inline-block">{d.tag}</span>
+            <h3 class="text-xl font-bold">{d.name}</h3>
+            <p class="text-sm text-slate-200">{d.desc}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mt-6">
+      {miniDests.map((d) => (
+        <a href={d.href} class="bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-primary transition-colors cursor-pointer block">
+          <p class="font-bold text-sm text-slate-900">{d.name}</p>
+          <p class="text-xs text-slate-400">{d.sub}</p>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
