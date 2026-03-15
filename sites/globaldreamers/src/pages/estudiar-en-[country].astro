@@ -117,16 +117,35 @@ const benefits = getBenefits(dest.country);
           <p class="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed">
             Todo lo que necesitas para tu aventura en {dest.name}: gestión de visa, elección de curso y soporte personalizado en el destino. No camines solo.
           </p>
-          <div class="flex flex-col sm:flex-row gap-4">
+          <div class="flex flex-col gap-4">
+            <!-- Primary CTA -->
             <a 
               href={`https://wa.me/?text=${dest.whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
-              class="bg-primary text-white px-8 py-4 rounded-xl text-lg font-extrabold hover:scale-105 transition-transform shadow-xl shadow-primary/30 text-center"
+              class="bg-primary text-white px-8 py-4 rounded-xl text-lg font-extrabold hover:scale-105 transition-transform shadow-xl shadow-primary/30 text-center inline-flex items-center justify-center gap-2"
             >
+              <span class="material-symbols-outlined">chat</span>
               Quiero Mi Asesoría GRATIS para {dest.name}
             </a>
-            <div class="flex items-center gap-3 px-4">
+            
+            {/* Australia Journey Builder Button - Only for Australia */}
+            {dest.country === 'australia' && (
+              <a 
+                href="/estudiar-en-australia/planner"
+                class="group relative overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 text-white px-8 py-4 rounded-xl font-bold hover:shadow-xl transition-all text-center"
+              >
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-600 to-brand-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <span class="relative flex items-center justify-center gap-2">
+                  <span class="material-symbols-outlined">auto_awesome</span>
+                  <span>✨ Diseña tu vida en Australia - Calculadora Interactiva</span>
+                  <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </span>
+              </a>
+            )}
+            
+            {/* Social Proof */}
+            <div class="flex items-center gap-3 pt-2">
               <div class="flex -space-x-2">
                 <img class="w-10 h-10 rounded-full border-2 border-white object-cover" alt="Student" src="/images/testimonial-camila.png" />
                 <img class="w-10 h-10 rounded-full border-2 border-white object-cover" alt="Student" src="/images/testimonial-marcos.png" />

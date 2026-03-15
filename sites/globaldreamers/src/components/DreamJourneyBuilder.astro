@@ -1,0 +1,753 @@
+---
+// Dream Journey Builder - Quiz interactivo para recomendar destinos
+// Basado en 3 criterios: Objetivo, Experiencia, Presupuesto
+
+interface DestinationRecommendation {
+  id: string;
+  name: string;
+  flagCode: string;
+  image: string;
+  badge: string;
+  title: string;
+  description: string;
+  benefits: Array<{icon: string; title: string; desc: string}>;
+  href: string;
+}
+
+// Componente de bandera SVG
+const FlagSVG = ({ code, className = "w-6 h-4" }: { code: string; className?: string }) => {
+  const flags: Record<string, string> = {
+    ca: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#fff" d="M150 0h340v480H150z"/><path fill="#d52b1e" d="M0 0h150v480H0zm340 0h300v480H340z"/><path fill="#d52b1e" d="m265 200l-20 10 20 10-15 15 20 5-10 20 20-10v20l15-15 15 15v-20l20 10-10-20 20-5-15-15 20-10-20-10 15-15-20-5 10-20-20 10v-20l-15 15-15-15v20l-20-10 10 20-20 5z"/></svg>`,
+    mt: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#fff" d="M0 0h640v480H0z"/><path fill="#cf142b" d="M0 432h640v48H0zm0-384h640v48H0zm224 96h64v96h-64z"/><path fill="#a7a6a4" d="M256 120h32v312h-32z"/><path fill="#cf142b" d="M288 144h64v48h-64zm-96 0h64v48h-64z"/></svg>`,
+    ae: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#00732f" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#000" d="M0 320h640v160H0z"/><path fill="#f00" d="M0 0h220v480H0z"/></svg>`,
+    gb: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>`,
+    nz: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>`,
+    ie: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#169b62" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ff883e" d="M426.7 0H640v480H426.7z"/></svg>`,
+    es: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#aa151b" d="M0 0h640v120H0zm0 360h640v120H0z"/><path fill="#f1bf00" d="M0 120h640v240H0z"/></svg>`,
+    de: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#000" d="M0 0h640v160H0z"/><path fill="#f00" d="M0 160h640v160H0z"/><path fill="#fc0" d="M0 320h640v160H0z"/></svg>`,
+    it: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#009246" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ce2b37" d="M426.7 0H640v480H426.7z"/></svg>`,
+    us: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#b22234" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 36.9h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0z"/><path fill="#3c3b6e" d="M0 0h256.8v258.5H0z"/></svg>`,
+    au: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="${className}"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>`,
+  };
+  return flags[code] || flags['ca'];
+};
+
+// Mapa de códigos de país para banderas
+const countryCodes: Record<string, string> = {
+  'canada': 'ca',
+  'malta': 'mt',
+  'dubai': 'ae',
+  'reino-unido': 'gb',
+  'nueva-zelanda': 'nz',
+  'irlanda': 'ie',
+  'espana': 'es',
+  'alemania': 'de',
+  'italia': 'it',
+  'estados-unidos': 'us',
+  'australia': 'au',
+};
+
+// Mapa de recomendaciones basado en combinaciones
+const recommendations: Record<string, DestinationRecommendation> = {
+  // AUSTRALIA - Sol y Playa + Trabajo
+  'goal-work_vibe-beach_budget-medium': {
+    id: 'australia',
+    name: 'Australia',
+    flagCode: 'au',
+    image: '/images/hero-australia.png',
+    badge: 'Trabaja 48hrs/quincena',
+    title: 'Brisbane & Gold Coast',
+    description: 'El destino perfecto para trabajar y disfrutar del sol australiano.',
+    benefits: [
+      {icon: 'payments', title: 'Trabaja legalmente', desc: '48 horas por quincena permitidas con visa de estudiante.'},
+      {icon: 'verified_user', title: '99% Tasa de Aprobación', desc: 'Nuestros expertos aseguran que tu perfil sea el ideal para la embajada.'},
+      {icon: 'support_agent', title: 'Acompañamiento 24/7', desc: 'Te recibimos en destino para tus primeros trámites.'}
+    ],
+    href: '/estudiar-en-australia/'
+  },
+  'goal-work_vibe-beach_budget-premium': {
+    id: 'australia',
+    name: 'Australia',
+    flagCode: 'au',
+    image: '/images/hero-australia.png',
+    badge: 'Calidad de Vida Premium',
+    title: 'Sydney',
+    description: 'La ciudad más icónica de Australia para trabajar y vivir la experiencia premium.',
+    benefits: [
+      {icon: 'payments', title: 'Salarios más altos', desc: 'Gana en promedio $25-30 AUD/hora trabajando en Sydney.'},
+      {icon: 'apartment', title: 'Ciudad Global', desc: 'Oportunidades laborales en turismo, hospitality y retail.'},
+      {icon: 'beach_access', title: 'Estilo de Vida', desc: 'Playas world-class y clima espectacular todo el año.'}
+    ],
+    href: '/estudiar-en-australia/'
+  },
+  
+  // CANADÁ - Naturaleza + Carrera/Trabajo
+  'goal-career_vibe-nature_budget-medium': {
+    id: 'canada',
+    name: 'Canadá',
+    flagCode: 'ca',
+    image: '/images/hero-canada.png',
+    badge: 'Camino a Residencia Permanente',
+    title: 'Vancouver & Calgary',
+    description: 'Naturaleza impresionante y universidades de clase mundial.',
+    benefits: [
+      {icon: 'id', title: 'PGWP 3 Años', desc: 'Permiso de trabajo post-graduación de hasta 3 años.'},
+      {icon: 'home', title: 'Residencia Permanente', desc: 'El camino más directo a la residencia canadiense.'},
+      {icon: 'landscape', title: 'Naturaleza Única', desc: 'Montañas, lagos y vida al aire libre incomparable.'}
+    ],
+    href: '/estudiar-en-canada/'
+  },
+  'goal-work_vibe-nature_budget-medium': {
+    id: 'canada',
+    name: 'Canadá',
+    flagCode: 'ca',
+    image: '/images/hero-canada.png',
+    badge: 'Trabaja 20hrs/semana',
+    title: 'Toronto',
+    description: 'La ciudad más multicultural del mundo con oportunidades infinitas.',
+    benefits: [
+      {icon: 'payments', title: 'Trabajo Garantizado', desc: 'Salario mínimo de $16-17 CAD/hora.'},
+      {icon: 'diversity', title: 'Comunidad Latina', desc: 'Más de 200 estudiantes latinos ya en Toronto.'},
+      {icon: 'verified_user', title: '99% Visas Aprobadas', desc: 'Experiencia comprobada en procesos canadienses.'}
+    ],
+    href: '/estudiar-en-canada/'
+  },
+  
+  // MALTA - Sol y Playa + Idioma (Económico)
+  'goal-language_vibe-beach_budget-economy': {
+    id: 'malta',
+    name: 'Malta',
+    flagCode: 'mt',
+    image: '/images/hero-malta.png',
+    badge: 'Sin Visa (Latam)',
+    title: 'St Julian\'s & Valletta',
+    description: 'El destino europeo más accesible para aprender inglés junto al mar.',
+    benefits: [
+      {icon: 'language', title: 'Inglés Oficial', desc: 'Aprende inglés en un país de la UE donde es idioma oficial.'},
+      {icon: 'euro', title: 'Más Económico', desc: '40-50% más barato que UK o Irlanda.'},
+      {icon: 'map', title: 'Viaja por Europa', desc: 'Acceso Schengen para viajar por 26 países europeos.'}
+    ],
+    href: '/estudiar-en-malta/'
+  },
+  'goal-language_vibe-beach_budget-medium': {
+    id: 'malta',
+    name: 'Malta',
+    flagCode: 'mt',
+    image: '/images/hero-malta.png',
+    badge: '300 Días de Sol',
+    title: 'Malta',
+    description: 'Clima mediterráneo perfecto todo el año mientras estudias inglés.',
+    benefits: [
+      {icon: 'wb_sunny', title: 'Clima Perfecto', desc: '300 días de sol al año y aguas cristalinas.'},
+      {icon: 'history', title: 'Historia Milenaria', desc: 'Patrimonio UNESCO y cultura única en el Mediterráneo.'},
+      {icon: 'groups', title: 'Comunidad Internacional', desc: 'Estudiantes de todo el mundo.'}
+    ],
+    href: '/estudiar-en-malta/'
+  },
+  
+  // DUBAI - Ciudades + Trabajo (Premium)
+  'goal-work_vibe-city_budget-premium': {
+    id: 'dubai',
+    name: 'Dubai',
+    flagCode: 'ae',
+    image: '/images/hero-dubai.png',
+    badge: '0% Impuestos',
+    title: 'Dubai',
+    description: 'La ciudad del futuro donde todo lo que ganas es tuyo.',
+    benefits: [
+      {icon: 'payments', title: 'Sin Impuestos', desc: '0% de impuesto sobre la renta. Todo lo que ganas es tuyo.'},
+      {icon: 'security', title: 'Ciudad más Segura', desc: 'Top 5 mundial en seguridad y calidad de vida.'},
+      {icon: 'luxury', title: 'Estilo de Vida Premium', desc: 'Arquitectura futurista y servicios de clase mundial.'}
+    ],
+    href: '/estudiar-en-dubai/'
+  },
+  'goal-career_vibe-city_budget-premium': {
+    id: 'dubai',
+    name: 'Dubai',
+    flagCode: 'ae',
+    image: '/images/hero-dubai.png',
+    badge: 'Hub de Negocios',
+    title: 'Dubai',
+    description: 'El centro de negocios de Oriente Medio con oportunidades globales.',
+    benefits: [
+      {icon: 'business', title: 'Networking Global', desc: 'Conecta con profesionales de 200 nacionalidades.'},
+      {icon: 'trending_up', title: 'Crecimiento Económico', desc: 'Economía en expansión con alta demanda laboral.'},
+      {icon: 'flight', title: 'Hub Mundial', desc: 'Conexiones aéreas directas a todo el mundo.'}
+    ],
+    href: '/estudiar-en-dubai/'
+  },
+  
+  // REINO UNIDO - Ciudades + Carrera/Idioma
+  'goal-career_vibe-city_budget-medium': {
+    id: 'reino-unido',
+    name: 'Reino Unido',
+    flagCode: 'gb',
+    image: '/images/hero-uk.png',
+    badge: 'Graduate Route Visa',
+    title: 'Manchester & Birmingham',
+    description: 'Universidades de prestigio con costos más accesibles que Londres.',
+    benefits: [
+      {icon: 'school', title: 'Universidades Top', desc: 'Oxford, Cambridge, LSE - educación de clase mundial.'},
+      {icon: 'badge', title: 'Trabaja 2 Años Post-Grado', desc: 'Graduate Route Visa para trabajar sin patrocinador.'},
+      {icon: 'language', title: 'Inglés Nativo', desc: 'Aprende el inglés más reconocido del mundo.'}
+    ],
+    href: '/estudiar-en-reino-unido/'
+  },
+  'goal-language_vibe-city_budget-medium': {
+    id: 'reino-unido',
+    name: 'Reino Unido',
+    flagCode: 'gb',
+    image: '/images/hero-uk.png',
+    badge: 'Inglés Académico',
+    title: 'Londres',
+    description: 'La capital mundial del inglés con cultura incomparable.',
+    benefits: [
+      {icon: 'theater', title: 'Cultura y Arte', desc: 'Museos gratuitos, teatro West End y vida cultural.'},
+      {icon: 'diversity', title: 'Multicultural', desc: 'Más de 300 idiomas hablados en Londres.'},
+      {icon: 'work', title: 'Trabajo 20hrs/semana', desc: 'Oportunidades laborales en retail y hospitality.'}
+    ],
+    href: '/estudiar-en-reino-unido/'
+  },
+  
+  // NUEVA ZELANDA - Naturaleza + Todo
+  'goal-career_vibe-nature_budget-medium': {
+    id: 'nueva-zelanda',
+    name: 'Nueva Zelanda',
+    flagCode: 'nz',
+    image: '/images/hero-newzealand.png',
+    badge: 'Calidad de Vida #1',
+    title: 'Auckland & Wellington',
+    description: 'El país con la mejor calidad de vida del mundo y naturaleza impresionante.',
+    benefits: [
+      {icon: 'favorite', title: 'Calidad de Vida #1', desc: 'Líder mundial en bienestar y felicidad.'},
+      {icon: 'landscape', title: 'Naturaleza Extrema', desc: 'Fiordos, glaciares, volcanes y playas paradisíacas.'},
+      {icon: 'shield', title: 'País más Seguro', desc: 'Top 2 en el Índice Global de Paz.'}
+    ],
+    href: '/estudiar-en-nueva-zelanda/'
+  },
+  'goal-work_vibe-nature_budget-medium': {
+    id: 'nueva-zelanda',
+    name: 'Nueva Zelanda',
+    flagCode: 'nz',
+    image: '/images/hero-newzealand.png',
+    badge: 'Aventura Garantizada',
+    title: 'Queenstown & Christchurch',
+    description: 'Para los amantes de la adrenalina y la naturaleza salvaje.',
+    benefits: [
+      {icon: 'kayaking', title: 'Deportes Extremos', desc: 'Capital mundial del bungee jumping y deportes de aventura.'},
+      {icon: 'payments', title: 'Buenos Salarios', desc: 'Salario mínimo de $23.65 NZD/hora.'},
+      {icon: 'hiking', title: 'Senderismo Único', desc: 'Great Walks considerados los mejores del mundo.'}
+    ],
+    href: '/estudiar-en-nueva-zelanda/'
+  },
+  
+  // IRLANDA - Ciudades/Naturaleza + Tech
+  'goal-career_vibe-city_budget-medium': {
+    id: 'irlanda',
+    name: 'Irlanda',
+    flagCode: 'ie',
+    image: '/images/hero-ireland.png',
+    badge: 'Hub Tech Europeo',
+    title: 'Dublín',
+    description: 'Sede europea de Google, Meta, Apple y LinkedIn.',
+    benefits: [
+      {icon: 'computer', title: 'Capital Tech Europea', desc: 'Google, Meta, Apple, LinkedIn tienen HQ aquí.'},
+      {icon: 'euro', title: 'Salario Alto', desc: '€12.70/hr salario mínimo, entre los más altos de Europa.'},
+      {icon: 'badge', title: 'Stay Back 2 Años', desc: 'Permiso post-graduación para buscar empleo.'}
+    ],
+    href: '/estudiar-en-irlanda/'
+  },
+  'goal-language_vibe-nature_budget-medium': {
+    id: 'irlanda',
+    name: 'Irlanda',
+    flagCode: 'ie',
+    image: '/images/hero-ireland.png',
+    badge: 'Inglés en la UE',
+    title: 'Cork & Galway',
+    description: 'El único país angloparlante en la Unión Europea.',
+    benefits: [
+      {icon: 'map', title: 'Acceso a Europa', desc: 'Viaja libremente por los 26 países Schengen.'},
+      {icon: 'group', title: 'Gente Cálida', desc: 'Los irlandeses son famosos por su hospitalidad.'},
+      {icon: 'music', title: 'Cultura Vibrante', desc: 'Música tradicional, pubs históricos y literatura.'}
+    ],
+    href: '/estudiar-en-irlanda/'
+  },
+  
+  // ESPAÑA - Sol y Playa + Idioma (Económico)
+  'goal-language_vibe-beach_budget-economy': {
+    id: 'espana',
+    name: 'España',
+    flagCode: 'es',
+    image: '/images/hero-spain.png',
+    badge: 'Sin Barrera de Idioma',
+    title: 'Valencia & Sevilla',
+    description: 'La integración más fácil para latinos con clima mediterráneo.',
+    benefits: [
+      {icon: 'language', title: 'Sin Barrera', desc: 'Tu idioma, tu cultura, solo cambia el acento.'},
+      {icon: 'euro', title: 'Costo de Vida Bajo', desc: 'Mucho más económico que UK o Irlanda.'},
+      {icon: 'map', title: 'Acceso a la UE', desc: 'Visa Schengen para viajar por toda Europa.'}
+    ],
+    href: '/estudiar-en-espana/'
+  },
+  'goal-career_vibe-beach_budget-medium': {
+    id: 'espana',
+    name: 'España',
+    flagCode: 'es',
+    image: '/images/hero-spain.png',
+    badge: 'Calidad de Vida',
+    title: 'Barcelona & Madrid',
+    description: 'Ciudades vibrantes con cultura, playa y oportunidades.',
+    benefits: [
+      {icon: 'wb_sunny', title: 'Clima Mediterráneo', desc: '300 días de sol al año y gastronomía de fama mundial.'},
+      {icon: 'palette', title: 'Arte y Diseño', desc: 'Capital del diseño y la arquitectura modernista.'},
+      {icon: 'work', title: 'Trabaja 30hrs/semana', desc: 'Más horas permitidas que otros destinos europeos.'}
+    ],
+    href: '/estudiar-en-espana/'
+  },
+  
+  // ALEMANIA - Ciudades + Carrera (Económico)
+  'goal-career_vibe-city_budget-economy': {
+    id: 'alemania',
+    name: 'Alemania',
+    flagCode: 'de',
+    image: '/images/hero-germany.png',
+    badge: 'Universidades Casi Gratuitas',
+    title: 'Berlín & Hamburgo',
+    description: 'Educación de élite con costos mínimos de matrícula.',
+    benefits: [
+      {icon: 'school', title: 'Educación Gratuita', desc: 'Solo €300-500/semestre en universidades públicas.'},
+      {icon: 'engineering', title: 'Ingeniería de Élite', desc: 'Volkswagen, BMW, Siemens - motor de Europa.'},
+      {icon: 'badge', title: 'Jobseeker 18 Meses', desc: '18 meses para buscar trabajo post-graduación.'}
+    ],
+    href: '/estudiar-en-alemania/'
+  },
+  'goal-career_vibe-city_budget-medium': {
+    id: 'alemania',
+    name: 'Alemania',
+    flagCode: 'de',
+    image: '/images/hero-germany.png',
+    badge: 'Motor de Europa',
+    title: 'Múnich & Frankfurt',
+    description: 'La economía más fuerte de Europa con oportunidades ilimitadas.',
+    benefits: [
+      {icon: 'trending_up', title: 'Empleo Garantizado', desc: 'Demanda masiva de ingenieros y profesionales tech.'},
+      {icon: 'payments', title: 'Salarios Altos', desc: 'Entre los salarios más altos de Europa.'},
+      {icon: 'location', title: 'Centro de Europa', desc: 'Conectividad perfecta para explorar el continente.'}
+    ],
+    href: '/estudiar-en-alemania/'
+  },
+  
+  // ITALIA - Sol/Ciudades + Cultura
+  'goal-language_vibe-beach_budget-medium': {
+    id: 'italia',
+    name: 'Italia',
+    flagCode: 'it',
+    image: '/images/hero-italy.png',
+    badge: 'Arte y Cultura',
+    title: 'Roma & Florencia',
+    description: 'Vive rodeado de historia, arte y la mejor gastronomía del mundo.',
+    benefits: [
+      {icon: 'museum', title: 'Patrimonio UNESCO', desc: '55 sitios patrimonio, más que cualquier otro país.'},
+      {icon: 'restaurant', title: 'Gastronomía Única', desc: 'Comida italiana auténtica en cada región.'},
+      {icon: 'history', title: 'Historia Viva', desc: 'Vive entre ruinas romanas y renacimiento.'}
+    ],
+    href: '/estudiar-en-italia/'
+  },
+  'goal-career_vibe-city_budget-medium': {
+    id: 'italia',
+    name: 'Italia',
+    flagCode: 'it',
+    image: '/images/hero-italy.png',
+    badge: 'Moda y Diseño',
+    title: 'Milán',
+    description: 'La capital mundial de la moda y el diseño de lujo.',
+    benefits: [
+      {icon: 'checkroom', title: 'Capital de la Moda', desc: 'Prada, Gucci, Versace - las mejores marcas italianas.'},
+      {icon: 'architecture', title: 'Diseño de Élite', desc: 'Politecnico di Milano top mundial en diseño.'},
+      {icon: 'business', title: 'Negocios', desc: 'Centro financiero con conexión a toda Europa.'}
+    ],
+    href: '/estudiar-en-italia/'
+  },
+  
+  // USA - Ciudades + Carrera (Premium)
+  'goal-career_vibe-city_budget-premium': {
+    id: 'estados-unidos',
+    name: 'Estados Unidos',
+    flagCode: 'us',
+    image: '/images/hero-usa.png',
+    badge: 'Top Universidades',
+    title: 'Boston & Nueva York',
+    description: 'Harvard, MIT, Columbia - las mejores universidades del mundo.',
+    benefits: [
+      {icon: 'school', title: 'Ivy League', desc: '8 de las 10 mejores universidades del mundo están aquí.'},
+      {icon: 'badge', title: 'OPT 3 Años STEM', desc: 'Trabaja hasta 36 meses post-graduación en STEM.'},
+      {icon: 'network', title: 'Networking Global', desc: 'Contactos que abren puertas en todo el mundo.'}
+    ],
+    href: '/estudiar-en-estados-unidos/'
+  },
+  'goal-work_vibe-city_budget-premium': {
+    id: 'estados-unidos',
+    name: 'Estados Unidos',
+    flagCode: 'us',
+    image: '/images/hero-usa.png',
+    badge: 'Sueño Americano',
+    title: 'Miami',
+    description: 'La ciudad latina de EE.UU. con oportunidades infinitas.',
+    benefits: [
+      {icon: 'language', title: 'Bilingüe', desc: '70% de la población habla español en Miami.'},
+      {icon: 'beach_access', title: 'Estilo de Vida', desc: 'Playas, sol y cultura latina vibrante.'},
+      {icon: 'business', title: 'Hub de Negocios', desc: 'Puerta de entrada al mercado americano.'}
+    ],
+    href: '/estudiar-en-estados-unidos/'
+  }
+};
+
+// Fallbacks para combinaciones no exactas
+const fallbacks: Record<string, string> = {
+  'goal-language_vibe-beach': 'malta',
+  'goal-language_vibe-nature': 'irlanda',
+  'goal-language_vibe-city': 'reino-unido',
+  'goal-career_vibe-beach': 'espana',
+  'goal-career_vibe-nature': 'canada',
+  'goal-career_vibe-city': 'alemania',
+  'goal-work_vibe-beach': 'australia',
+  'goal-work_vibe-nature': 'nueva-zelanda',
+  'goal-work_vibe-city': 'dubai'
+};
+
+function getRecommendation(goal: string, vibe: string, budget: string): DestinationRecommendation {
+  const key = `goal-${goal}_vibe-${vibe}_budget-${budget}`;
+  
+  if (recommendations[key]) {
+    return recommendations[key];
+  }
+  
+  const partialKey = `goal-${goal}_vibe-${vibe}`;
+  const fallbackId = fallbacks[partialKey] || 'australia';
+  
+  const fallbackRec = Object.values(recommendations).find(r => r.id === fallbackId);
+  return fallbackRec || recommendations['goal-work_vibe-beach_budget-medium'];
+}
+
+const recommendationsJson = JSON.stringify(recommendations);
+---
+
+<section class="relative py-16 lg:py-24 bg-slate-50 overflow-hidden" id="dream-builder">
+  <!-- Background decoration -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-brand-200/30 via-transparent to-transparent -z-10"></div>
+  
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-100 text-brand-600 text-sm font-bold mb-4">
+        <span class="material-symbols-outlined text-sm">auto_awesome</span>
+        Asesoría Inteligente
+      </div>
+      <h2 class="text-3xl md:text-5xl font-black text-slate-900 mb-4">
+        Construye Tu <span class="text-brand-600">Viaje Soñado</span>
+      </h2>
+      <p class="text-slate-600 max-w-xl mx-auto">
+        Responde 3 preguntas y nuestro sistema diseñará tu plan ideal de estudios y trabajo en el exterior.
+      </p>
+    </div>
+
+    <!-- Quiz Container -->
+    <div class="relative bg-white p-6 md:p-10 rounded-3xl shadow-xl border border-slate-200">
+      
+      <!-- Progress Bar -->
+      <div class="w-full h-2 bg-slate-100 rounded-full mb-8 overflow-hidden">
+        <div id="progress-bar" class="h-full bg-brand-600 transition-all duration-500" style="width: 33%"></div>
+      </div>
+
+      <!-- Step 1: Objetivo -->
+      <div id="step-1" class="quiz-step">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="size-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold">1</span>
+          <h3 class="text-xl font-bold text-slate-900">¿Cuál es tu objetivo principal?</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button data-category="goal" data-value="language" data-next="2" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">language</span>
+            <span class="font-bold text-slate-900 text-center">Aprender un Idioma</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Inglés o segundo idioma en el país de origen</span>
+          </button>
+          <button data-category="goal" data-value="career" data-next="2" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">school</span>
+            <span class="font-bold text-slate-900 text-center">Carrera o Máster</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Grado universitario o posgrado</span>
+          </button>
+          <button data-category="goal" data-value="work" data-next="2" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">work</span>
+            <span class="font-bold text-slate-900 text-center">Trabajar y Viajar</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Experiencia laboral + exploración</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Experiencia -->
+      <div id="step-2" class="quiz-step hidden">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="size-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold">2</span>
+          <h3 class="text-xl font-bold text-slate-900">¿Qué tipo de experiencia buscas?</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button data-category="vibe" data-value="beach" data-next="3" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">beach_access</span>
+            <span class="font-bold text-slate-900 text-center">Sol y Playa</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Clima cálido y costas paradisíacas</span>
+          </button>
+          <button data-category="vibe" data-value="nature" data-next="3" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">landscape</span>
+            <span class="font-bold text-slate-900 text-center">Naturaleza y Aventura</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Montañas, lagos y vida al aire libre</span>
+          </button>
+          <button data-category="vibe" data-value="city" data-next="3" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">apartment</span>
+            <span class="font-bold text-slate-900 text-center">Grandes Ciudades</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Vida urbana y oportunidades corporativas</span>
+          </button>
+        </div>
+        <button id="back-2" class="mt-6 text-slate-500 hover:text-slate-700 text-sm font-medium flex items-center gap-1 cursor-pointer">
+          <span class="material-symbols-outlined text-sm">arrow_back</span>
+          Volver
+        </button>
+      </div>
+
+      <!-- Step 3: Presupuesto -->
+      <div id="step-3" class="quiz-step hidden">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="size-8 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center font-bold">3</span>
+          <h3 class="text-xl font-bold text-slate-900">¿Cuál es tu rango de presupuesto?</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button data-category="budget" data-value="economy" data-next="result" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">savings</span>
+            <span class="font-bold text-slate-900 text-center">Económico</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Destinos accesibles en Europa</span>
+          </button>
+          <button data-category="budget" data-value="medium" data-next="result" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">account_balance</span>
+            <span class="font-bold text-slate-900 text-center">Medio</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Balance entre calidad y precio</span>
+          </button>
+          <button data-category="budget" data-value="premium" data-next="result" class="quiz-option group flex flex-col items-center p-6 border-2 border-slate-200 rounded-2xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left cursor-pointer">
+            <span class="material-symbols-outlined text-4xl mb-4 text-brand-600 group-hover:scale-110 transition-transform">diamond</span>
+            <span class="font-bold text-slate-900 text-center">Premium</span>
+            <span class="text-xs text-slate-500 text-center mt-2">Destinos de clase mundial</span>
+          </button>
+        </div>
+        <button id="back-3" class="mt-6 text-slate-500 hover:text-slate-700 text-sm font-medium flex items-center gap-1 cursor-pointer">
+          <span class="material-symbols-outlined text-sm">arrow_back</span>
+          Volver
+        </button>
+      </div>
+
+      <!-- Result -->
+      <div id="step-result" class="quiz-step hidden">
+        <div id="result-content">
+          <!-- Se llena dinámicamente con JavaScript -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Trust Indicators -->
+    <div class="mt-12 flex flex-wrap items-center justify-center gap-6 text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-brand-600">check_circle</span>
+        <span class="text-sm font-medium">+500 estudiantes ya viajaron</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-brand-600">verified</span>
+        <span class="text-sm font-medium">99% éxito en visas</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-brand-600">support_agent</span>
+        <span class="text-sm font-medium">Asesoría gratuita</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline data-recommendations={recommendationsJson}>
+  // SVG de banderas (mismos que en el navbar)
+  const flagSVGs = {
+    ca: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#fff" d="M150 0h340v480H150z"/><path fill="#d52b1e" d="M0 0h150v480H0zm340 0h300v480H340z"/><path fill="#d52b1e" d="m265 200l-20 10 20 10-15 15 20 5-10 20 20-10v20l15-15 15 15v-20l20 10-10-20 20-5-15-15 20-10-20-10 15-15-20-5 10-20-20 10v-20l-15 15-15-15v20l-20-10 10 20-20 5z"/></svg>`,
+    mt: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#fff" d="M0 0h640v480H0z"/><path fill="#cf142b" d="M0 432h640v48H0zm0-384h640v48H0zm224 96h64v96h-64z"/><path fill="#a7a6a4" d="M256 120h32v312h-32z"/><path fill="#cf142b" d="M288 144h64v48h-64zm-96 0h64v48h-64z"/></svg>`,
+    ae: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#00732f" d="M0 0h640v160H0z"/><path fill="#fff" d="M0 160h640v160H0z"/><path fill="#000" d="M0 320h640v160H0z"/><path fill="#f00" d="M0 0h220v480H0z"/></svg>`,
+    gb: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>`,
+    nz: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>`,
+    ie: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#169b62" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ff883e" d="M426.7 0H640v480H426.7z"/></svg>`,
+    es: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#aa151b" d="M0 0h640v120H0zm0 360h640v120H0z"/><path fill="#f1bf00" d="M0 120h640v240H0z"/></svg>`,
+    de: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#000" d="M0 0h640v160H0z"/><path fill="#f00" d="M0 160h640v160H0z"/><path fill="#fc0" d="M0 320h640v160H0z"/></svg>`,
+    it: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#009246" d="M0 0h213.3v480H0z"/><path fill="#fff" d="M213.3 0h213.4v480H213.3z"/><path fill="#ce2b37" d="M426.7 0H640v480H426.7z"/></svg>`,
+    us: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#b22234" d="M0 0h640v480H0z"/><path fill="#fff" d="M0 36.9h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0zm0 73.8h640v36.9H0z"/><path fill="#3c3b6e" d="M0 0h256.8v258.5H0z"/></svg>`,
+    au: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" class="w-6 h-4 rounded-sm shadow-sm"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#fff" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#c8102e" d="M424 281l216 159v40L369 281zm-184 20l6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#fff" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#c8102e" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>`,
+  };
+
+  const scriptTag = document.currentScript;
+  const recommendations = JSON.parse(scriptTag.dataset.recommendations || '{}');
+  
+  let selections = { goal: '', vibe: '', budget: '' };
+
+  function showStep(stepNum) {
+    document.querySelectorAll('.quiz-step').forEach(el => el.classList.add('hidden'));
+    const stepEl = document.getElementById(`step-${stepNum}`);
+    if (stepEl) stepEl.classList.remove('hidden');
+  }
+
+  function updateProgress(step) {
+    const progress = step === 1 ? 33 : step === 2 ? 66 : step === 'result' ? 100 : 33;
+    const bar = document.getElementById('progress-bar');
+    if (bar) bar.style.width = `${progress}%`;
+  }
+
+  function selectOption(category, value, nextStep) {
+    selections[category] = value;
+    
+    if (nextStep === 'result') {
+      showResult();
+    } else {
+      showStep(nextStep);
+      updateProgress(parseInt(nextStep));
+    }
+  }
+
+  function goBack(stepNum) {
+    showStep(stepNum);
+    updateProgress(stepNum);
+  }
+
+  function getGoalLabel(goal) {
+    const labels = { language: 'aprender idioma', career: 'carrera profesional', work: 'trabajo' };
+    return labels[goal] || goal;
+  }
+
+  function getVibeLabel(vibe) {
+    const labels = { beach: 'sol y playa', nature: 'naturaleza', city: 'ciudad' };
+    return labels[vibe] || vibe;
+  }
+
+  function findRecommendation() {
+    const key = `goal-${selections.goal}_vibe-${selections.vibe}_budget-${selections.budget}`;
+    
+    if (recommendations[key]) {
+      return recommendations[key];
+    }
+    
+    const fallbacks = {
+      'goal-language_vibe-beach': 'malta',
+      'goal-language_vibe-nature': 'irlanda',
+      'goal-language_vibe-city': 'reino-unido',
+      'goal-career_vibe-beach': 'espana',
+      'goal-career_vibe-nature': 'canada',
+      'goal-career_vibe-city': 'alemania',
+      'goal-work_vibe-beach': 'australia',
+      'goal-work_vibe-nature': 'nueva-zelanda',
+      'goal-work_vibe-city': 'dubai'
+    };
+    
+    const partialKey = `goal-${selections.goal}_vibe-${selections.vibe}`;
+    const fallbackId = fallbacks[partialKey] || 'australia';
+    
+    const allRecs = Object.values(recommendations);
+    return allRecs.find(r => r.id === fallbackId) || allRecs[0];
+  }
+
+  function showResult() {
+    const rec = findRecommendation();
+    const flagSvg = flagSVGs[rec.flagCode] || flagSVGs['ca'];
+    updateProgress('result');
+    
+    const resultHTML = `
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 text-green-600 text-xs font-black uppercase tracking-wider mb-4">
+          <span class="material-symbols-outlined text-sm">auto_awesome</span>
+          Plan Personalizado Generado
+        </div>
+        <h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-2">
+          <span class="inline-block mr-2">${flagSvg}</span>
+          Tu destino ideal es ${rec.name}
+        </h3>
+        <p class="text-slate-500">Basado en tus metas de ${getGoalLabel(selections.goal)} y ${getVibeLabel(selections.vibe)}.</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div class="relative overflow-hidden rounded-2xl aspect-video shadow-lg group">
+          <img src="${rec.image}" alt="${rec.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent flex flex-col justify-end p-6">
+            <span class="inline-flex items-center gap-1 text-brand-400 text-xs font-bold uppercase mb-1">
+              <span class="material-symbols-outlined text-sm fill-1">verified</span>
+              Recomendación Premium
+            </span>
+            <h4 class="text-xl font-bold text-white">${rec.title}</h4>
+          </div>
+        </div>
+        
+        <div class="space-y-3">
+          ${rec.benefits.map(b => `
+            <div class="flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="material-symbols-outlined text-brand-600 bg-brand-100 p-2 rounded-lg">${b.icon}</span>
+              <div>
+                <h5 class="font-bold text-sm text-slate-900">${b.title}</h5>
+                <p class="text-xs text-slate-500">${b.desc}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="${rec.href}" class="inline-flex items-center justify-center gap-2 bg-brand-600 text-white text-lg font-bold py-4 px-8 rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/30">
+          Ver Detalles de ${rec.name}
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+        <a href="https://wa.me/61412345678?text=Hola%2C%20me%20interesa%20conocer%20más%20sobre%20${encodeURIComponent(rec.name)}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white text-lg font-bold py-4 px-8 rounded-xl hover:bg-[#128C7E] transition-all">
+          <span class="material-symbols-outlined">chat</span>
+          Hablar por WhatsApp
+        </a>
+      </div>
+      
+      <button id="reset-quiz" class="mt-6 text-slate-400 hover:text-slate-600 text-sm font-medium cursor-pointer">
+        ← Volver a empezar
+      </button>
+    `;
+    
+    const resultContent = document.getElementById('result-content');
+    if (resultContent) {
+      resultContent.innerHTML = resultHTML;
+      const resetBtn = document.getElementById('reset-quiz');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', resetQuiz);
+      }
+    }
+    showStep('result');
+  }
+
+  function resetQuiz() {
+    selections = { goal: '', vibe: '', budget: '' };
+    showStep(1);
+    updateProgress(1);
+  }
+
+  // Event Listeners
+  (function init() {
+    document.querySelectorAll('.quiz-option').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const category = this.dataset.category;
+        const value = this.dataset.value;
+        const nextStep = this.dataset.next;
+        selectOption(category, value, nextStep);
+      });
+    });
+
+    const back2 = document.getElementById('back-2');
+    const back3 = document.getElementById('back-3');
+    
+    if (back2) back2.addEventListener('click', () => goBack(1));
+    if (back3) back3.addEventListener('click', () => goBack(2));
+  })();
+</script>
