@@ -1,9 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { australiaCities, courseTypes, addonOptions } from '../../data/australia-calculator';
+import { maltaData } from '../../data/journey-builders/malta';
 
-const title = 'Australia Journey Builder | Diseña tu vida en Australia';
-const description = 'Calcula tu inversión, probabilidad de visa y potencial de ahorro en Australia. Herramienta interactiva 100% gratuita de Global Dreamers.';
+const title = 'Malta Journey Builder | Diseña tu vida en Malta';
+const description = 'Calcula tu inversión y diseña tu experiencia en Malta. Sin visa para latinoamericanos, 300 días de sol. Herramienta interactiva 100% gratuita de Global Dreamers.';
 ---
 
 <Layout title={title} description={description}>
@@ -26,7 +26,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
         <span id="step-indicator" class="text-xs font-bold text-slate-400 whitespace-nowrap">PASO 1 DE 6</span>
       </div>
 
-      <a href="/estudiar-en-australia/" class="text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1 p-2 -mr-2">
+      <a href="/estudiar-en-malta/" class="text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1 p-2 -mr-2">
         <span class="material-symbols-outlined text-base sm:text-lg">close</span>
         <span class="hidden sm:inline">SALIR</span>
       </a>
@@ -51,9 +51,9 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                 Personalización en Tiempo Real
               </span>
               <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 leading-tight">
-                Diseña tu vida en <span class="text-brand-600">Australia</span>
+                Diseña tu vida en <span class="text-brand-600">Malta</span>
               </h1>
-              <p class="text-xs sm:text-sm text-slate-500">Tus elecciones cambian el presupuesto y las probabilidades de visa al instante.</p>
+              <p class="text-xs sm:text-sm text-slate-500">Sin visa para latinoamericanos • 300 días de sol al año • Inglés oficial en la UE</p>
             </div>
 
             <div class="space-y-2 sm:space-y-3">
@@ -62,7 +62,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                 ¿En qué ciudad te ves viviendo?
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                {australiaCities.map((city) => (
+                {maltaData.cities.map((city) => (
                   <button 
                     class="city-option group relative flex flex-col p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-slate-200 hover:border-brand-300 transition-all text-left bg-white active:scale-[0.98]"
                     data-city={city.id}
@@ -83,33 +83,33 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             <div class="space-y-1">
               <span class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">Paso 2</span>
               <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-slate-900">¿Cuánto tiempo quieres estudiar?</h2>
-              <p class="text-xs sm:text-sm text-slate-500">Más meses = más experiencia y más oportunidad de ahorrar.</p>
+              <p class="text-xs sm:text-sm text-slate-500">Malta es ideal para estancias cortas de 2-12 meses. Más meses = más progreso en inglés.</p>
             </div>
 
             <div class="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-slate-100 shadow-sm space-y-4 sm:space-y-6">
               <div class="flex justify-between items-end">
                 <label class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">Duración</label>
-                <span id="duration-display" class="text-2xl sm:text-3xl font-black text-brand-600">6 Meses</span>
+                <span id="duration-display" class="text-2xl sm:text-3xl font-black text-brand-600">3 Meses</span>
               </div>
               <div class="relative pt-1">
                 <input 
                   type="range" 
                   id="duration-slider" 
-                  min="3" 
-                  max="24" 
-                  value="6" 
+                  min="2" 
+                  max="12" 
+                  value="3" 
                   step="1"
                   class="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer"
                 />
                 <div class="flex justify-between mt-2 text-[9px] sm:text-[10px] font-bold text-slate-400">
-                  <span>3M</span>
+                  <span>2M</span>
+                  <span>6M</span>
                   <span>12M</span>
-                  <span>24M</span>
                 </div>
               </div>
               <p class="text-[10px] sm:text-xs text-slate-600 bg-slate-50 p-2 sm:p-3 rounded-lg">
                 <span class="material-symbols-outlined text-brand-600 text-xs align-middle mr-1">info</span>
-                Con <strong>12+ meses</strong> tienes mejores descuentos y más tiempo para establecerte.
+                <strong>Tip:</strong> La mayoría elige 3-6 meses. Sin visa Schengen puedes quedarte hasta 90 días; para más tiempo se gestiona extensión.
               </p>
             </div>
           </div>
@@ -123,7 +123,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             </div>
 
             <div class="space-y-2 sm:space-y-3">
-              {courseTypes.map((course) => (
+              {maltaData.courses.map((course) => (
                 <button 
                   class="course-option group w-full flex flex-col p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-slate-200 hover:border-brand-300 transition-all text-left bg-white relative active:scale-[0.98]"
                   data-course={course.id}
@@ -147,7 +147,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                     </span>
                     <span class="flex items-center gap-1">
                       <span class="material-symbols-outlined text-brand-600 text-xs">payments</span>
-                      ${course.baseCostPerMonth}/mes
+                      €{course.baseCostPerMonth}/mes
                     </span>
                   </div>
                 </button>
@@ -164,7 +164,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             </div>
 
             <div class="space-y-2">
-              {addonOptions.map((addon) => (
+              {maltaData.addons.map((addon) => (
                 <div 
                   class={`addon-option group flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all cursor-pointer active:scale-[0.98] ${addon.included ? 'border-green-200 bg-green-50/50' : 'border-slate-200 hover:bg-slate-50 bg-white'}`}
                   data-addon={addon.id}
@@ -197,21 +197,37 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             <div id="city-info-card" class="p-4 sm:p-5 rounded-2xl bg-slate-900 text-white relative overflow-hidden">
               <div class="absolute inset-0 bg-gradient-to-br from-brand-600/20 to-transparent"></div>
               <div class="relative z-10">
-                <h4 id="selected-city-name" class="text-base sm:text-lg font-black mb-1">Sydney</h4>
+                <h4 id="selected-city-name" class="text-base sm:text-lg font-black mb-1">St Julian's</h4>
                 <p id="selected-city-desc" class="text-slate-300 text-[10px] sm:text-xs leading-relaxed mb-3">
-                  Tendrás acceso al mercado laboral más grande de Australia.
+                  Centro turístico con la mayor concentración de escuelas de inglés.
                 </p>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="bg-white/10 p-2 sm:p-3 rounded-lg backdrop-blur-sm">
                     <span class="text-[9px] uppercase font-bold text-slate-400">Habitación</span>
-                    <p id="city-rent" class="text-sm sm:text-base font-bold">$300 - $450<span class="text-[9px]">/sem</span></p>
+                    <p id="city-rent" class="text-sm sm:text-base font-bold">€100 - €150<span class="text-[9px]">/sem</span></p>
                   </div>
                   <div class="bg-white/10 p-2 sm:p-3 rounded-lg backdrop-blur-sm">
                     <span class="text-[9px] uppercase font-bold text-slate-400">Empleo</span>
-                    <p id="city-jobs" class="text-sm sm:text-base font-bold">Muy Alta</p>
+                    <p id="city-jobs" class="text-sm sm:text-base font-bold">Alta</p>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Malta USPs -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
+              <h4 class="text-xs sm:text-sm font-black text-amber-800 mb-2 flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-600">sunny</span>
+                ¿Por qué Malta?
+              </h4>
+              <ul class="space-y-1.5 text-[10px] sm:text-xs text-amber-900">
+                {maltaData.usps.map((usp) => (
+                  <li class="flex items-start gap-1.5">
+                    <span class="material-symbols-outlined text-amber-600 text-xs mt-0.5">check_circle</span>
+                    <span>{usp}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
@@ -220,7 +236,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             <div class="space-y-1">
               <span class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">Paso 5</span>
               <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-slate-900">Tu perfil</h2>
-              <p class="text-xs sm:text-sm text-slate-500">Datos para calcular tu probabilidad de visa.</p>
+              <p class="text-xs sm:text-sm text-slate-500">Datos para evaluar tu compatibilidad con el programa.</p>
             </div>
 
             <div class="space-y-2 sm:space-y-3">
@@ -276,10 +292,10 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                 Plan Generado
               </span>
               <h2 class="text-lg sm:text-xl font-black text-slate-900">¡Tu plan está listo!</h2>
-              <p class="text-xs sm:text-sm text-slate-500">Resumen de tu aventura en Australia.</p>
+              <p class="text-xs sm:text-sm text-slate-500">Resumen de tu aventura en Malta.</p>
             </div>
 
-            <!-- Visa Probability -->
+            <!-- Compatibility Score -->
             <div class="bg-white p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-slate-200">
               <div class="flex items-center justify-center mb-3">
                 <div class="relative w-24 h-24 sm:w-28 sm:h-28">
@@ -291,11 +307,11 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                       stroke-dashoffset="27.6"/>
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span id="visa-percentage" class="text-2xl sm:text-3xl font-black text-slate-900">90%</span>
+                    <span id="visa-percentage" class="text-2xl sm:text-3xl font-black text-slate-900">95%</span>
                   </div>
                 </div>
               </div>
-              <p class="text-center font-bold text-slate-800 text-sm">Probabilidad de Visa</p>
+              <p class="text-center font-bold text-slate-800 text-sm">Compatibilidad con Malta</p>
             </div>
 
             <!-- Cost Breakdown -->
@@ -303,39 +319,52 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
               <h3 class="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Inversión Total</h3>
               
               <div class="flex justify-between text-xs sm:text-sm">
-                <span class="text-slate-500" id="result-course-name">Curso (6m)</span>
-                <span class="font-bold text-slate-800" id="result-course-cost">$4,800</span>
+                <span class="text-slate-500" id="result-course-name">Curso (3m)</span>
+                <span class="font-bold text-slate-800" id="result-course-cost">€1,350</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm">
                 <span class="text-slate-500">Visa</span>
-                <span class="font-bold text-slate-800" id="result-visa-cost">$860</span>
+                <span class="font-bold text-green-600" id="result-visa-cost">€0 ✓</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm">
-                <span class="text-slate-500">OSHC</span>
-                <span class="font-bold text-slate-800" id="result-oshc-cost">$340</span>
+                <span class="text-slate-500">Seguro de viaje</span>
+                <span class="font-bold text-slate-800" id="result-insurance-cost">€75</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm" id="result-addons-row">
                 <span class="text-slate-500">Extras</span>
-                <span class="font-bold text-slate-800" id="result-addons-cost">$0</span>
+                <span class="font-bold text-slate-800" id="result-addons-cost">€0</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm">
                 <span class="text-slate-500">Vuelos</span>
-                <span class="font-bold text-slate-800" id="result-flights-cost">$1,850</span>
+                <span class="font-bold text-slate-800" id="result-flights-cost">€650</span>
               </div>
               
               <div class="border-t border-slate-100 pt-2 mt-2">
                 <div class="flex justify-between items-end">
                   <span class="text-[10px] sm:text-xs font-black text-slate-400 uppercase">Total</span>
-                  <span class="text-xl sm:text-2xl font-black text-slate-900" id="result-total">$7,850</span>
+                  <span class="text-xl sm:text-2xl font-black text-slate-900" id="result-total">€2,075</span>
                 </div>
               </div>
             </div>
 
-            <!-- Savings Potential -->
-            <div class="bg-brand-600 p-4 sm:p-5 rounded-xl sm:rounded-2xl text-white">
-              <h3 class="text-[10px] sm:text-xs font-black text-brand-200 uppercase tracking-widest mb-1">💰 Potencial de Ahorro</h3>
-              <p class="text-xl sm:text-2xl font-black mb-1" id="result-savings">$8,500</p>
-              <p class="text-[10px] sm:text-xs text-brand-100">En <span id="result-duration">6</span> meses (promedio 28hrs/semana incluyendo vacaciones)</p>
+            <!-- Work Info -->
+            <div class="bg-blue-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-blue-100">
+              <h3 class="text-[10px] sm:text-xs font-black text-blue-600 uppercase tracking-widest mb-2">💼 Trabajo en Malta</h3>
+              <p class="text-xs sm:text-sm text-blue-900 mb-2">
+                <strong>20 horas/semana</strong> durante el curso • <strong>Full-time</strong> en vacaciones
+              </p>
+              <p class="text-[10px] sm:text-xs text-blue-700">
+                Salario mínimo: <strong>€8.50/hora</strong> • Sin visa Schengen para latinoamericanos
+              </p>
+            </div>
+
+            <!-- Post-Study Note -->
+            <div class="bg-amber-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-amber-100">
+              <h3 class="text-[10px] sm:text-xs font-black text-amber-700 uppercase tracking-widest mb-1">📌 Importante</h3>
+              <p class="text-xs sm:text-sm text-amber-900">
+                Malta es ideal para <strong>estancias cortas de idioma</strong>. No ofrece post-study work formal, 
+                pero ganas fluidez en inglés oficial de la UE a 40-50% menos costo que UK o Irlanda.
+              </p>
             </div>
 
             <!-- Action Buttons -->
@@ -384,7 +413,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
           <div>
             <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Tu Resumen</h3>
             
-            <!-- Visa Probability Circle -->
+            <!-- Compatibility Circle -->
             <div class="relative flex flex-col items-center justify-center p-5 bg-slate-50 rounded-2xl border border-slate-100">
               <div class="relative w-24 h-24">
                 <svg class="w-full h-full transform -rotate-90">
@@ -395,10 +424,10 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                     stroke-dashoffset="27.6"/>
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  <span id="sidebar-visa-percent" class="text-xl font-black text-slate-900">90%</span>
+                  <span id="sidebar-visa-percent" class="text-xl font-black text-slate-900">95%</span>
                 </div>
               </div>
-              <p class="mt-2 font-bold text-xs text-slate-800">Probabilidad Visa</p>
+              <p class="mt-2 font-bold text-xs text-slate-800">Compatibilidad</p>
             </div>
           </div>
 
@@ -406,21 +435,44 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
           <div class="space-y-2 text-sm" id="sidebar-costs">
             <div class="flex justify-between">
               <span class="text-slate-500 text-xs">Curso</span>
-              <span class="font-bold text-slate-800" id="sidebar-course">$4,800</span>
+              <span class="font-bold text-slate-800" id="sidebar-course">€1,350</span>
             </div>
             <div class="flex justify-between">
               <span class="text-slate-500 text-xs">Visa</span>
-              <span class="font-bold text-slate-800" id="sidebar-visa">$860</span>
+              <span class="font-bold text-green-600" id="sidebar-visa">€0 ✓</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-500 text-xs">OSHC</span>
-              <span class="font-bold text-slate-800" id="sidebar-oshc">$340</span>
+              <span class="text-slate-500 text-xs">Seguro</span>
+              <span class="font-bold text-slate-800" id="sidebar-insurance">€75</span>
             </div>
             <hr class="border-slate-100"/>
             <div class="flex justify-between items-end pt-1">
               <span class="text-[10px] font-black text-slate-400 uppercase">Total</span>
-              <span class="text-xl font-black text-slate-900" id="sidebar-total">$6,000</span>
+              <span class="text-xl font-black text-slate-900" id="sidebar-total">€2,075</span>
             </div>
+          </div>
+
+          <!-- Malta Benefits -->
+          <div class="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
+            <p class="text-[10px] font-black text-amber-800 uppercase tracking-wider mb-2">Ventajas de Malta</p>
+            <ul class="space-y-1 text-[10px] text-amber-900">
+              <li class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-600 text-xs">check</span>
+                Sin visa Schengen
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-600 text-xs">check</span>
+                300 días de sol/año
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-600 text-xs">check</span>
+                Inglés oficial UE
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-amber-600 text-xs">check</span>
+                40-50% más barato UK
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -549,40 +601,39 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
 </style>
 
 <script>
-  // Australia Data (same as before)
-  const australiaData = {
+  // Malta Data
+  const maltaData = {
     cities: [
-      { id: 'sydney', name: 'Sydney', tagline: 'Vibrante & Oportunidades', minWage: 23.23, avgRentWeekly: { min: 300, max: 450 }, jobMarket: 'muy_alta', livingCostIndex: 1.25, description: 'La ciudad más grande de Australia. Mercado laboral masivo, playas icónicas y la mayor comunidad latina.' },
-      { id: 'melbourne', name: 'Melbourne', tagline: 'Cultura & Estilo de Vida', minWage: 23.23, avgRentWeekly: { min: 280, max: 400 }, jobMarket: 'alta', livingCostIndex: 1.15, description: 'Capital cultural de Australia. Café de clase mundial, arte, música y estilo europeo.' },
-      { id: 'brisbane', name: 'Brisbane', tagline: 'Sol & Tranquilidad', minWage: 23.23, avgRentWeekly: { min: 250, max: 350 }, jobMarket: 'media-alta', livingCostIndex: 1.0, description: 'Clima subtropical todo el año. Más económica, en crecimiento y cerca de Gold Coast.' },
-      { id: 'goldcoast', name: 'Gold Coast', tagline: 'Playas & Surf', minWage: 23.23, avgRentWeekly: { min: 240, max: 320 }, jobMarket: 'media', livingCostIndex: 0.95, description: 'Playas paradisíacas y ambiente surfer. Turismo fuerte y estilo de vida relajado.' },
-      { id: 'perth', name: 'Perth', tagline: 'Oportunidades del Oeste', minWage: 23.23, avgRentWeekly: { min: 260, max: 380 }, jobMarket: 'alta', livingCostIndex: 1.1, description: 'Capital de Western Australia. Minería, buenos salarios y estilo de vida relajado.' }
+      { id: 'st-julians', name: "St Julian's", tagline: 'Vida Nocturna & Estudiantes', minWage: 8.50, avgRentWeekly: { min: 150, max: 220 }, jobMarket: 'alta', livingCostIndex: 1.0, description: 'Centro turístico con la mayor concentración de escuelas de inglés. Vida nocturna y ambiente joven.' },
+      { id: 'valletta', name: 'Valletta', tagline: 'Capital Histórica', minWage: 8.50, avgRentWeekly: { min: 140, max: 200 }, jobMarket: 'media', livingCostIndex: 0.95, description: 'Capital barroca UNESCO. Cultura, historia y ambiente auténtico maltés.' },
+      { id: 'sliema', name: 'Sliema', tagline: 'Shopping & Costero', minWage: 8.50, avgRentWeekly: { min: 160, max: 240 }, jobMarket: 'alta', livingCostIndex: 1.1, description: 'Zona comercial y residencial. Tiendas, restaurantes y paseo marítimo.' },
+      { id: 'gozo', name: 'Gozo', tagline: 'Tranquilidad & Naturaleza', minWage: 8.50, avgRentWeekly: { min: 100, max: 150 }, jobMarket: 'media', livingCostIndex: 0.75, description: 'Isla hermana tranquila. Para quienes buscan naturaleza, buceo y paz.' }
     ],
     courses: [
-      { id: 'english-general', name: 'Inglés General', baseCostPerMonth: 800, minDuration: 3, maxDuration: 24 },
-      { id: 'vet-technical', name: 'Cursos VET (Técnicos)', baseCostPerMonth: 1200, minDuration: 6, maxDuration: 24, popular: true },
-      { id: 'university', name: 'Universidad', baseCostPerMonth: 2500, minDuration: 12, maxDuration: 48 }
+      { id: 'english-intensive', name: 'Inglés Intensivo', baseCostPerMonth: 450, minDuration: 2, maxDuration: 12 },
+      { id: 'english-standard', name: 'Inglés Standard', baseCostPerMonth: 350, minDuration: 4, maxDuration: 24 },
+      { id: 'ielts-preparation', name: 'Preparación IELTS', baseCostPerMonth: 500, minDuration: 1, maxDuration: 6, popular: true }
     ],
     addons: [
       { id: 'work-permit', name: 'Permiso de Trabajo', cost: 0, included: true },
-      { id: 'premium-insurance', name: 'Seguro Premium', cost: (d) => d * 80 },
-      { id: 'homestay', name: 'Homestay', cost: (d) => d * 4.33 * 350 },
-      { id: 'airport-pickup', name: 'Airport Pickup', cost: 150 }
+      { id: 'homestay', name: 'Alojamiento Familiar', cost: (d) => d * 4.33 * 200, included: false },
+      { id: 'shared-apartment', name: 'Apartamento Compartido', cost: (d) => d * 4.33 * 180, included: false },
+      { id: 'airport-pickup', name: 'Recogida Aeropuerto', cost: 35, included: false }
     ],
     visaFactors: {
-      age: { '18-24': 25, '25-30': 20, '31-35': 15, '36-40': 10, '40+': 5 },
-      englishLevel: { beginner: 5, intermediate: 15, advanced: 25, native: 30 },
-      workExperience: { none: 5, 'less-than-1': 10, '1-3': 15, '3-5': 20, '5+': 25 },
-      financialCapacity: { limited: 10, adequate: 20, comfortable: 30, excellent: 35 }
+      age: { '18-24': 30, '25-30': 25, '31-35': 20, '36-40': 15, '40+': 10 },
+      englishLevel: { beginner: 10, intermediate: 20, advanced: 25, native: 30 },
+      workExperience: { none: 10, 'less-than-1': 15, '1-3': 20, '3-5': 25, '5+': 30 },
+      financialCapacity: { limited: 15, adequate: 25, comfortable: 35, excellent: 40 }
     },
-    visaCosts: { base: 710, medical: 150, oshcBase: 340, oshcPerMonth: 57 }
+    visaCosts: { base: 0, medical: 0, insurance: 300 }
   };
 
   // State
   let state = {
     currentStep: 1,
     selectedCity: null,
-    duration: 6,
+    duration: 3,
     selectedCourse: null,
     selectedAddons: ['work-permit'],
     profile: { age: '25-30', englishLevel: 'intermediate', workExperience: '1-3', financialCapacity: 'adequate' }
@@ -636,7 +687,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
     let isValid = false;
     switch (state.currentStep) {
       case 1: isValid = state.selectedCity !== null; break;
-      case 2: isValid = state.duration >= 3 && state.duration <= 24; break;
+      case 2: isValid = state.duration >= 2 && state.duration <= 12; break;
       case 3: isValid = state.selectedCourse !== null; break;
       case 4: case 5: case 6: isValid = true; break;
     }
@@ -715,77 +766,70 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
   if (mobilePrevBtn) mobilePrevBtn.addEventListener('click', () => { if (state.currentStep > 1) goToStep(state.currentStep - 1); });
 
   function updateCityInfo() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity);
+    const city = maltaData.cities.find(c => c.id === state.selectedCity);
     if (!city) return;
     document.getElementById('selected-city-name').textContent = city.name;
     document.getElementById('selected-city-desc').textContent = city.description;
-    // Mostrar precio de habitación compartida (70% del mínimo) - más realista para estudiantes
     const sharedMin = Math.round(city.avgRentWeekly.min * 0.7);
     const sharedMax = Math.round(city.avgRentWeekly.max * 0.6);
-    document.getElementById('city-rent').innerHTML = `$${sharedMin} - $${sharedMax}<span class="text-[9px]">/sem</span>`;
-    const jobText = { 'muy_alta': 'Muy Alta', 'alta': 'Alta', 'media-alta': 'Media-Alta', 'media': 'Media' };
+    document.getElementById('city-rent').innerHTML = `€${sharedMin} - €${sharedMax}<span class="text-[9px]">/sem</span>`;
+    const jobText = { 'alta': 'Alta', 'media': 'Media' };
     document.getElementById('city-jobs').textContent = jobText[city.jobMarket];
   }
 
-  function calculateVisaProbability() {
+  function calculateCompatibility() {
     let prob = 0;
-    prob += australiaData.visaFactors.age[state.profile.age] || 0;
-    prob += australiaData.visaFactors.englishLevel[state.profile.englishLevel] || 0;
-    prob += australiaData.visaFactors.workExperience[state.profile.workExperience] || 0;
-    prob += australiaData.visaFactors.financialCapacity[state.profile.financialCapacity] || 0;
-    prob += 15;
+    prob += maltaData.visaFactors.age[state.profile.age] || 0;
+    prob += maltaData.visaFactors.englishLevel[state.profile.englishLevel] || 0;
+    prob += maltaData.visaFactors.workExperience[state.profile.workExperience] || 0;
+    prob += maltaData.visaFactors.financialCapacity[state.profile.financialCapacity] || 0;
+    prob += 10; // Base bonus for Malta (no visa needed)
     return Math.min(99, Math.max(0, prob));
   }
 
   function calculateCosts() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity) || australiaData.cities[0];
-    const course = australiaData.courses.find(c => c.id === state.selectedCourse) || australiaData.courses[0];
+    const city = maltaData.cities.find(c => c.id === state.selectedCity) || maltaData.cities[0];
+    const course = maltaData.courses.find(c => c.id === state.selectedCourse) || maltaData.courses[0];
     const courseCost = course.baseCostPerMonth * state.duration * city.livingCostIndex;
-    const visaCost = australiaData.visaCosts.base + australiaData.visaCosts.medical;
-    const oshcCost = australiaData.visaCosts.oshcBase + (Math.max(0, state.duration - 6) * australiaData.visaCosts.oshcPerMonth);
+    const visaCost = maltaData.visaCosts.base + maltaData.visaCosts.medical;
+    const insuranceCost = maltaData.visaCosts.insurance * (state.duration / 12);
     let addonsCost = 0;
     state.selectedAddons.forEach(addonId => {
-      const addon = australiaData.addons.find(a => a.id === addonId);
+      const addon = maltaData.addons.find(a => a.id === addonId);
       if (addon && !addon.included) {
         addonsCost += typeof addon.cost === 'function' ? addon.cost(state.duration) : addon.cost;
       }
     });
-    const total = courseCost + visaCost + oshcCost + addonsCost + 1850;
-    return { course: Math.round(courseCost), visa: visaCost, oshc: Math.round(oshcCost), addons: Math.round(addonsCost), flights: 1850, total: Math.round(total) };
+    const flightsCost = 650; // Average EUR 500-800
+    const total = courseCost + visaCost + insuranceCost + addonsCost + flightsCost;
+    return { course: Math.round(courseCost), visa: visaCost, insurance: Math.round(insuranceCost), addons: Math.round(addonsCost), flights: flightsCost, total: Math.round(total) };
   }
 
   function calculateSavings() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity) || australiaData.cities[0];
+    const city = maltaData.cities.find(c => c.id === state.selectedCity) || maltaData.cities[0];
     const weeks = state.duration * 4.33;
-    
-    // Ingresos: 48hrs/quincena = 24hrs/semana promedio
-    // Durante vacaciones pueden trabajar más (aprox 35hrs/semana promedio anual)
-    const avgWorkHours = 28; // Promedio real considerando vacaciones
+    const avgWorkHours = 20; // 20 hrs/week during course
     const grossIncome = weeks * avgWorkHours * city.minWage;
-    
-    // Gastos realistas para estudiante (habitación compartida + comida + transporte)
-    // Los estudiantes no pagan renta completa, comparten habitación
-    const weeklyRentShared = city.avgRentWeekly.min * 0.7; // 70% del mínimo (habitación compartida)
-    const weeklyFood = 120; // Comida
-    const weeklyTransport = 40; // Transporte
-    const weeklyMisc = 60; // Otros gastos
+    const weeklyRentShared = city.avgRentWeekly.min * 0.7;
+    const weeklyFood = 80; // Lower cost than Australia
+    const weeklyTransport = 15; // Small island
+    const weeklyMisc = 40;
     const weeklyExpenses = weeklyRentShared + weeklyFood + weeklyTransport + weeklyMisc;
     const expenses = weeks * weeklyExpenses;
-    
     return Math.round(grossIncome - expenses);
   }
 
   function updateCalculations() {
     if (!state.selectedCity || !state.selectedCourse) return;
     const costs = calculateCosts();
-    const visaProb = calculateVisaProbability();
+    const compatibility = calculateCompatibility();
     
-    document.getElementById('sidebar-course').textContent = `$${costs.course.toLocaleString()}`;
-    document.getElementById('sidebar-visa').textContent = `$${costs.visa.toLocaleString()}`;
-    document.getElementById('sidebar-oshc').textContent = `$${costs.oshc.toLocaleString()}`;
-    document.getElementById('sidebar-total').textContent = `$${costs.total.toLocaleString()}`;
-    document.getElementById('sidebar-visa-percent').textContent = `${visaProb}%`;
-    updateCircles(visaProb);
+    document.getElementById('sidebar-course').textContent = `€${costs.course.toLocaleString()}`;
+    document.getElementById('sidebar-visa').textContent = `€${costs.visa.toLocaleString()} ✓`;
+    document.getElementById('sidebar-insurance').textContent = `€${costs.insurance.toLocaleString()}`;
+    document.getElementById('sidebar-total').textContent = `€${costs.total.toLocaleString()}`;
+    document.getElementById('sidebar-visa-percent').textContent = `${compatibility}%`;
+    updateCircles(compatibility);
   }
 
   function updateCircles(probability) {
@@ -798,40 +842,37 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
   }
 
   function calculateResults() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity) || australiaData.cities[0];
-    const course = australiaData.courses.find(c => c.id === state.selectedCourse) || australiaData.courses[0];
+    const city = maltaData.cities.find(c => c.id === state.selectedCity) || maltaData.cities[0];
+    const course = maltaData.courses.find(c => c.id === state.selectedCourse) || maltaData.courses[0];
     const costs = calculateCosts();
-    const visaProb = calculateVisaProbability();
-    const savings = calculateSavings();
+    const compatibility = calculateCompatibility();
     
-    document.getElementById('visa-percentage').textContent = `${visaProb}%`;
+    document.getElementById('visa-percentage').textContent = `${compatibility}%`;
     document.getElementById('result-course-name').textContent = `${course.name} (${state.duration}m)`;
-    document.getElementById('result-course-cost').textContent = `$${costs.course.toLocaleString()}`;
-    document.getElementById('result-visa-cost').textContent = `$${costs.visa.toLocaleString()}`;
-    document.getElementById('result-oshc-cost').textContent = `$${costs.oshc.toLocaleString()}`;
-    document.getElementById('result-addons-cost').textContent = `$${costs.addons.toLocaleString()}`;
-    document.getElementById('result-flights-cost').textContent = `$${costs.flights.toLocaleString()}`;
-    document.getElementById('result-total').textContent = `$${costs.total.toLocaleString()}`;
-    document.getElementById('result-savings').textContent = `$${savings.toLocaleString()}`;
-    document.getElementById('result-duration').textContent = state.duration;
-    updateCircles(visaProb);
+    document.getElementById('result-course-cost').textContent = `€${costs.course.toLocaleString()}`;
+    document.getElementById('result-visa-cost').textContent = `€${costs.visa.toLocaleString()} ✓`;
+    document.getElementById('result-insurance-cost').textContent = `€${costs.insurance.toLocaleString()}`;
+    document.getElementById('result-addons-cost').textContent = `€${costs.addons.toLocaleString()}`;
+    document.getElementById('result-flights-cost').textContent = `€${costs.flights.toLocaleString()}`;
+    document.getElementById('result-total').textContent = `€${costs.total.toLocaleString()}`;
+    updateCircles(compatibility);
     
     const addonNames = state.selectedAddons
-      .map(id => australiaData.addons.find(a => a.id === id))
+      .map(id => maltaData.addons.find(a => a.id === id))
       .filter(a => a && !a.included)
       .map(a => a.name);
     
-    const message = `🎯 *Mi Plan para Australia - Global Dreamers*\n\n📍 *CIUDAD:* ${city.name}\n⏱️ *DURACIÓN:* ${state.duration} meses\n📚 *CURSO:* ${course.name}\n💼 *TRABAJO:* Sí (48hrs/quincena)\n${addonNames.length > 0 ? `✨ *COMPLEMENTOS:* ${addonNames.join(', ')}\n` : ''}\n💰 *INVERSIÓN TOTAL:* $${costs.total.toLocaleString()} AUD\n   • Curso: $${costs.course.toLocaleString()}\n   • Visa: $${costs.visa.toLocaleString()}\n   • OSHC: $${costs.oshc.toLocaleString()}\n   • Vuelos: $${costs.flights.toLocaleString()}\n\n📊 *PROBABILIDAD VISA:* ${visaProb}%\n\n💵 *AHORRO ESTIMADO:* $${savings.toLocaleString()} AUD\n   (promedio 28hrs/semana, vivienda compartida)\n\nQuiero agendar mi asesoría gratuita para revisar este plan.`;
+    const message = `🎯 *Mi Plan para Malta - Global Dreamers*\n\n📍 *CIUDAD:* ${city.name}\n⏱️ *DURACIÓN:* ${state.duration} meses\n📚 *CURSO:* ${course.name}\n💼 *TRABAJO:* 20hrs/semana (incluido)\n${addonNames.length > 0 ? `✨ *COMPLEMENTOS:* ${addonNames.join(', ')}\n` : ''}\n💰 *INVERSIÓN TOTAL:* €${costs.total.toLocaleString()}\n   • Curso: €${costs.course.toLocaleString()}\n   • Visa: €0 (¡Sin visa Schengen!)\n   • Seguro: €${costs.insurance.toLocaleString()}\n   • Vuelos: €${costs.flights.toLocaleString()}\n\n📊 *COMPATIBILIDAD:* ${compatibility}%\n\n☀️ *Ventajas:* Sin visa, 300 días de sol/año, inglés oficial UE\n\nQuiero agendar mi asesoría gratuita para revisar este plan.`;
     
     document.getElementById('whatsapp-btn').href = `https://wa.me/61449159849?text=${encodeURIComponent(message)}`;
   }
 
   document.getElementById('restart-btn').addEventListener('click', () => {
-    state = { currentStep: 1, selectedCity: null, duration: 6, selectedCourse: null, selectedAddons: ['work-permit'], profile: { age: '25-30', englishLevel: 'intermediate', workExperience: '1-3', financialCapacity: 'adequate' }};
+    state = { currentStep: 1, selectedCity: null, duration: 3, selectedCourse: null, selectedAddons: ['work-permit'], profile: { age: '25-30', englishLevel: 'intermediate', workExperience: '1-3', financialCapacity: 'adequate' }};
     document.querySelectorAll('.city-option, .course-option').forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('.addon-option').forEach(el => { if (el.dataset.included === 'false') el.classList.remove('active'); });
-    durationSlider.value = 6;
-    durationDisplay.textContent = '6 Meses';
+    durationSlider.value = 3;
+    durationDisplay.textContent = '3 Meses';
     goToStep(1);
   });
 

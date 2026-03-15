@@ -1,9 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { australiaCities, courseTypes, addonOptions } from '../../data/australia-calculator';
+import { italyData } from '../../data/journey-builders/italy';
 
-const title = 'Australia Journey Builder | Diseña tu vida en Australia';
-const description = 'Calcula tu inversión, probabilidad de visa y potencial de ahorro en Australia. Herramienta interactiva 100% gratuita de Global Dreamers.';
+const title = 'Italia Journey Builder | Diseña tu vida en Italia';
+const description = 'Calcula tu inversión, probabilidad de visa y potencial de ahorro en Italia. Herramienta interactiva 100% gratuita de Global Dreamers.';
 ---
 
 <Layout title={title} description={description}>
@@ -26,7 +26,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
         <span id="step-indicator" class="text-xs font-bold text-slate-400 whitespace-nowrap">PASO 1 DE 6</span>
       </div>
 
-      <a href="/estudiar-en-australia/" class="text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1 p-2 -mr-2">
+      <a href="/estudiar-en-italia/" class="text-xs sm:text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-1 p-2 -mr-2">
         <span class="material-symbols-outlined text-base sm:text-lg">close</span>
         <span class="hidden sm:inline">SALIR</span>
       </a>
@@ -51,7 +51,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                 Personalización en Tiempo Real
               </span>
               <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 leading-tight">
-                Diseña tu vida en <span class="text-brand-600">Australia</span>
+                Diseña tu vida en <span class="text-brand-600">Italia</span>
               </h1>
               <p class="text-xs sm:text-sm text-slate-500">Tus elecciones cambian el presupuesto y las probabilidades de visa al instante.</p>
             </div>
@@ -62,7 +62,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                 ¿En qué ciudad te ves viviendo?
               </label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                {australiaCities.map((city) => (
+                {italyData.cities.map((city) => (
                   <button 
                     class="city-option group relative flex flex-col p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-slate-200 hover:border-brand-300 transition-all text-left bg-white active:scale-[0.98]"
                     data-city={city.id}
@@ -123,7 +123,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             </div>
 
             <div class="space-y-2 sm:space-y-3">
-              {courseTypes.map((course) => (
+              {italyData.courses.map((course) => (
                 <button 
                   class="course-option group w-full flex flex-col p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 border-slate-200 hover:border-brand-300 transition-all text-left bg-white relative active:scale-[0.98]"
                   data-course={course.id}
@@ -147,7 +147,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                     </span>
                     <span class="flex items-center gap-1">
                       <span class="material-symbols-outlined text-brand-600 text-xs">payments</span>
-                      ${course.baseCostPerMonth}/mes
+                      €{course.baseCostPerMonth}/mes
                     </span>
                   </div>
                 </button>
@@ -164,7 +164,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             </div>
 
             <div class="space-y-2">
-              {addonOptions.map((addon) => (
+              {italyData.addons.map((addon) => (
                 <div 
                   class={`addon-option group flex items-center justify-between p-3 sm:p-4 rounded-xl border transition-all cursor-pointer active:scale-[0.98] ${addon.included ? 'border-green-200 bg-green-50/50' : 'border-slate-200 hover:bg-slate-50 bg-white'}`}
                   data-addon={addon.id}
@@ -197,18 +197,18 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             <div id="city-info-card" class="p-4 sm:p-5 rounded-2xl bg-slate-900 text-white relative overflow-hidden">
               <div class="absolute inset-0 bg-gradient-to-br from-brand-600/20 to-transparent"></div>
               <div class="relative z-10">
-                <h4 id="selected-city-name" class="text-base sm:text-lg font-black mb-1">Sydney</h4>
+                <h4 id="selected-city-name" class="text-base sm:text-lg font-black mb-1">Roma</h4>
                 <p id="selected-city-desc" class="text-slate-300 text-[10px] sm:text-xs leading-relaxed mb-3">
-                  Tendrás acceso al mercado laboral más grande de Australia.
+                  La Ciudad Eterna. Coliseo, Vaticano, historia en cada esquina.
                 </p>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="bg-white/10 p-2 sm:p-3 rounded-lg backdrop-blur-sm">
                     <span class="text-[9px] uppercase font-bold text-slate-400">Habitación</span>
-                    <p id="city-rent" class="text-sm sm:text-base font-bold">$300 - $450<span class="text-[9px]">/sem</span></p>
+                    <p id="city-rent" class="text-sm sm:text-base font-bold">€180 - €280<span class="text-[9px]">/sem</span></p>
                   </div>
                   <div class="bg-white/10 p-2 sm:p-3 rounded-lg backdrop-blur-sm">
                     <span class="text-[9px] uppercase font-bold text-slate-400">Empleo</span>
-                    <p id="city-jobs" class="text-sm sm:text-base font-bold">Muy Alta</p>
+                    <p id="city-jobs" class="text-sm sm:text-base font-bold">Alta</p>
                   </div>
                 </div>
               </div>
@@ -276,7 +276,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
                 Plan Generado
               </span>
               <h2 class="text-lg sm:text-xl font-black text-slate-900">¡Tu plan está listo!</h2>
-              <p class="text-xs sm:text-sm text-slate-500">Resumen de tu aventura en Australia.</p>
+              <p class="text-xs sm:text-sm text-slate-500">Resumen de tu aventura en Italia.</p>
             </div>
 
             <!-- Visa Probability -->
@@ -304,29 +304,29 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
               
               <div class="flex justify-between text-xs sm:text-sm">
                 <span class="text-slate-500" id="result-course-name">Curso (6m)</span>
-                <span class="font-bold text-slate-800" id="result-course-cost">$4,800</span>
+                <span class="font-bold text-slate-800" id="result-course-cost">€2,880</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm">
                 <span class="text-slate-500">Visa</span>
-                <span class="font-bold text-slate-800" id="result-visa-cost">$860</span>
+                <span class="font-bold text-slate-800" id="result-visa-cost">€50</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm">
-                <span class="text-slate-500">OSHC</span>
-                <span class="font-bold text-slate-800" id="result-oshc-cost">$340</span>
+                <span class="text-slate-500">Seguro</span>
+                <span class="font-bold text-slate-800" id="result-insurance-cost">€400</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm" id="result-addons-row">
                 <span class="text-slate-500">Extras</span>
-                <span class="font-bold text-slate-800" id="result-addons-cost">$0</span>
+                <span class="font-bold text-slate-800" id="result-addons-cost">€0</span>
               </div>
               <div class="flex justify-between text-xs sm:text-sm">
                 <span class="text-slate-500">Vuelos</span>
-                <span class="font-bold text-slate-800" id="result-flights-cost">$1,850</span>
+                <span class="font-bold text-slate-800" id="result-flights-cost">€750</span>
               </div>
               
               <div class="border-t border-slate-100 pt-2 mt-2">
                 <div class="flex justify-between items-end">
                   <span class="text-[10px] sm:text-xs font-black text-slate-400 uppercase">Total</span>
-                  <span class="text-xl sm:text-2xl font-black text-slate-900" id="result-total">$7,850</span>
+                  <span class="text-xl sm:text-2xl font-black text-slate-900" id="result-total">€4,080</span>
                 </div>
               </div>
             </div>
@@ -334,8 +334,31 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
             <!-- Savings Potential -->
             <div class="bg-brand-600 p-4 sm:p-5 rounded-xl sm:rounded-2xl text-white">
               <h3 class="text-[10px] sm:text-xs font-black text-brand-200 uppercase tracking-widest mb-1">💰 Potencial de Ahorro</h3>
-              <p class="text-xl sm:text-2xl font-black mb-1" id="result-savings">$8,500</p>
-              <p class="text-[10px] sm:text-xs text-brand-100">En <span id="result-duration">6</span> meses (promedio 28hrs/semana incluyendo vacaciones)</p>
+              <p class="text-xl sm:text-2xl font-black mb-1" id="result-savings">€1,500</p>
+              <p class="text-[10px] sm:text-xs text-brand-100">En <span id="result-duration">6</span> meses (promedio 20hrs/semana incluyendo vacaciones)</p>
+            </div>
+
+            <!-- Italy Highlights -->
+            <div class="bg-gradient-to-r from-red-50 to-green-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-green-100">
+              <h3 class="text-[10px] sm:text-xs font-black text-green-700 uppercase tracking-widest mb-2">✨ Italia te espera</h3>
+              <ul class="space-y-1.5 text-[10px] sm:text-xs text-slate-600">
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-green-600 text-xs">check_circle</span>
+                  <span><strong>55 sitios patrimonio UNESCO</strong> — más del mundo</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-green-600 text-xs">check_circle</span>
+                  <span><strong>Capital mundial de la moda</strong> — Milán</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-green-600 text-xs">check_circle</span>
+                  <span><strong>Codice Fiscale</strong> incluido — tu NIE italiano</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-green-600 text-xs">check_circle</span>
+                  <span>Costo de vida <strong>moderado</strong> vs UK/Irlanda</span>
+                </li>
+              </ul>
             </div>
 
             <!-- Action Buttons -->
@@ -406,20 +429,20 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
           <div class="space-y-2 text-sm" id="sidebar-costs">
             <div class="flex justify-between">
               <span class="text-slate-500 text-xs">Curso</span>
-              <span class="font-bold text-slate-800" id="sidebar-course">$4,800</span>
+              <span class="font-bold text-slate-800" id="sidebar-course">€2,880</span>
             </div>
             <div class="flex justify-between">
               <span class="text-slate-500 text-xs">Visa</span>
-              <span class="font-bold text-slate-800" id="sidebar-visa">$860</span>
+              <span class="font-bold text-slate-800" id="sidebar-visa">€50</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-500 text-xs">OSHC</span>
-              <span class="font-bold text-slate-800" id="sidebar-oshc">$340</span>
+              <span class="text-slate-500 text-xs">Seguro</span>
+              <span class="font-bold text-slate-800" id="sidebar-insurance">€400</span>
             </div>
             <hr class="border-slate-100"/>
             <div class="flex justify-between items-end pt-1">
               <span class="text-[10px] font-black text-slate-400 uppercase">Total</span>
-              <span class="text-xl font-black text-slate-900" id="sidebar-total">$6,000</span>
+              <span class="text-xl font-black text-slate-900" id="sidebar-total">€3,330</span>
             </div>
           </div>
         </div>
@@ -549,33 +572,35 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
 </style>
 
 <script>
-  // Australia Data (same as before)
-  const australiaData = {
+  // Italy Data from journey-builders/italy.ts
+  const italyData = {
     cities: [
-      { id: 'sydney', name: 'Sydney', tagline: 'Vibrante & Oportunidades', minWage: 23.23, avgRentWeekly: { min: 300, max: 450 }, jobMarket: 'muy_alta', livingCostIndex: 1.25, description: 'La ciudad más grande de Australia. Mercado laboral masivo, playas icónicas y la mayor comunidad latina.' },
-      { id: 'melbourne', name: 'Melbourne', tagline: 'Cultura & Estilo de Vida', minWage: 23.23, avgRentWeekly: { min: 280, max: 400 }, jobMarket: 'alta', livingCostIndex: 1.15, description: 'Capital cultural de Australia. Café de clase mundial, arte, música y estilo europeo.' },
-      { id: 'brisbane', name: 'Brisbane', tagline: 'Sol & Tranquilidad', minWage: 23.23, avgRentWeekly: { min: 250, max: 350 }, jobMarket: 'media-alta', livingCostIndex: 1.0, description: 'Clima subtropical todo el año. Más económica, en crecimiento y cerca de Gold Coast.' },
-      { id: 'goldcoast', name: 'Gold Coast', tagline: 'Playas & Surf', minWage: 23.23, avgRentWeekly: { min: 240, max: 320 }, jobMarket: 'media', livingCostIndex: 0.95, description: 'Playas paradisíacas y ambiente surfer. Turismo fuerte y estilo de vida relajado.' },
-      { id: 'perth', name: 'Perth', tagline: 'Oportunidades del Oeste', minWage: 23.23, avgRentWeekly: { min: 260, max: 380 }, jobMarket: 'alta', livingCostIndex: 1.1, description: 'Capital de Western Australia. Minería, buenos salarios y estilo de vida relajado.' }
+      { id: 'rome', name: 'Roma', tagline: 'Historia Eterna', minWage: 8.50, avgRentWeekly: { min: 180, max: 280 }, jobMarket: 'alta', livingCostIndex: 1.1, description: 'La Ciudad Eterna. Coliseo, Vaticano, historia en cada esquina.' },
+      { id: 'milan', name: 'Milán', tagline: 'Moda & Negocios', minWage: 8.50, avgRentWeekly: { min: 220, max: 340 }, jobMarket: 'muy_alta', livingCostIndex: 1.25, description: 'Capital de la moda y finanzas. Gucci, Prada, y el Duomo.' },
+      { id: 'florence', name: 'Florencia', tagline: 'Cuna del Renacimiento', minWage: 8.50, avgRentWeekly: { min: 140, max: 220 }, jobMarket: 'media', livingCostIndex: 0.95, description: 'Arte renacentista. Uffizi, David de Miguel Ángel, Toscana.' },
+      { id: 'bologna', name: 'Bolonia', tagline: 'Sabrosa & Estudiantil', minWage: 8.50, avgRentWeekly: { min: 120, max: 190 }, jobMarket: 'media-alta', livingCostIndex: 0.85, description: 'Ciudad universitaria. La universidad más antigua de Europa.' },
+      { id: 'turin', name: 'Turín', tagline: 'Industria & Chocolate', minWage: 8.50, avgRentWeekly: { min: 110, max: 170 }, jobMarket: 'alta', livingCostIndex: 0.8, description: 'Fiat, chocolates, primer capital de Italia. Elegante y subestimada.' }
     ],
     courses: [
-      { id: 'english-general', name: 'Inglés General', baseCostPerMonth: 800, minDuration: 3, maxDuration: 24 },
-      { id: 'vet-technical', name: 'Cursos VET (Técnicos)', baseCostPerMonth: 1200, minDuration: 6, maxDuration: 24, popular: true },
-      { id: 'university', name: 'Universidad', baseCostPerMonth: 2500, minDuration: 12, maxDuration: 48 }
+      { id: 'italian-language', name: 'Italiano Intensivo', baseCostPerMonth: 480, minDuration: 4, maxDuration: 24 },
+      { id: 'fashion-design', name: 'Moda & Diseño', baseCostPerMonth: 1200, minDuration: 6, maxDuration: 24, popular: true },
+      { id: 'culinary-arts', name: 'Artes Culinarias', baseCostPerMonth: 800, minDuration: 3, maxDuration: 12 },
+      { id: 'art-history', name: 'Historia del Arte', baseCostPerMonth: 600, minDuration: 6, maxDuration: 24 }
     ],
     addons: [
       { id: 'work-permit', name: 'Permiso de Trabajo', cost: 0, included: true },
-      { id: 'premium-insurance', name: 'Seguro Premium', cost: (d) => d * 80 },
-      { id: 'homestay', name: 'Homestay', cost: (d) => d * 4.33 * 350 },
-      { id: 'airport-pickup', name: 'Airport Pickup', cost: 150 }
+      { id: 'codice-fiscale', name: 'Código Fiscal', cost: 0, included: true },
+      { id: 'permit-stay', name: 'Permesso di Soggiorno', cost: 40, included: false },
+      { id: 'shared-apartment', name: 'Apartamento Compartido', cost: (d) => d * 4.33 * 300, included: false },
+      { id: 'airport-pickup', name: 'Recogida Aeropuerto', cost: 60, included: false }
     ],
     visaFactors: {
       age: { '18-24': 25, '25-30': 20, '31-35': 15, '36-40': 10, '40+': 5 },
-      englishLevel: { beginner: 5, intermediate: 15, advanced: 25, native: 30 },
+      englishLevel: { beginner: 10, intermediate: 20, advanced: 25, native: 30 },
       workExperience: { none: 5, 'less-than-1': 10, '1-3': 15, '3-5': 20, '5+': 25 },
       financialCapacity: { limited: 10, adequate: 20, comfortable: 30, excellent: 35 }
     },
-    visaCosts: { base: 710, medical: 150, oshcBase: 340, oshcPerMonth: 57 }
+    visaCosts: { base: 50, medical: 0, insurance: 400 }
   };
 
   // State
@@ -584,7 +609,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
     selectedCity: null,
     duration: 6,
     selectedCourse: null,
-    selectedAddons: ['work-permit'],
+    selectedAddons: ['work-permit', 'codice-fiscale'],
     profile: { age: '25-30', englishLevel: 'intermediate', workExperience: '1-3', financialCapacity: 'adequate' }
   };
 
@@ -715,60 +740,60 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
   if (mobilePrevBtn) mobilePrevBtn.addEventListener('click', () => { if (state.currentStep > 1) goToStep(state.currentStep - 1); });
 
   function updateCityInfo() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity);
+    const city = italyData.cities.find(c => c.id === state.selectedCity);
     if (!city) return;
     document.getElementById('selected-city-name').textContent = city.name;
     document.getElementById('selected-city-desc').textContent = city.description;
-    // Mostrar precio de habitación compartida (70% del mínimo) - más realista para estudiantes
+    // Mostrar precio de habitación compartida (70% del mínimo)
     const sharedMin = Math.round(city.avgRentWeekly.min * 0.7);
     const sharedMax = Math.round(city.avgRentWeekly.max * 0.6);
-    document.getElementById('city-rent').innerHTML = `$${sharedMin} - $${sharedMax}<span class="text-[9px]">/sem</span>`;
+    document.getElementById('city-rent').innerHTML = `€${sharedMin} - €${sharedMax}<span class="text-[9px]">/sem</span>`;
     const jobText = { 'muy_alta': 'Muy Alta', 'alta': 'Alta', 'media-alta': 'Media-Alta', 'media': 'Media' };
     document.getElementById('city-jobs').textContent = jobText[city.jobMarket];
   }
 
   function calculateVisaProbability() {
     let prob = 0;
-    prob += australiaData.visaFactors.age[state.profile.age] || 0;
-    prob += australiaData.visaFactors.englishLevel[state.profile.englishLevel] || 0;
-    prob += australiaData.visaFactors.workExperience[state.profile.workExperience] || 0;
-    prob += australiaData.visaFactors.financialCapacity[state.profile.financialCapacity] || 0;
+    prob += italyData.visaFactors.age[state.profile.age] || 0;
+    prob += italyData.visaFactors.englishLevel[state.profile.englishLevel] || 0;
+    prob += italyData.visaFactors.workExperience[state.profile.workExperience] || 0;
+    prob += italyData.visaFactors.financialCapacity[state.profile.financialCapacity] || 0;
     prob += 15;
     return Math.min(99, Math.max(0, prob));
   }
 
   function calculateCosts() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity) || australiaData.cities[0];
-    const course = australiaData.courses.find(c => c.id === state.selectedCourse) || australiaData.courses[0];
+    const city = italyData.cities.find(c => c.id === state.selectedCity) || italyData.cities[0];
+    const course = italyData.courses.find(c => c.id === state.selectedCourse) || italyData.courses[0];
     const courseCost = course.baseCostPerMonth * state.duration * city.livingCostIndex;
-    const visaCost = australiaData.visaCosts.base + australiaData.visaCosts.medical;
-    const oshcCost = australiaData.visaCosts.oshcBase + (Math.max(0, state.duration - 6) * australiaData.visaCosts.oshcPerMonth);
+    const visaCost = italyData.visaCosts.base + italyData.visaCosts.medical;
+    const insuranceCost = italyData.visaCosts.insurance;
     let addonsCost = 0;
     state.selectedAddons.forEach(addonId => {
-      const addon = australiaData.addons.find(a => a.id === addonId);
+      const addon = italyData.addons.find(a => a.id === addonId);
       if (addon && !addon.included) {
         addonsCost += typeof addon.cost === 'function' ? addon.cost(state.duration) : addon.cost;
       }
     });
-    const total = courseCost + visaCost + oshcCost + addonsCost + 1850;
-    return { course: Math.round(courseCost), visa: visaCost, oshc: Math.round(oshcCost), addons: Math.round(addonsCost), flights: 1850, total: Math.round(total) };
+    const flightsCost = 750; // €600-900 range, using 750 as average
+    const total = courseCost + visaCost + insuranceCost + addonsCost + flightsCost;
+    return { course: Math.round(courseCost), visa: visaCost, insurance: Math.round(insuranceCost), addons: Math.round(addonsCost), flights: flightsCost, total: Math.round(total) };
   }
 
   function calculateSavings() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity) || australiaData.cities[0];
+    const city = italyData.cities.find(c => c.id === state.selectedCity) || italyData.cities[0];
     const weeks = state.duration * 4.33;
     
-    // Ingresos: 48hrs/quincena = 24hrs/semana promedio
-    // Durante vacaciones pueden trabajar más (aprox 35hrs/semana promedio anual)
-    const avgWorkHours = 28; // Promedio real considerando vacaciones
+    // Italia: 20hrs/semana durante curso, full-time en vacaciones
+    // Promedio real: ~20hrs/semana
+    const avgWorkHours = 20;
     const grossIncome = weeks * avgWorkHours * city.minWage;
     
-    // Gastos realistas para estudiante (habitación compartida + comida + transporte)
-    // Los estudiantes no pagan renta completa, comparten habitación
+    // Gastos realistas para estudiante
     const weeklyRentShared = city.avgRentWeekly.min * 0.7; // 70% del mínimo (habitación compartida)
-    const weeklyFood = 120; // Comida
-    const weeklyTransport = 40; // Transporte
-    const weeklyMisc = 60; // Otros gastos
+    const weeklyFood = 80; // Comida en Italia más económica
+    const weeklyTransport = 25; // Transporte
+    const weeklyMisc = 40; // Otros gastos
     const weeklyExpenses = weeklyRentShared + weeklyFood + weeklyTransport + weeklyMisc;
     const expenses = weeks * weeklyExpenses;
     
@@ -780,10 +805,10 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
     const costs = calculateCosts();
     const visaProb = calculateVisaProbability();
     
-    document.getElementById('sidebar-course').textContent = `$${costs.course.toLocaleString()}`;
-    document.getElementById('sidebar-visa').textContent = `$${costs.visa.toLocaleString()}`;
-    document.getElementById('sidebar-oshc').textContent = `$${costs.oshc.toLocaleString()}`;
-    document.getElementById('sidebar-total').textContent = `$${costs.total.toLocaleString()}`;
+    document.getElementById('sidebar-course').textContent = `€${costs.course.toLocaleString()}`;
+    document.getElementById('sidebar-visa').textContent = `€${costs.visa.toLocaleString()}`;
+    document.getElementById('sidebar-insurance').textContent = `€${costs.insurance.toLocaleString()}`;
+    document.getElementById('sidebar-total').textContent = `€${costs.total.toLocaleString()}`;
     document.getElementById('sidebar-visa-percent').textContent = `${visaProb}%`;
     updateCircles(visaProb);
   }
@@ -798,36 +823,36 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
   }
 
   function calculateResults() {
-    const city = australiaData.cities.find(c => c.id === state.selectedCity) || australiaData.cities[0];
-    const course = australiaData.courses.find(c => c.id === state.selectedCourse) || australiaData.courses[0];
+    const city = italyData.cities.find(c => c.id === state.selectedCity) || italyData.cities[0];
+    const course = italyData.courses.find(c => c.id === state.selectedCourse) || italyData.courses[0];
     const costs = calculateCosts();
     const visaProb = calculateVisaProbability();
     const savings = calculateSavings();
     
     document.getElementById('visa-percentage').textContent = `${visaProb}%`;
     document.getElementById('result-course-name').textContent = `${course.name} (${state.duration}m)`;
-    document.getElementById('result-course-cost').textContent = `$${costs.course.toLocaleString()}`;
-    document.getElementById('result-visa-cost').textContent = `$${costs.visa.toLocaleString()}`;
-    document.getElementById('result-oshc-cost').textContent = `$${costs.oshc.toLocaleString()}`;
-    document.getElementById('result-addons-cost').textContent = `$${costs.addons.toLocaleString()}`;
-    document.getElementById('result-flights-cost').textContent = `$${costs.flights.toLocaleString()}`;
-    document.getElementById('result-total').textContent = `$${costs.total.toLocaleString()}`;
-    document.getElementById('result-savings').textContent = `$${savings.toLocaleString()}`;
+    document.getElementById('result-course-cost').textContent = `€${costs.course.toLocaleString()}`;
+    document.getElementById('result-visa-cost').textContent = `€${costs.visa.toLocaleString()}`;
+    document.getElementById('result-insurance-cost').textContent = `€${costs.insurance.toLocaleString()}`;
+    document.getElementById('result-addons-cost').textContent = `€${costs.addons.toLocaleString()}`;
+    document.getElementById('result-flights-cost').textContent = `€${costs.flights.toLocaleString()}`;
+    document.getElementById('result-total').textContent = `€${costs.total.toLocaleString()}`;
+    document.getElementById('result-savings').textContent = `€${savings.toLocaleString()}`;
     document.getElementById('result-duration').textContent = state.duration;
     updateCircles(visaProb);
     
     const addonNames = state.selectedAddons
-      .map(id => australiaData.addons.find(a => a.id === id))
+      .map(id => italyData.addons.find(a => a.id === id))
       .filter(a => a && !a.included)
       .map(a => a.name);
     
-    const message = `🎯 *Mi Plan para Australia - Global Dreamers*\n\n📍 *CIUDAD:* ${city.name}\n⏱️ *DURACIÓN:* ${state.duration} meses\n📚 *CURSO:* ${course.name}\n💼 *TRABAJO:* Sí (48hrs/quincena)\n${addonNames.length > 0 ? `✨ *COMPLEMENTOS:* ${addonNames.join(', ')}\n` : ''}\n💰 *INVERSIÓN TOTAL:* $${costs.total.toLocaleString()} AUD\n   • Curso: $${costs.course.toLocaleString()}\n   • Visa: $${costs.visa.toLocaleString()}\n   • OSHC: $${costs.oshc.toLocaleString()}\n   • Vuelos: $${costs.flights.toLocaleString()}\n\n📊 *PROBABILIDAD VISA:* ${visaProb}%\n\n💵 *AHORRO ESTIMADO:* $${savings.toLocaleString()} AUD\n   (promedio 28hrs/semana, vivienda compartida)\n\nQuiero agendar mi asesoría gratuita para revisar este plan.`;
+    const message = `🎯 *Mi Plan para Italia - Global Dreamers*\n\n📍 *CIUDAD:* ${city.name}\n⏱️ *DURACIÓN:* ${state.duration} meses\n📚 *CURSO:* ${course.name}\n💼 *TRABAJO:* Sí (20hrs/semana)\n${addonNames.length > 0 ? `✨ *COMPLEMENTOS:* ${addonNames.join(', ')}\n` : ''}\n💰 *INVERSIÓN TOTAL:* €${costs.total.toLocaleString()}\n   • Curso: €${costs.course.toLocaleString()}\n   • Visa: €${costs.visa.toLocaleString()}\n   • Seguro: €${costs.insurance.toLocaleString()}\n   • Vuelos: €${costs.flights.toLocaleString()}\n\n📊 *PROBABILIDAD VISA:* ${visaProb}%\n\n💵 *AHORRO ESTIMADO:* €${savings.toLocaleString()}\n   (promedio 20hrs/semana, vivienda compartida)\n\n🇮🇹 *DESTACADOS:*\n• 55 sitios patrimonio UNESCO\n• Capital mundial de la moda\n• Codice Fiscale incluido\n• Costo de vida moderado vs UK/Irlanda\n\nQuiero agendar mi asesoría gratuita para revisar este plan.`;
     
     document.getElementById('whatsapp-btn').href = `https://wa.me/61449159849?text=${encodeURIComponent(message)}`;
   }
 
   document.getElementById('restart-btn').addEventListener('click', () => {
-    state = { currentStep: 1, selectedCity: null, duration: 6, selectedCourse: null, selectedAddons: ['work-permit'], profile: { age: '25-30', englishLevel: 'intermediate', workExperience: '1-3', financialCapacity: 'adequate' }};
+    state = { currentStep: 1, selectedCity: null, duration: 6, selectedCourse: null, selectedAddons: ['work-permit', 'codice-fiscale'], profile: { age: '25-30', englishLevel: 'intermediate', workExperience: '1-3', financialCapacity: 'adequate' }};
     document.querySelectorAll('.city-option, .course-option').forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('.addon-option').forEach(el => { if (el.dataset.included === 'false') el.classList.remove('active'); });
     durationSlider.value = 6;

@@ -7,7 +7,7 @@ export const australiaData: JourneyBuilderData = {
   countryCode: 'au',
   currency: 'AUD',
   currencySymbol: '$',
-  whatsappNumber: '61412345678',
+  whatsappNumber: '61449159849',
   
   workPermit: {
     hoursPerWeek: 24,

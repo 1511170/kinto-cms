@@ -7,7 +7,7 @@ export const canadaData: JourneyBuilderData = {
   countryCode: 'ca',
   currency: 'CAD',
   currencySymbol: '$',
-  whatsappNumber: '61412345678',
+  whatsappNumber: '61449159849',
   
   workPermit: {
     hoursPerWeek: 20,
