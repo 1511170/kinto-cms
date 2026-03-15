@@ -823,7 +823,7 @@ const description = 'Calcula tu inversión, probabilidad de visa y potencial de 
     
     const message = `🎯 *Mi Plan para Australia - Global Dreamers*\n\n📍 *CIUDAD:* ${city.name}\n⏱️ *DURACIÓN:* ${state.duration} meses\n📚 *CURSO:* ${course.name}\n💼 *TRABAJO:* Sí (48hrs/quincena)\n${addonNames.length > 0 ? `✨ *COMPLEMENTOS:* ${addonNames.join(', ')}\n` : ''}\n💰 *INVERSIÓN TOTAL:* $${costs.total.toLocaleString()} AUD\n   • Curso: $${costs.course.toLocaleString()}\n   • Visa: $${costs.visa.toLocaleString()}\n   • OSHC: $${costs.oshc.toLocaleString()}\n   • Vuelos: $${costs.flights.toLocaleString()}\n\n📊 *PROBABILIDAD VISA:* ${visaProb}%\n\n💵 *AHORRO ESTIMADO:* $${savings.toLocaleString()} AUD\n   (promedio 28hrs/semana, vivienda compartida)\n\nQuiero agendar mi asesoría gratuita para revisar este plan.`;
     
-    document.getElementById('whatsapp-btn').href = `https://wa.me/61449159849?text=${encodeURIComponent(message)}`;
+    document.getElementById('whatsapp-btn').href = `https://wa.me/61412345678?text=${encodeURIComponent(message)}`;
   }
 
   document.getElementById('restart-btn').addEventListener('click', () => {

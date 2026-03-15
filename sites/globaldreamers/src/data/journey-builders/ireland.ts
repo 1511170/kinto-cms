@@ -7,7 +7,7 @@ export const irelandData: JourneyBuilderData = {
   countryCode: 'ie',
   currency: 'EUR',
   currencySymbol: '€',
-  whatsappNumber: '61449159849',
+  whatsappNumber: '61412345678',
   
   workPermit: {
     hoursPerWeek: 20,

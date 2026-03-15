@@ -7,7 +7,7 @@ export const ukData: JourneyBuilderData = {
   countryCode: 'gb',
   currency: 'GBP',
   currencySymbol: '£',
-  whatsappNumber: '61449159849',
+  whatsappNumber: '61412345678',
   
   workPermit: {
     hoursPerWeek: 20,
