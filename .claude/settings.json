@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format || npx prettier --write . || echo 'No formatter configured'",
+            "description": "Auto-format code after writes"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'KINTO CMS: Remember — Plan before 3+ files. Verify with build. Skills > ad-hoc.'",
+            "description": "Remind KINTO principles on session start"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run build || echo 'Build check: No site directory or build failed'",
+            "description": "Verify build before session ends"
+          }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "KINTO_CMS_ROOT": ".",
+    "KINTO_SITE_DIR": "sites"
+  }
+}

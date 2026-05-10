@@ -37,3 +37,7 @@ coverage/
 
 # Cloudflare
 .wrangler/
+
+# Agent configs — track shared configs, ignore local sessions
+.claude/sessions/
+.kimi/sessions/

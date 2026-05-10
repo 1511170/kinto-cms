@@ -1,10 +1,19 @@
-# KINTO CMS - Rules for AI
+# KINTO CMS - Rules for AI Agents
+
+> **Entry point:** Read `AGENTS.md` first. It contains the full guide for any agent (Kimi, Claude, Qwen, Cursor).
 
 ## System Overview
 KINTO CMS is an Astro-based static site generator with a **skills/plugins architecture**.
-- **Core**: Minimal Astro + Tailwind (no features by default)
+- **Core**: Minimal Astro + Tailwind 3 (no features by default)
 - **Skills**: Install-on-demand plugins in `skills/{official,community}/`
 - **Sites**: Each site = Core + Active Skills
+
+## Boris Workflow Principles (Apply These)
+
+1. **Plan before 3+ files** - Write a plan before modifying more than 2 files. Get implicit or explicit approval.
+2. **Verification is everything** - Always run `npm run build` and `npm run preview` before finishing.
+3. **Skills > ad-hoc code** - Reuse or create skills. Never copy components between sites.
+4. **Living documentation** - If you make a mistake and fix it, update `AGENTS.md` so it doesn't happen again.
 
 ## Critical Rules
 
@@ -39,7 +48,7 @@ KINTO CMS is an Astro-based static site generator with a **skills/plugins archit
 
 ## Tech Stack
 - Framework: Astro 5 (SSG)
-- Styling: Tailwind CSS 4
+- Styling: Tailwind CSS 3
 - CMS: Sveltia (Git-based)
 - Hosting: Cloudflare Pages
 
@@ -55,5 +64,8 @@ export { default as config } from './config/index.ts';
 - `node scripts/skill-add.js <name>` - Install skill
 - `node scripts/skill-create.js <name>` - Create new skill
 
-## First Action on New Site
-Read `KINTO.md` then check `sites/{site}/skills-active.json` to see what's installed.
+## First Action on Any Task
+1. Read `AGENTS.md` for the full guide
+2. Read `KINTO.md` for system deep-dive
+3. Check `sites/{site}/skills-active.json` to see what's installed
+4. Plan before executing on 3+ files
