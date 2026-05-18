@@ -1,0 +1,84 @@
+---
+import siteConfig from '../../config/site.config.ts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = siteConfig.site.name,
+  description = siteConfig.site.description,
+  canonical = Astro.url.href,
+  image = '/og-image.png',
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  author = siteConfig.site.name,
+  noindex = false,
+} = Astro.props;
+
+const siteName = siteConfig.site.name;
+const siteUrl = `https://${siteConfig.site.domain}`;
+const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
+const titleFull = title === siteName ? title : `${title} | ${siteName}`;
+---
+
+<!DOCTYPE html>
+<html lang={siteConfig.site.language}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO básico -->
+    <title>{titleFull}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex ? (
+      <meta name="robots" content="noindex, nofollow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    )}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={titleFull} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:image" content={fullImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={siteConfig.site.language.replace('-', '_')} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+    {author && <meta property="article:author" content={author} />}
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titleFull} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={fullImage} />
+
+    <!-- AI Citations -->
+    <link rel="alternate" type="text/plain" href="/llms.txt" />
+
+    <!-- Favicon -->
+    {siteConfig.site.favicon && (
+      <link rel="icon" type="image/x-icon" href={siteConfig.site.favicon} />
+    )}
+
+    <!-- Skills inyectan meta tags, schemas, scripts -->
+    <slot name="head" />
+  </head>
+  <body class="antialiased">
+    <slot />
+  </body>
+</html>

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-18T03:25:53.174Z",
-  "count": 16,
+  "generated": "2026-05-18T05:10:22.361Z",
+  "count": 17,
   "skills": [
     {
       "name": "blog",
@@ -104,6 +104,27 @@
         "static"
       ],
       "path": "skills/community/contact-form"
+    },
+    {
+      "name": "design-bridge",
+      "category": "community",
+      "version": "0.1.0",
+      "description": "Puente opt-in para importar diseños desde open-design.ai (con stubs para Stitch y Claude Design) a tokens CSS y componentes Astro",
+      "tags": [
+        "design",
+        "tokens",
+        "import",
+        "open-design"
+      ],
+      "requires": [],
+      "needs": [
+        "open-design-api-key"
+      ],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/design-bridge"
     },
     {
       "name": "forms-web3forms",

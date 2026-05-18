@@ -3,7 +3,7 @@
 > Catálogo de site-skills instalables. **Generado automáticamente** desde
 > `skills/registry.json` — no lo edites a mano (corre `kinto skill validate`).
 
-Total: **16 skills** · Última generación: 2026-05-18
+Total: **17 skills** · Última generación: 2026-05-18
 
 Instala cualquier skill con: `kinto skill add <nombre> --site=<sitio>`
 
@@ -24,6 +24,7 @@ Instala cualquier skill con: `kinto skill add <nombre> --site=<sitio>`
 | `cloudflare-pages` | 1.0.0 | Configuración de deploy a Cloudflare Pages | deploy, cloudflare | — |
 | `cloudflare-tunnel` | 1.0.0 | Túnel cloudflared persistente para exponer el sitio local | cloudflare, tunnel, dev | — |
 | `contact-form` | 1.0.0 | Formulario de contacto con validación y estilos Tailwind | forms, contact | — |
+| `design-bridge` | 0.1.0 | Puente opt-in para importar diseños desde open-design.ai (con stubs para Stitch y Claude Design) a tokens CSS y componentes Astro | design, tokens, import, open-design | open-design-api-key |
 | `forms-web3forms` | 1.0.0 | Formularios serverless vía Web3Forms (sin backend propio) | forms, serverless | — |
 | `image-optimizer` | 1.0.0 | Optimización y compresión de imágenes en build | images, performance | — |
 | `seo-ai-citations` | 1.0.0 | SEO + schema.org (6+ tipos) optimizado para citaciones de IA | seo, schema-org, ai | — |

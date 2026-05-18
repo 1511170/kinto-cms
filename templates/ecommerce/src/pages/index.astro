@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+import siteConfig from '../../config/site.config.ts';
+
+// Verificar skills activas
+const activeSkills = JSON.parse(
+  import.meta.env.SKILLS_ACTIVE || '[]'
+);
+---
+
+<Layout>
+  <main class="min-h-screen bg-gradient-to-br from-brand-50 to-white">
+    <!-- Hero Section -->
+    <section class="container mx-auto px-4 py-20 text-center">
+      <h1 class="text-5xl md:text-7xl font-bold text-brand-900 mb-6">
+        {siteConfig.site.name}
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+        {siteConfig.site.description}
+      </p>
+      
+      <div class="bg-white rounded-2xl shadow-lg p-8 max-w-3xl mx-auto mt-12">
+        <h2 class="text-2xl font-semibold mb-4">🚀 Bienvenido a KINTO CMS</h2>
+        
+        {activeSkills.length === 0 ? (
+          <div class="space-y-4">
+            <p class="text-gray-600">
+              Este sitio está en modo core limpio. Es hora de construir algo increíble.
+            </p>
+            <div class="bg-gray-100 rounded-lg p-4 text-left">
+              <p class="text-sm text-gray-500 mb-2">Próximos pasos:</p>
+              <ol class="text-sm text-gray-700 list-decimal list-inside space-y-1">
+                <li>Lee <code class="bg-gray-200 px-1 rounded">KINTO.md</code> en esta carpeta</li>
+                <li>Instala skills: <code class="bg-gray-200 px-1 rounded">node scripts/skill-add.js cms-sveltia</code></li>
+                <li>Genera las páginas según el brief del cliente</li>
+              </ol>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p class="text-green-600 font-medium">
+              ✅ {activeSkills.length} skill(s) activa(s)
+            </p>
+            <ul class="mt-4 space-y-2">
+              {activeSkills.map((skill: string) => (
+                <li class="text-gray-600">• {skill}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+</Layout>
