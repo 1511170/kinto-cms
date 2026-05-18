@@ -1,22 +1,25 @@
 # /create-skill
 
-Create a new reusable KINTO CMS skill
+Crea el scaffold de una site-skill nueva.
 
-## Usage
+## Uso
+
 ```
 /create-skill <skill-name>
 ```
 
-## What it does
-1. Creates directory `skills/community/<skill-name>/`
-2. Generates:
-   - `SKILL.md` with template documentation
-   - `index.ts` with install function scaffold
-   - `components/` directory
-   - `config/` directory
-3. Shows the structure and prompts for implementation
+## Qué hace
 
-## Example
+1. Ejecuta `kinto skill create <skill-name>`
+2. Genera `skills/community/<skill-name>/` con:
+   - `SKILL.md` con frontmatter de registry listo
+   - `index.ts` que exporta el componente
+   - `components/<Pascal>.astro`
+3. Regenera `skills/registry.json` y `MARKETPLACE.md`
+4. Indica los siguientes pasos (implementar, validar, abrir PR — ver CONTRIBUTING.md)
+
+## Ejemplo
+
 ```
 /create-skill pricing-calculator
 ```

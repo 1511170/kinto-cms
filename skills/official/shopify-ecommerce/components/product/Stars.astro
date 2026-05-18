@@ -1,0 +1,52 @@
+---
+interface Props {
+  rating: number;
+  size?: number;
+  showValue?: boolean;
+  reviewCount?: number;
+}
+
+const { rating, size = 13, showValue = false, reviewCount } = Astro.props;
+const full = Math.floor(rating);
+const half = rating - full >= 0.4;
+const empty = 5 - full - (half ? 1 : 0);
+---
+
+<span class="stars" style={`font-size:${size}px`}>
+  {Array.from({ length: full }).map(() => (
+    <span class="star filled">★</span>
+  ))}
+  {half && <span class="star half">★</span>}
+  {Array.from({ length: empty }).map(() => (
+    <span class="star empty">☆</span>
+  ))}
+  {showValue && (
+    <span class="stars-value mono">
+      {rating.toFixed(1)}{reviewCount !== undefined && <span class="stars-count"> — {reviewCount} reviews</span>}
+    </span>
+  )}
+</span>
+
+<style>
+  .stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    line-height: 1;
+  }
+  .star { color: var(--fg-faint); }
+  .star.filled, .star.half { color: var(--fg); }
+  .star.half {
+    background: linear-gradient(90deg, var(--fg) 50%, var(--fg-faint) 50%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stars-value {
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--fg-muted);
+    letter-spacing: 0.04em;
+  }
+  .stars-count { color: var(--fg-faint); }
+</style>

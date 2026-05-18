@@ -1,0 +1,63 @@
+---
+interface Chip {
+  value: string;
+  label: string;
+  count?: number;
+}
+
+interface Props {
+  chips: Chip[];
+  active?: string | null;
+  param?: string;
+}
+
+const { chips, active = null, param = 'cat' } = Astro.props;
+---
+
+<div class="cat-chips" data-category-chips data-param={param}>
+  <button class={`cat-chip ${active === null ? 'active' : ''}`} data-chip-value="">
+    <span>Todas</span>
+  </button>
+  {chips.map((c) => (
+    <button
+      class={`cat-chip ${active === c.value ? 'active' : ''}`}
+      data-chip-value={c.value}
+    >
+      <span>{c.label}</span>
+      {c.count !== undefined && <span class="mono cat-chip-count">{c.count}</span>}
+    </button>
+  ))}
+</div>
+
+<style>
+  .cat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 13px;
+    color: var(--fg);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .cat-chip:hover { border-color: var(--fg); }
+  .cat-chip.active {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+  .cat-chip-count {
+    font-size: 10px;
+    color: var(--fg-muted);
+    opacity: 0.6;
+  }
+  .cat-chip.active .cat-chip-count { color: var(--bg); opacity: 0.7; }
+</style>

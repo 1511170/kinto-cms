@@ -1,0 +1,884 @@
+---
+interface Props {
+  whatsappUrl?: string;
+  shippingNote?: string;
+}
+const { whatsappUrl, shippingNote = 'Envío a toda Colombia · Todos los pedidos por WhatsApp' } = Astro.props;
+---
+
+<div data-cart-drawer class="cart-drawer-root" hidden role="dialog" aria-modal="true" aria-label="Carrito de compras">
+  <div class="drawer-backdrop" data-cart-backdrop></div>
+
+  <aside class="drawer" data-cart-panel>
+    <header class="drawer-head">
+      <div class="drawer-head-text">
+        <span class="drawer-eyebrow">Tu pedido</span>
+        <h2 class="drawer-title">Carrito</h2>
+        <p class="drawer-subtitle"><span data-cart-summary>Sin productos aún</span></p>
+      </div>
+      <button class="drawer-close" data-cart-close aria-label="Cerrar carrito">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <path d="M6 6l12 12M6 18L18 6"/>
+        </svg>
+      </button>
+    </header>
+
+    <div class="drawer-shipping">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7zM7.5 18a2 2 0 100-4 2 2 0 000 4zM17.5 18a2 2 0 100-4 2 2 0 000 4z"/>
+      </svg>
+      <span>{shippingNote}</span>
+    </div>
+
+    <div class="drawer-body">
+      <div class="drawer-loading" data-cart-loading hidden>
+        <div class="skeleton-item">
+          <div class="sk-img"></div>
+          <div class="sk-lines">
+            <div class="sk-line sk-line-lg"></div>
+            <div class="sk-line sk-line-md"></div>
+            <div class="sk-line sk-line-sm"></div>
+          </div>
+        </div>
+        <div class="skeleton-item">
+          <div class="sk-img"></div>
+          <div class="sk-lines">
+            <div class="sk-line sk-line-lg"></div>
+            <div class="sk-line sk-line-md"></div>
+            <div class="sk-line sk-line-sm"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-empty" data-cart-empty>
+        <div class="empty-illustration" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1">
+            <path d="M5 6h16l-2 11H7L5 6z"/>
+            <path d="M5 6L4 3H1"/>
+            <circle cx="9" cy="20" r="1.5"/>
+            <circle cx="18" cy="20" r="1.5"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">Tu carrito está vacío</h3>
+        <p class="empty-copy">Explorá nuestro catálogo o escribinos por WhatsApp para cotizar. Todos los pedidos se gestionan por WhatsApp.</p>
+        <div class="empty-actions">
+          <a href="/store" class="empty-cta empty-cta-primary">
+            Explorar catálogo
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          {whatsappUrl && (
+            <a href={whatsappUrl} target="_blank" rel="noopener" class="empty-cta empty-cta-secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366">
+                <path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.4-1.5-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1-1.1 2.5s1.1 2.9 1.3 3.1c.2.2 2.2 3.4 5.3 4.6 2.6 1 3.1.8 3.7.8.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3z"/>
+                <path d="M12 2a10 10 0 00-8.5 15.3L2 22l4.8-1.4A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1112 20z" fill="#25D366"/>
+              </svg>
+              Asesor por WhatsApp
+            </a>
+          )}
+        </div>
+      </div>
+
+      <div class="drawer-list" data-cart-filled hidden></div>
+    </div>
+
+    <footer class="drawer-foot" data-cart-footer hidden>
+      <div class="drawer-summary">
+        <div class="drawer-summary-row drawer-summary-row-faint">
+          <span data-cart-summary-items>0 productos · 0 unidades</span>
+          <span data-cart-summary-shipping>Envío al checkout</span>
+        </div>
+        <div class="drawer-total-row">
+          <span class="drawer-total-label">Subtotal</span>
+          <span class="drawer-subtotal-amount" data-cart-subtotal>$0</span>
+        </div>
+      </div>
+      <a class="drawer-checkout" data-checkout-button data-checkout-url="#">
+        <span>Proceder al checkout</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M5 12h14M13 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <div class="drawer-trust">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <span>Checkout seguro · Pago via Shopify</span>
+      </div>
+    </footer>
+  </aside>
+</div>
+
+<style is:global>
+  /* ──────────────────────────────────────────────────────────────
+   *  Cart Drawer — Editorial Industrial
+   *  is:global because items are JS-injected via innerHTML and
+   *  Astro's scoped CSS attribute selectors wouldn't match them.
+   *  All classes are namespaced (drawer-*, cart-*, sk-*, empty-*).
+   * ────────────────────────────────────────────────────────────── */
+
+  /* ── Root & backdrop ────────────────────────────────── */
+  .cart-drawer-root {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+  }
+  .cart-drawer-root[hidden] { display: none; }
+
+  .drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(14,14,14,0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    animation: drawerFadeIn .35s ease forwards;
+  }
+  @keyframes drawerFadeIn { to { opacity: 1; } }
+
+  /* ── Drawer panel ───────────────────────────────────── */
+  .drawer {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: min(480px, 100vw);
+    background: var(--bg);
+    box-shadow: -16px 0 64px rgba(14,14,14,0.22);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    animation: drawerSlideIn .4s cubic-bezier(.22,.85,.32,1) forwards;
+  }
+  @keyframes drawerSlideIn { to { transform: translateX(0); } }
+
+  /* ── Header ─────────────────────────────────────────── */
+  .drawer-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 28px 28px 20px;
+    flex-shrink: 0;
+  }
+  .drawer-head-text { display: flex; flex-direction: column; gap: 4px; }
+  .drawer-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--fg-faint);
+  }
+  .drawer-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    color: var(--fg);
+    margin: 0;
+    line-height: 1;
+  }
+  .drawer-subtitle {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-muted);
+    letter-spacing: 0.04em;
+    margin: 6px 0 0;
+  }
+  .drawer-subtitle.pop { animation: subtitlePulse .35s ease; }
+  @keyframes subtitlePulse {
+    0%   { opacity: .35; transform: translateY(-2px); }
+    100% { opacity: 1;   transform: translateY(0); }
+  }
+
+  .drawer-close {
+    width: 36px; height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    color: var(--fg-muted);
+    background: transparent;
+    transition: background .15s, color .15s, transform .25s;
+    margin-top: 4px;
+  }
+  .drawer-close:hover {
+    background: var(--fg);
+    color: var(--bg);
+    transform: rotate(90deg);
+  }
+
+  /* ── Shipping note (subtle, no shouty banner) ───────── */
+  .drawer-shipping {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 28px 14px;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .drawer-shipping svg { flex-shrink: 0; color: var(--accent-2); }
+
+  /* ── Body ───────────────────────────────────────────── */
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* ── Loading skeleton ───────────────────────────────── */
+  .drawer-loading {
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .drawer-loading[hidden] { display: none; }
+
+  .skeleton-item {
+    display: flex;
+    gap: 18px;
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sk-img {
+    width: 96px; height: 96px;
+    border-radius: var(--radius-md);
+    background: var(--bg-soft);
+    flex-shrink: 0;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  .sk-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding-top: 6px;
+  }
+  .sk-line {
+    height: 12px;
+    border-radius: 4px;
+    background: var(--bg-soft);
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  .sk-line-lg { width: 82%; }
+  .sk-line-md { width: 50%; height: 16px; animation-delay: .1s; }
+  .sk-line-sm { width: 36%; animation-delay: .2s; }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .42; }
+  }
+
+  /* ── Empty state ────────────────────────────────────── */
+  .drawer-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 56px 32px 56px;
+    text-align: center;
+  }
+  .drawer-empty[hidden] { display: none; }
+
+  .empty-illustration {
+    width: 88px; height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--bg-tint);
+    color: var(--fg-faint);
+    margin-bottom: 4px;
+  }
+  .empty-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    margin: 0;
+  }
+  .empty-copy {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--fg-muted);
+    margin: 0;
+    max-width: 280px;
+  }
+  .empty-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 270px;
+    margin-top: 16px;
+  }
+  .empty-cta {
+    width: 100%;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: var(--radius-sm);
+    transition: background .15s, color .15s, transform .15s;
+  }
+  .empty-cta-primary {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .empty-cta-primary:hover { background: #000; transform: translateY(-1px); }
+  .empty-cta-secondary {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--line-strong);
+  }
+  .empty-cta-secondary:hover { background: var(--bg-soft); border-color: var(--fg); }
+
+  /* ── Items list ─────────────────────────────────────── */
+  .drawer-list {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .drawer-list[hidden] { display: none; }
+
+  /* ── Cart item (editorial industrial row) ───────────── */
+  .cart-item {
+    position: relative;
+    padding: 20px 28px 22px;
+    border-bottom: 1px solid var(--line);
+    transition: background .15s, opacity .2s;
+    animation: itemSlideIn .35s cubic-bezier(.22,.85,.32,1);
+  }
+  .cart-item:first-child { padding-top: 4px; }
+  .cart-item:hover { background: var(--bg-tint); }
+  .cart-item.updating { opacity: .45; pointer-events: none; }
+
+  @keyframes itemSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cart-item-num {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--fg-faint);
+    margin-bottom: 12px;
+  }
+
+  .cart-item-grid {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .cart-item-img {
+    width: 100px; height: 100px;
+    border-radius: var(--radius-md);
+    background: var(--bg-soft);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    position: relative;
+  }
+  .cart-item-img a { display: block; width: 100%; height: 100%; }
+  .cart-item-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s cubic-bezier(.22,.85,.32,1);
+  }
+  .cart-item:hover .cart-item-img img { transform: scale(1.06); }
+
+  .cart-item-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100px;
+    justify-content: space-between;
+  }
+
+  .cart-item-head { min-width: 0; }
+  .cart-item-name {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    margin: 0 0 4px;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color .12s;
+  }
+  .cart-item-name:hover { color: var(--accent-2); }
+
+  .cart-item-variant {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    margin: 0 0 6px;
+  }
+  .cart-item-variant:empty { display: none; }
+
+  .cart-item-price-line {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .cart-item-price {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: -0.005em;
+    font-variant-numeric: tabular-nums;
+  }
+  .cart-item-price-detail {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--fg-faint);
+    letter-spacing: 0.02em;
+  }
+
+  .cart-item-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .cart-qty {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 2px;
+  }
+  .cart-qty button {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    color: var(--fg-muted);
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 999px;
+    transition: background .12s, color .12s;
+    cursor: pointer;
+  }
+  .cart-qty button:hover:not(:disabled) {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .cart-qty button:disabled { opacity: .3; cursor: default; }
+  .cart-qty-count {
+    min-width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--fg);
+    user-select: none;
+    padding: 0 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cart-remove {
+    background: transparent;
+    border: 0;
+    color: var(--fg-faint);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    transition: color .12s;
+    padding: 6px 4px;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .cart-remove:hover {
+    color: var(--warn);
+    border-bottom-color: var(--warn);
+  }
+
+  /* ── Footer ─────────────────────────────────────────── */
+  .drawer-foot {
+    border-top: 1px solid var(--line);
+    padding: 22px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+  .drawer-foot[hidden] { display: none; }
+
+  .drawer-summary { display: flex; flex-direction: column; gap: 10px; }
+
+  .drawer-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .drawer-summary-row-faint {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--fg-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .drawer-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .drawer-total-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg);
+    font-weight: 500;
+  }
+  .drawer-subtotal-amount {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: var(--fg);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .drawer-checkout {
+    width: 100%;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: var(--radius-sm);
+    transition: background .2s, transform .15s;
+  }
+  .drawer-checkout:hover { background: #000; transform: translateY(-1px); }
+  .drawer-checkout svg { transition: transform .2s; }
+  .drawer-checkout:hover svg { transform: translateX(3px); }
+
+  .drawer-trust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--fg-faint);
+    letter-spacing: 0.05em;
+  }
+  .drawer-trust svg { flex-shrink: 0; }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 480px) {
+    .drawer-head { padding: 22px 20px 16px; }
+    .drawer-shipping { padding: 8px 20px 12px; }
+    .drawer-empty { padding: 44px 24px 44px; }
+    .drawer-foot { padding: 20px 20px 22px; }
+    .skeleton-item { padding: 20px; gap: 14px; }
+    .cart-item { padding: 18px 20px 20px; }
+    .cart-item-grid { grid-template-columns: 88px 1fr; gap: 14px; }
+    .cart-item-img, .sk-img { width: 88px; height: 88px; }
+    .cart-item-info { height: 88px; }
+    .cart-item-name { font-size: 16px; }
+    .drawer-title { font-size: 24px; }
+    .drawer-subtotal-amount { font-size: 28px; }
+  }
+</style>
+
+<script>
+  import { getCart, addToCart, updateCartLine, removeCartLine } from '../../lib/cart-client';
+  import type { CartState, CartLine } from '../../lib/product-mapper';
+  import { escapeHtml } from '../../lib/escape-html';
+
+  (() => {
+    const drawer = document.querySelector<HTMLElement>('[data-cart-drawer]');
+    if (!drawer) return;
+
+    const backdrop  = drawer.querySelector<HTMLElement>('[data-cart-backdrop]')!;
+    const closeBtn  = drawer.querySelector<HTMLElement>('[data-cart-close]')!;
+    const loading   = drawer.querySelector<HTMLElement>('[data-cart-loading]')!;
+    const empty     = drawer.querySelector<HTMLElement>('[data-cart-empty]')!;
+    const filled    = drawer.querySelector<HTMLElement>('[data-cart-filled]')!;
+    const footer    = drawer.querySelector<HTMLElement>('[data-cart-footer]')!;
+    const subtotalEl   = drawer.querySelector<HTMLElement>('[data-cart-subtotal]')!;
+    const checkoutLink = drawer.querySelector<HTMLAnchorElement>('[data-checkout-button]')!;
+    const summaryEl       = drawer.querySelector<HTMLElement>('[data-cart-summary]')!;
+    const summaryItemsEl  = drawer.querySelector<HTMLElement>('[data-cart-summary-items]')!;
+
+    function fmt(amount: string, currency: string) {
+      const num = parseFloat(amount);
+      if (!num) return 'Cotizar';
+      const zeroDecimalCurrencies = new Set(['BIF','CLP','COP','DJF','GNF','JPY','KMF','KRW','MGA','PYG','RWF','UGX','VND','VUV','XAF','XOF','XPF']);
+      const fractionDigits = zeroDecimalCurrencies.has(String(currency || 'COP').toUpperCase()) ? 0 : 2;
+      return new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: currency || 'COP',
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
+      }).format(num);
+    }
+
+    function setBadge(count: number) {
+      const headerBadge = document.querySelector<HTMLElement>('[data-cart-count]');
+      if (!headerBadge) return;
+      headerBadge.textContent = String(count);
+      if (count === 0) headerBadge.setAttribute('hidden', '');
+      else headerBadge.removeAttribute('hidden');
+    }
+
+    function summaryText(items: number, units: number) {
+      if (items === 0) return 'Sin productos aún';
+      const itemWord = items === 1 ? 'producto' : 'productos';
+      const unitWord = units === 1 ? 'unidad' : 'unidades';
+      return `${items} ${itemWord} · ${units} ${unitWord}`;
+    }
+
+    function setSummary(items: number, units: number) {
+      const text = summaryText(items, units);
+      summaryEl.textContent = text;
+      summaryItemsEl.textContent = text;
+      summaryEl.parentElement?.classList.remove('pop');
+      void summaryEl.parentElement?.offsetWidth;
+      summaryEl.parentElement?.classList.add('pop');
+    }
+
+    function showLoading() {
+      loading.removeAttribute('hidden');
+      empty.setAttribute('hidden', '');
+      filled.setAttribute('hidden', '');
+      footer.setAttribute('hidden', '');
+    }
+
+    function render(cart: CartState | null) {
+      loading.setAttribute('hidden', '');
+
+      if (!cart || !cart.lines.length) {
+        empty.removeAttribute('hidden');
+        filled.setAttribute('hidden', '');
+        footer.setAttribute('hidden', '');
+        setBadge(0);
+        setSummary(0, 0);
+        return;
+      }
+
+      empty.setAttribute('hidden', '');
+      filled.removeAttribute('hidden');
+      footer.removeAttribute('hidden');
+
+      const totalQty = cart.lines.reduce((s, l) => s + l.quantity, 0);
+      setBadge(totalQty);
+      setSummary(cart.lines.length, totalQty);
+
+      filled.innerHTML = cart.lines.map((line: CartLine, idx: number) => {
+        const productTitle = line.merchandise.product?.title ?? line.merchandise.title;
+        const productHandle = line.merchandise.product?.handle;
+        const productHref = productHandle ? `/products/${productHandle}` : null;
+        const variantTitle = line.merchandise.title;
+        const showVariant = variantTitle && variantTitle !== 'Default Title' && variantTitle !== productTitle;
+
+        const altText = line.merchandise.image?.altText ?? productTitle;
+        const imgUrl = line.merchandise.image?.url ? line.merchandise.image.url + (line.merchandise.image.url.includes('cdn.shopify.com') ? '?width=120' : '') : '';
+        const imgInner = imgUrl
+          ? `<img src="${imgUrl}" alt="${escapeHtml(altText)}" loading="lazy"/>`
+          : '';
+        const imgWrap = productHref
+          ? `<a href="${productHref}" aria-label="${escapeHtml(productTitle)}">${imgInner}</a>`
+          : imgInner;
+
+        const titleEl = productHref
+          ? `<a href="${productHref}" class="cart-item-name">${escapeHtml(productTitle)}</a>`
+          : `<span class="cart-item-name">${escapeHtml(productTitle)}</span>`;
+
+        const variantEl = showVariant
+          ? `<p class="cart-item-variant">${escapeHtml(variantTitle)}</p>`
+          : '';
+
+        const lineTotal = fmt(line.cost.subtotalAmount.amount, line.cost.subtotalAmount.currencyCode);
+        const unitPrice = fmt(line.merchandise.price.amount, line.merchandise.price.currencyCode);
+        const priceDetail = line.quantity > 1
+          ? `<span class="cart-item-price-detail">${unitPrice} × ${line.quantity}</span>`
+          : `<span class="cart-item-price-detail">por unidad</span>`;
+
+        const itemNum = String(idx + 1).padStart(2, '0');
+
+        return `
+          <article class="cart-item" data-line-id="${line.id}">
+            <span class="cart-item-num">N° ${itemNum} · Item</span>
+            <div class="cart-item-grid">
+              <div class="cart-item-img">${imgWrap}</div>
+              <div class="cart-item-info">
+                <div class="cart-item-head">
+                  ${titleEl}
+                  ${variantEl}
+                  <div class="cart-item-price-line">
+                    <span class="cart-item-price">${lineTotal}</span>
+                    ${priceDetail}
+                  </div>
+                </div>
+                <div class="cart-item-foot">
+                  <div class="cart-qty">
+                    <button data-qty-minus aria-label="Restar"${line.quantity <= 1 ? ' disabled' : ''}>−</button>
+                    <span class="cart-qty-count">${line.quantity}</span>
+                    <button data-qty-plus aria-label="Sumar">+</button>
+                  </div>
+                  <button class="cart-remove" data-cart-remove>Eliminar</button>
+                </div>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+
+      subtotalEl.textContent = fmt(cart.cost.subtotal.amount, cart.cost.subtotal.currencyCode);
+      checkoutLink.setAttribute('href', cart.checkoutUrl);
+      checkoutLink.dataset.checkoutUrl = cart.checkoutUrl;
+
+      filled.querySelectorAll<HTMLElement>('[data-line-id]').forEach((row) => {
+        const id = row.dataset.lineId!;
+        const qtySpan = row.querySelector<HTMLElement>('.cart-qty-count')!;
+        const minus  = row.querySelector<HTMLButtonElement>('[data-qty-minus]')!;
+        const plus   = row.querySelector<HTMLButtonElement>('[data-qty-plus]')!;
+        const removeBtns = row.querySelectorAll<HTMLButtonElement>('[data-cart-remove]');
+
+        async function updateQty(delta: number) {
+          const current = Number(qtySpan.textContent ?? '1');
+          const next = Math.max(1, current + delta);
+          if (next === current) return;
+          row.classList.add('updating');
+          try {
+            const updated = await updateCartLine(id, next);
+            render(updated);
+          } catch (err) {
+            row.classList.remove('updating');
+            console.warn('[Cart] update failed', err);
+          }
+        }
+
+        minus.addEventListener('click', () => updateQty(-1));
+        plus.addEventListener('click',  () => updateQty(+1));
+
+        removeBtns.forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            row.classList.add('updating');
+            try {
+              const cartBefore = await getCart();
+              const line = cartBefore?.lines.find((l) => l.id === id);
+              const updated = await removeCartLine(id);
+              if ((window as any).dataLayer && line) {
+                (window as any).dataLayer.push({
+                  event: 'remove_from_cart',
+                  ecommerce: {
+                    currency: line.merchandise.price.currencyCode,
+                    value: parseFloat(line.merchandise.price.amount) * line.quantity,
+                    items: [{
+                      item_id: line.merchandise.id,
+                      item_name: line.merchandise.product?.title ?? line.merchandise.title,
+                      price: parseFloat(line.merchandise.price.amount),
+                      quantity: line.quantity,
+                    }],
+                  },
+                });
+              }
+              render(updated);
+              document.dispatchEvent(new CustomEvent('cart-updated'));
+            } catch (err) {
+              row.classList.remove('updating');
+              console.warn('[Cart] remove failed', err);
+            }
+          });
+        });
+      });
+    }
+
+    async function load() {
+      try {
+        const cart = await getCart();
+        render(cart);
+      } catch (err) {
+        console.warn('[Cart] load failed', err);
+        render(null);
+      }
+    }
+
+    function open() {
+      drawer.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      showLoading();
+      load();
+    }
+
+    function close() {
+      drawer.setAttribute('hidden', '');
+      document.body.style.overflow = '';
+    }
+
+    checkoutLink.addEventListener('click', () => {
+      if ((window as any).dataLayer) {
+        (window as any).dataLayer.push({ event: 'begin_checkout' });
+      }
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
+    });
+
+    document.addEventListener('open-cart', open);
+    document.addEventListener('cart-updated', load);
+
+    document.addEventListener('cart-add-request', async (e: Event) => {
+      const detail = (e as CustomEvent).detail || {};
+      const { variantId, quantity, onSuccess, onError } = detail;
+      if (!variantId) return;
+      try {
+        await addToCart(variantId, quantity || 1);
+        document.dispatchEvent(new CustomEvent('cart-updated'));
+        document.dispatchEvent(new CustomEvent('open-cart'));
+        if (typeof onSuccess === 'function') onSuccess();
+      } catch (err) {
+        console.error('[CartDrawer] cart-add-request failed', err);
+        if (typeof onError === 'function') onError(err);
+      }
+    });
+
+    load();
+  })();
+</script>

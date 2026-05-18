@@ -1,0 +1,32 @@
+---
+interface Props {
+  checkoutUrl: string;
+}
+
+const { checkoutUrl } = Astro.props;
+---
+
+<button
+  data-checkout-button
+  data-checkout-url={checkoutUrl}
+  class="w-full py-3.5 px-6 rounded-lg bg-[var(--accent,#1f1f1f)] text-white text-sm font-mono uppercase tracking-wider hover:opacity-90 active:scale-[0.98] transition-all"
+>
+  Checkout
+</button>
+
+<script>
+  const btn = document.querySelector('[data-checkout-button]') as HTMLButtonElement | null;
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const url = btn.getAttribute('data-checkout-url');
+      if (!url) return;
+
+      // Fire begin_checkout dataLayer event
+      if (window.dataLayer) {
+        window.dataLayer.push({ event: 'begin_checkout' });
+      }
+
+      window.location.href = url;
+    });
+  }
+</script>

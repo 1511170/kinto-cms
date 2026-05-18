@@ -1,0 +1,79 @@
+---
+interface OpeningHoursSpec {
+  dayOfWeek: string[];
+  opens: string;
+  closes: string;
+}
+
+interface Props {
+  name: string;
+  url: string;
+  telephone?: string;
+  email?: string;
+  image?: string;
+  description?: string;
+  street: string;
+  locality: string;
+  region?: string;
+  postalCode?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+  openingHours?: OpeningHoursSpec[];
+  priceRange?: string;
+  sameAs?: string[];
+}
+
+const {
+  name,
+  url,
+  telephone,
+  email,
+  image,
+  description,
+  street,
+  locality,
+  region,
+  postalCode,
+  country = 'CO',
+  latitude,
+  longitude,
+  openingHours,
+  priceRange,
+  sameAs,
+} = Astro.props;
+
+const schema: Record<string, any> = {
+  '@context': 'https://schema.org',
+  '@type': 'Store',
+  name,
+  url,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: street,
+    addressLocality: locality,
+    addressCountry: country,
+  },
+};
+if (region) schema.address.addressRegion = region;
+if (postalCode) schema.address.postalCode = postalCode;
+if (telephone) schema.telephone = telephone;
+if (email) schema.email = email;
+if (image) schema.image = image;
+if (description) schema.description = description;
+if (priceRange) schema.priceRange = priceRange;
+if (sameAs && sameAs.length) schema.sameAs = sameAs;
+if (latitude !== undefined && longitude !== undefined) {
+  schema.geo = { '@type': 'GeoCoordinates', latitude, longitude };
+}
+if (openingHours && openingHours.length) {
+  schema.openingHoursSpecification = openingHours.map((spec) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: spec.dayOfWeek,
+    opens: spec.opens,
+    closes: spec.closes,
+  }));
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

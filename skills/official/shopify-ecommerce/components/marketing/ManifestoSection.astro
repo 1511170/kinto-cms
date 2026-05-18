@@ -1,0 +1,96 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  paragraphs: string[];
+  visual?: { url: string; altText?: string } | null;
+  visualLabel?: string;
+}
+
+const {
+  eyebrow = 'Manifiesto · 01',
+  title,
+  paragraphs,
+  visual = null,
+  visualLabel = 'Stock real',
+} = Astro.props;
+---
+
+<section class="manifesto section">
+  <div class="shell manifesto-grid">
+    <div class="manifesto-text">
+      <span class="eyebrow">{eyebrow}</span>
+      <h2 class="manifesto-title h-display">{title}</h2>
+      {paragraphs.map((p) => (
+        <p class="manifesto-p">{p}</p>
+      ))}
+    </div>
+    <div class="manifesto-visual">
+      {visual ? (
+        <img src={visual.url} alt={visual.altText ?? title} loading="lazy" />
+      ) : (
+        <div class="manifesto-placeholder">
+          <span class="manifesto-placeholder-label mono">{visualLabel}</span>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    background: var(--bg-soft);
+  }
+  .manifesto-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .manifesto-text .eyebrow { display: block; margin-bottom: 24px; }
+  .manifesto-title {
+    font-size: clamp(40px, 5vw, 72px);
+    margin: 0 0 32px;
+    color: var(--fg);
+  }
+  .manifesto-p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--fg-muted);
+    margin: 0 0 16px;
+    max-width: 580px;
+  }
+  .manifesto-visual {
+    aspect-ratio: 4 / 5;
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--line);
+  }
+  .manifesto-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .manifesto-placeholder {
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(135deg, transparent 0 6px, var(--line) 6px 7px);
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+  }
+  .manifesto-placeholder-label {
+    font-size: 10px;
+    background: var(--bg);
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  @media (max-width: 900px) {
+    .manifesto-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+</style>

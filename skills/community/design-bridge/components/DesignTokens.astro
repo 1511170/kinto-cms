@@ -1,0 +1,12 @@
+---
+/**
+ * Inyecta el CSS de design tokens importados por design-bridge.
+ * Si el archivo no existe, no renderiza nada (no rompe el build).
+ */
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const tokensPath = resolve(process.cwd(), 'src/styles/design-tokens.css');
+const css = existsSync(tokensPath) ? readFileSync(tokensPath, 'utf8') : '';
+---
+{css && <style set:html={css} />}

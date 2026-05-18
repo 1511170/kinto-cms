@@ -1,0 +1,99 @@
+---
+import type { Product, Collection } from '../../lib/product-mapper';
+import { fetchAllProducts, fetchAllCollections, fetchCollectionByHandle } from '../../lib/shopify-fetch';
+import { mapShopifyProduct, mapShopifyCollection } from '../../lib/product-mapper';
+import StoreHeader from '../../components/layout/StoreHeader.astro';
+import StoreFooter from '../../components/layout/StoreFooter.astro';
+import SearchOverlay from '../../components/layout/SearchOverlay.astro';
+import CartDrawer from '../../components/cart/CartDrawer.astro';
+import CollectionHero from '../../components/collection/CollectionHero.astro';
+import CollectionGrid from '../../components/collection/CollectionGrid.astro';
+import ProductBreadcrumb from '../../components/seo/ProductBreadcrumb.astro';
+import OrganizationSchema from '../../components/seo/OrganizationSchema.astro';
+import LittledataPixel from '../../components/tracking/LittledataPixel.astro';
+import GTMSetup from '../../components/tracking/GTMSetup.astro';
+
+const options = {
+  storeDomain: import.meta.env.SHOPIFY_STORE_DOMAIN,
+  storefrontAccessToken: import.meta.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+  apiVersion: import.meta.env.SHOPIFY_API_VERSION ?? '2026-04',
+};
+
+export async function getStaticPaths() {
+  const [rawProducts, rawCollections] = await Promise.all([
+    fetchAllProducts(options),
+    fetchAllCollections(options),
+  ]);
+
+  const products = rawProducts.map(mapShopifyProduct);
+  const allCollections = rawCollections.map(mapShopifyCollection);
+  const allCategories = [...new Set(products.map((p: Product) => p.productType).filter(Boolean))];
+
+  const paths = allCollections.map((col: Collection) => ({
+    params: { handle: col.handle },
+    props: { collection: col, allCollections, allCategories },
+  }));
+
+  // Add "all products" page
+  paths.push({
+    params: { handle: 'all' },
+    props: { collection: null, allCollections, allCategories },
+  });
+
+  return paths;
+}
+
+const { collection, allCollections, allCategories } = Astro.props;
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: collection ? collection.title : 'Tienda', },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{collection ? `${collection.title} — Tu Tienda` : 'Tienda — Tu Tienda'}</title>
+  <meta name="description" content={collection?.description ?? 'Explora nuestro catalogo de hardware premium'} />
+  {collection && <link rel="canonical" href={`${Astro.site?.origin ?? ''}/store/${collection.handle}`} />}
+  <OrganizationSchema
+    name="Tu Tienda"
+    url={Astro.site?.origin ?? ''}
+    logo="/logo.svg"
+    description="Premium hardware and electronics with radical transparency."
+  />
+  <LittledataPixel trackerId={import.meta.env.LITTLEDATA_TRACKER_ID ?? ''} />
+  <GTMSetup containerId={import.meta.env.GTM_CONTAINER_ID ?? ''} />
+</head>
+<body class="bg-white text-gray-900 antialiased">
+  <StoreHeader collections={allCollections} />
+  <SearchOverlay collections={allCollections} />
+  <CartDrawer />
+
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <ProductBreadcrumb items={breadcrumbs} />
+
+    {collection ? (
+      <>
+        <CollectionHero title={collection.title} description={collection.description} image={collection.image} />
+        <CollectionGrid products={[]} collectionHandle={collection.handle} />
+      </>
+    ) : (
+      <>
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold tracking-tight">Tienda</h1>
+          <p class="text-gray-600 mt-2">Explora nuestro catalogo completo</p>
+        </div>
+        <!-- Products will be loaded client-side for "all" view -->
+        <div id="all-products" data-categories={allCategories.join(',')}>
+          <p class="text-gray-400 font-mono text-sm">Cargando productos...</p>
+        </div>
+      </>
+    )}
+  </main>
+
+  <StoreFooter collections={allCollections} />
+</body>
+</html>

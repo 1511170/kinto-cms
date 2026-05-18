@@ -1,0 +1,156 @@
+---
+import type { Image } from '../../lib/product-mapper';
+import { shopifyImageUrl, shopifySrcSet, IMAGE_SIZES, SRCSET_WIDTHS } from '../../lib/shopify-image';
+
+interface Props {
+  images: Image[];
+  selected?: number;
+  alt?: string;
+}
+
+const { images, selected = 0, alt = '' } = Astro.props;
+const hasImages = images.length > 0;
+---
+
+<div class="pdp-gallery" data-gallery>
+  <div class="pdp-main" data-pdp-main>
+    {hasImages ? (
+      <img
+        class="pdp-main-img"
+        data-main-image
+        src={shopifyImageUrl(images[selected]?.url, IMAGE_SIZES.gallery)}
+        srcset={shopifySrcSet(images[selected]?.url, SRCSET_WIDTHS.gallery)}
+        sizes="(max-width: 900px) 100vw, 60vw"
+        alt={images[selected]?.altText ?? alt}
+        width={images[selected]?.width ?? 1000}
+        height={images[selected]?.height ?? 1000}
+        fetchpriority="high"
+        decoding="async"
+      />
+    ) : (
+      <div class="pdp-main-placeholder">
+        <span class="mono">Imagen no disponible</span>
+      </div>
+    )}
+  </div>
+
+  {images.length > 1 && (
+    <div class="pdp-thumbs">
+      {images.map((img, i) => (
+        <button
+          class={`pdp-thumb ${i === selected ? 'active' : ''}`}
+          data-thumb={i}
+          aria-label={`Imagen ${i + 1}`}
+        >
+          <img
+            src={shopifyImageUrl(img.url, IMAGE_SIZES.thumb)}
+            alt={img.altText ?? `${alt} ${i + 1}`}
+            width={img.width ?? 200}
+            height={img.height ?? 200}
+            loading="lazy"
+          />
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  .pdp-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .pdp-main {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: var(--bg-soft);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    cursor: zoom-in;
+  }
+  .pdp-main.zoomed { cursor: zoom-out; }
+  .pdp-main-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .3s ease;
+  }
+  .pdp-main.zoomed .pdp-main-img { transform: scale(1.6); }
+  .pdp-main-placeholder {
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(135deg, transparent 0 6px, var(--line) 6px 7px);
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+  }
+  .pdp-thumbs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .pdp-thumb {
+    aspect-ratio: 1 / 1;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    padding: 0;
+    transition: border-color .15s;
+  }
+  .pdp-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pdp-thumb:hover { border-color: var(--line-strong); }
+  .pdp-thumb.active { border-color: var(--fg); border-width: 2px; }
+</style>
+
+<script>
+  function initGallery(root: HTMLElement) {
+    const main = root.querySelector<HTMLElement>('[data-pdp-main]');
+    const mainImg = root.querySelector<HTMLImageElement>('[data-main-image]');
+    const thumbs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-thumb]'));
+
+    function select(index: number) {
+      const thumb = thumbs[index];
+      if (!thumb || !mainImg) return;
+      const img = thumb.querySelector('img');
+      if (img) {
+        mainImg.src = img.src;
+        mainImg.alt = img.alt;
+      }
+      thumbs.forEach((t, i) => t.classList.toggle('active', i === index));
+      // Reset zoom on image change
+      main?.classList.remove('zoomed');
+    }
+
+    thumbs.forEach((t) => {
+      t.addEventListener('click', () => {
+        const idx = Number(t.dataset.thumb);
+        select(idx);
+      });
+    });
+
+    main?.addEventListener('click', () => {
+      main.classList.toggle('zoomed');
+    });
+
+    // Listener para cuando otro componente (ProductInfo en variant change) quiere cambiar imagen.
+    document.addEventListener('product-gallery-select', ((e: CustomEvent) => {
+      const url = e.detail?.url;
+      if (!url || !mainImg) return;
+      // Buscar thumb que coincida; si no, setear src directo.
+      const matchIdx = thumbs.findIndex((t) => t.querySelector('img')?.src === url);
+      if (matchIdx >= 0) select(matchIdx);
+      else {
+        mainImg.src = url;
+        main?.classList.remove('zoomed');
+      }
+    }) as EventListener);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
+</script>

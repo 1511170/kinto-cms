@@ -1,0 +1,315 @@
+---
+import type { Collection } from '../../lib/product-mapper';
+
+interface ContactBlock {
+  addressLines?: string[];
+  phoneDisplay?: string;
+  whatsappUrl?: string;
+  email?: string;
+  hours?: string[];
+  mapsUrl?: string;
+}
+
+interface Props {
+  collections: Collection[];
+  brandName?: string;
+  brandTagline?: string;
+  contact?: ContactBlock;
+}
+
+const {
+  collections,
+  brandName = 'Tu Tienda',
+  brandTagline = 'Distribuidor de equipos profesionales de networking. Stock, soporte y garantía oficial para instaladores y empresas.',
+  contact,
+} = Astro.props;
+const hasContact = Boolean(
+  contact && (contact.addressLines?.length || contact.phoneDisplay || contact.email || contact.hours?.length)
+);
+
+const currentYear = new Date().getFullYear();
+const INTERNAL_HANDLES = new Set(['frontpage', 'home-page', 'home', 'all']);
+const shopCols = collections.filter((c) => !INTERNAL_HANDLES.has(c.handle.toLowerCase())).slice(0, 6);
+---
+
+<footer class="ftr">
+  <div class="shell ftr-grid">
+    <!-- Brand -->
+    <div class="ftr-brand">
+      <a href="/" class="ftr-logo h-display">
+        <span>{brandName}</span><span class="ftr-logo-dot">.</span>
+      </a>
+      <p class="ftr-tagline muted">{brandTagline}</p>
+    </div>
+
+    <!-- Tienda -->
+    <div class="ftr-col">
+      <h4 class="eyebrow">Tienda</h4>
+      <ul>
+        {shopCols.map((col) => (
+          <li><a href={`/store/${col.handle}`}>{col.title}</a></li>
+        ))}
+        <li><a href="/store">Catálogo completo</a></li>
+      </ul>
+    </div>
+
+    <!-- Soporte -->
+    <div class="ftr-col">
+      <h4 class="eyebrow">Soporte</h4>
+      <ul>
+        <li><a href="/contacto">Contacto</a></li>
+        <li><a href="/envios">Envíos</a></li>
+        <li><a href="/garantia">Garantía</a></li>
+        <li><a href="/devoluciones">Devoluciones</a></li>
+      </ul>
+    </div>
+
+    <!-- Empresa -->
+    <div class="ftr-col">
+      <h4 class="eyebrow">Empresa</h4>
+      <ul>
+        <li><a href="/nosotros">Nosotros</a></li>
+        <li><a href="/asesoria">Asesoría técnica</a></li>
+        <li><a href="/distribuidores">Distribuidores</a></li>
+      </ul>
+    </div>
+
+    <!-- Newsletter -->
+    <div class="ftr-newsletter">
+      <h4 class="eyebrow">Boletín técnico</h4>
+      <p class="muted">Catálogo nuevo, stock y notas técnicas. Mensual.</p>
+      <form data-newsletter-form class="ftr-form">
+        <input type="email" placeholder="tu@email.com" required class="ftr-input" />
+        <button type="submit" class="ftr-btn mono">Unirse</button>
+      </form>
+    </div>
+  </div>
+
+  {hasContact && (
+    <div class="shell ftr-contact">
+      <div class="ftr-contact-grid">
+        {contact?.addressLines && contact.addressLines.length > 0 && (
+          <div class="ftr-contact-block">
+            <h4 class="eyebrow">Visitanos</h4>
+            <address class="ftr-address">
+              {contact.addressLines.map((line) => <span>{line}</span>)}
+            </address>
+            {contact.mapsUrl && (
+              <a class="mono ftr-contact-link" href={contact.mapsUrl} target="_blank" rel="noopener noreferrer">Cómo llegar →</a>
+            )}
+          </div>
+        )}
+        {(contact?.phoneDisplay || contact?.email) && (
+          <div class="ftr-contact-block">
+            <h4 class="eyebrow">Contacto directo</h4>
+            <ul class="ftr-contact-list">
+              {contact?.phoneDisplay && (
+                <li>
+                  <a href={contact.whatsappUrl ?? `tel:${contact.phoneDisplay.replace(/\s+/g, '')}`}>
+                    {contact.phoneDisplay}
+                  </a>
+                </li>
+              )}
+              {contact?.email && (
+                <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+              )}
+            </ul>
+          </div>
+        )}
+        {contact?.hours && contact.hours.length > 0 && (
+          <div class="ftr-contact-block">
+            <h4 class="eyebrow">Horario</h4>
+            <ul class="ftr-contact-list">
+              {contact.hours.map((line) => <li>{line}</li>)}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  )}
+
+  <div class="shell ftr-bottom">
+    <p class="mono ftr-copy">© {currentYear} {brandName}. Todos los derechos reservados.</p>
+    <div class="ftr-legal">
+      <a href="/privacidad" class="mono">Privacidad</a>
+      <a href="/terminos" class="mono">Términos</a>
+      <a href="/cookies" class="mono">Cookies</a>
+      <a href="/sitemap.xml" class="mono">Sitemap</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    margin-top: 64px;
+  }
+  .ftr-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;
+    gap: 48px;
+    padding: 80px 32px 32px;
+  }
+  .ftr-brand { max-width: 320px; }
+  .ftr-logo {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: var(--fg);
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .ftr-logo-dot { color: var(--accent-2); }
+  .ftr-tagline {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .ftr-col h4, .ftr-newsletter h4 {
+    margin: 0 0 14px;
+    color: var(--fg-muted);
+  }
+  .ftr-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ftr-col a {
+    font-size: 13px;
+    color: var(--fg);
+    transition: color .15s;
+  }
+  .ftr-col a:hover { color: var(--accent-2); }
+
+  .ftr-newsletter p { font-size: 13px; margin: 0 0 12px; }
+  .ftr-form { display: flex; gap: 6px; }
+  .ftr-input {
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px;
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    color: var(--fg);
+    font-size: 13px;
+  }
+  .ftr-input::placeholder { color: var(--fg-faint); }
+  .ftr-input:focus { outline: none; border-color: var(--fg); }
+  .ftr-btn {
+    height: 36px;
+    padding: 0 14px;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: opacity .15s;
+  }
+  .ftr-btn:hover { opacity: 0.85; }
+
+  .ftr-contact {
+    border-top: 1px solid var(--line);
+  }
+  .ftr-contact-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 32px;
+    padding: 32px;
+  }
+  .ftr-contact-block h4 { margin: 0 0 12px; }
+  .ftr-address {
+    font-style: normal;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--fg);
+    display: flex;
+    flex-direction: column;
+  }
+  .ftr-contact-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+    transition: color .15s;
+  }
+  .ftr-contact-link:hover { color: var(--accent-2); }
+  .ftr-contact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .ftr-contact-list a { color: var(--fg); transition: color .15s; }
+  .ftr-contact-list a:hover { color: var(--accent-2); }
+  @media (max-width: 720px) {
+    .ftr-contact-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 24px 20px;
+    }
+  }
+
+  .ftr-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .ftr-copy {
+    font-size: 11px;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+  .ftr-legal { display: flex; gap: 18px; }
+  .ftr-legal a {
+    font-size: 11px;
+    color: var(--fg-muted);
+    transition: color .15s;
+  }
+  .ftr-legal a:hover { color: var(--fg); }
+
+  @media (max-width: 1100px) {
+    .ftr-grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
+    .ftr-newsletter { grid-column: span 4; max-width: 480px; margin-top: 16px; }
+  }
+  @media (max-width: 720px) {
+    .ftr-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      padding: 56px 20px 24px;
+    }
+    .ftr-brand { grid-column: span 2; }
+    .ftr-newsletter { grid-column: span 2; }
+  }
+</style>
+
+<script>
+  const form = document.querySelector('[data-newsletter-form]') as HTMLFormElement | null;
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = form.querySelector('input[type="email"]') as HTMLInputElement;
+    if (input?.value) {
+      input.value = '';
+      const btn = form.querySelector('button') as HTMLButtonElement;
+      if (btn) {
+        const original = btn.textContent;
+        btn.textContent = 'Listo';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      }
+    }
+  });
+</script>

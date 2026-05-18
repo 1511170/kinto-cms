@@ -1,0 +1,121 @@
+---
+import type { Product } from '../../lib/product-mapper';
+import { sanitizeHtml } from '../../lib/sanitize-html';
+import ProductSpecs from './ProductSpecs.astro';
+import ProductReviews from './ProductReviews.astro';
+import ProductFAQ from './ProductFAQ.astro';
+
+interface Props {
+  product: Product;
+  shippingHtml?: string;
+}
+
+const { product, shippingHtml } = Astro.props;
+
+const tabs = [
+  { id: 'desc', label: 'Descripción' },
+  { id: 'specs', label: 'Especificaciones' },
+  { id: 'reviews', label: 'Reviews' },
+  { id: 'faq', label: 'Preguntas frecuentes' },
+  { id: 'shipping', label: 'Envíos & Garantía' },
+];
+
+const defaultShipping = `
+  <h3>Envíos</h3>
+  <p>Despacho a toda Colombia. Tiempos típicos: 24–48 horas en la ciudad sede, 2–3 días para capitales principales, 3–5 días al resto del país.</p>
+  <h3>Garantía</h3>
+  <p>6 meses de garantía por defectos de fábrica. No aplica para daños por mal uso, instalación incorrecta o factores externos.</p>
+  <h3>Pedidos</h3>
+  <p>Todos los pedidos y compras se gestionan por WhatsApp. No realizamos ventas directas por la web.</p>
+`;
+---
+
+<div class="pdp-tabs" data-pdp-tabs>
+  <nav class="pdp-tabs-nav" role="tablist">
+    {tabs.map((t, i) => (
+      <button
+        class={`pdp-tab ${i === 0 ? 'active' : ''}`}
+        role="tab"
+        aria-selected={i === 0 ? 'true' : 'false'}
+        data-tab={t.id}
+      >
+        {t.label}
+      </button>
+    ))}
+  </nav>
+
+  <div class="pdp-tab-pane active" data-pane="desc">
+    <div class="prose-min" set:html={sanitizeHtml(product.descriptionHtml)} />
+  </div>
+
+  <div class="pdp-tab-pane" data-pane="specs">
+    <ProductSpecs specs={product.metafields?.specs} features={product.metafields?.features} />
+  </div>
+
+  <div class="pdp-tab-pane" data-pane="reviews">
+    <ProductReviews reviews={product.metafields?.reviews} rating={product.metafields?.rating} />
+  </div>
+
+  <div class="pdp-tab-pane" data-pane="faq">
+    <ProductFAQ product={product} />
+  </div>
+
+  <div class="pdp-tab-pane" data-pane="shipping">
+    <div class="prose-min" set:html={shippingHtml ?? defaultShipping} />
+  </div>
+</div>
+
+<style>
+  .pdp-tabs {
+    margin-top: 64px;
+  }
+  .pdp-tabs-nav {
+    display: flex;
+    gap: 32px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .pdp-tabs-nav::-webkit-scrollbar { display: none; }
+  .pdp-tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    padding: 14px 0;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .pdp-tab:hover { color: var(--fg); }
+  .pdp-tab.active {
+    color: var(--fg);
+    border-bottom-color: var(--fg);
+  }
+  .pdp-tab-pane {
+    display: none;
+    padding: 32px 0;
+    animation: fade-up .25s ease;
+  }
+  .pdp-tab-pane.active { display: block; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-pdp-tabs]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tab]'));
+    const panes = Array.from(root.querySelectorAll<HTMLElement>('[data-pane]'));
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.dataset.tab;
+        tabs.forEach((t) => {
+          t.classList.toggle('active', t === tab);
+          t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+        });
+        panes.forEach((p) => p.classList.toggle('active', p.dataset.pane === id));
+      });
+    });
+  });
+</script>

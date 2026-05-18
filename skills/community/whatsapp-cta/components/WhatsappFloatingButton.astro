@@ -1,0 +1,122 @@
+---
+import WhatsappIcon from './WhatsappIcon.astro';
+import { buildWhatsappUrl } from '../lib/whatsapp-ga4';
+
+interface Props {
+  phone: string;
+  message?: string;
+  position?: 'bottom-right' | 'bottom-left';
+  label?: string;
+}
+
+const {
+  phone,
+  message = 'Hola, quiero información sobre los equipos.',
+  position = 'bottom-right',
+  label = 'Escribir por WhatsApp',
+} = Astro.props;
+
+const href = buildWhatsappUrl(phone, message);
+---
+
+<a
+  class={`wa-fab wa-fab--${position}`}
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={label}
+  data-wa-cta
+  data-wa-event="whatsapp_click_floating"
+  data-wa-payload={JSON.stringify({ click_location: 'floating_button' })}
+>
+  <WhatsappIcon size={28} color="#fff" />
+  <span class="wa-fab-tooltip mono">{label}</span>
+</a>
+
+<style>
+  .wa-fab {
+    position: fixed;
+    bottom: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: #25D366;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    z-index: 60;
+    transition: transform .2s ease, box-shadow .2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wa-fab--bottom-right { right: 24px; }
+  .wa-fab--bottom-left { left: 24px; }
+
+  .wa-fab:hover {
+    transform: scale(1.06);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.22), 0 4px 12px rgba(0,0,0,0.16);
+  }
+  .wa-fab:active { transform: scale(0.98); }
+  .wa-fab:focus-visible {
+    outline: 3px solid rgba(37, 211, 102, 0.4);
+    outline-offset: 3px;
+  }
+
+  .wa-fab-tooltip {
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #0e0e0e;
+    color: #fff;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .wa-fab--bottom-left .wa-fab-tooltip {
+    right: auto;
+    left: calc(100% + 12px);
+  }
+  .wa-fab:hover .wa-fab-tooltip,
+  .wa-fab:focus-visible .wa-fab-tooltip {
+    opacity: 1;
+  }
+
+  /* Pulse animation suave para llamar la atención sin ser molesto */
+  .wa-fab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5);
+    animation: wa-pulse 2.4s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes wa-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+    70%  { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wa-fab::before { animation: none; }
+    .wa-fab:hover { transform: none; }
+  }
+
+  @media (max-width: 720px) {
+    .wa-fab { bottom: 16px; }
+    .wa-fab--bottom-right { right: 16px; }
+    .wa-fab--bottom-left { left: 16px; }
+    .wa-fab-tooltip { display: none; }
+  }
+</style>
+
+<script>
+  import '../lib/init-listener';
+</script>

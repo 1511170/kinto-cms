@@ -1,22 +1,25 @@
 # /add-skill
 
-Install a KINTO CMS skill into the current site
+Instala una site-skill en un sitio.
 
-## Usage
+## Uso
+
 ```
-/add-skill <skill-name>
+/add-skill <skill-name> [--site=<sitio>]
 ```
 
-## What it does
-1. Verifies current directory is inside a site (`sites/*/`)  
-2. Checks skill exists: `node scripts/skill-list.js`
-3. Installs: `node scripts/skill-add.js <skill-name>`
-4. Updates `skills-active.json`
-5. Adds import example to the conversation
-6. Runs `npm run build` to verify
+## Qué hace
 
-## Example
+1. Ejecuta `kinto skill add <skill-name> --site=<sitio>`
+   (el sitio se autodetecta si estás dentro de `sites/<nombre>/`)
+2. Resuelve dependencias declaradas (`requires:`) e instala las que falten
+3. Actualiza `skills-active.json`
+4. Avisa de requisitos externos (`needs:`)
+5. Verifica con `kinto build --site=<sitio>`
+
+## Ejemplo
+
 ```
 /add-skill testimonials
-/add-skill seo-ai-citations
+/add-skill shopify-ecommerce --site=mi-tienda
 ```

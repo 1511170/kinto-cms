@@ -1,0 +1,59 @@
+---
+interface Props {
+  initial?: string;
+}
+
+const { initial = 'relevance' } = Astro.props;
+
+const options = [
+  { value: 'relevance', label: 'Relevancia' },
+  { value: 'price-asc', label: 'Precio ↑' },
+  { value: 'price-desc', label: 'Precio ↓' },
+  { value: 'name-asc', label: 'Nombre A–Z' },
+  { value: 'newest', label: 'Más nuevos' },
+];
+---
+
+<label class="sort-dropdown">
+  <span class="eyebrow">Ordenar</span>
+  <select data-sort-select class="sort-select mono">
+    {options.map((o) => (
+      <option value={o.value} selected={o.value === initial}>{o.label}</option>
+    ))}
+  </select>
+</label>
+
+<style>
+  .sort-dropdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sort-select {
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    padding: 6px 28px 6px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%230e0e0e' stroke-width='1.5' d='m1 1 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+  .sort-select:focus { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLSelectElement>('[data-sort-select]').forEach((sel) => {
+    sel.addEventListener('change', () => {
+      sel.dispatchEvent(new CustomEvent('sort-change', {
+        bubbles: true,
+        detail: { sort: sel.value },
+      }));
+    });
+  });
+</script>

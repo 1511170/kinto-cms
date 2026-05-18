@@ -1,0 +1,39 @@
+---
+import type { Product } from '../../lib/product-mapper';
+
+interface Props {
+  product: Product;
+  url: string;
+}
+
+const { product, url } = Astro.props;
+
+const variant = product.variants[0];
+const price = variant?.price;
+const availability = product.availableForSale
+  ? 'https://schema.org/InStock'
+  : 'https://schema.org/OutOfStock';
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.title,
+  description: product.description,
+  image: product.images.map((img) => img.url),
+  sku: variant?.sku || undefined,
+  brand: product.vendor
+    ? { '@type': 'Brand', name: product.vendor }
+    : undefined,
+  url,
+  offers: {
+    '@type': 'Offer',
+    price: price?.amount,
+    priceCurrency: price?.currencyCode,
+    availability,
+    seller: { '@type': 'Organization', name: product.vendor || undefined },
+    url,
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

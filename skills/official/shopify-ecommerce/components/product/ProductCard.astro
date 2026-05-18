@@ -1,0 +1,232 @@
+---
+import type { Product } from '../../lib/product-mapper';
+import { formatPrice } from '../../lib/format-price';
+import { shopifyImageUrl, shopifySrcSet, IMAGE_SIZES, SRCSET_WIDTHS } from '../../lib/shopify-image';
+import { colorOf } from '../../lib/color-hex';
+
+interface Props {
+  product: Product;
+  cardStyle?: 'minimal' | 'framed' | 'tile';
+  locale?: string;
+}
+
+const { product, cardStyle = 'minimal', locale = 'es-CO' } = Astro.props;
+
+const variant = product.variants[0];
+const price = variant?.price;
+const compareAt = variant?.compareAtPrice;
+const hasDiscount = compareAt && parseFloat(compareAt.amount) > parseFloat(price?.amount ?? '0');
+
+// Brand label: prefiere vendor real, si vendor es genérico usa primera collection no-frontpage.
+const EXCLUDE_BRAND_HANDLES = new Set(['frontpage', 'home-page', 'home', 'all', '']);
+let brandLabel = '';
+if (product.vendor?.trim() && product.vendor.trim().toLowerCase() !== (import.meta.env.SHOPIFY_HOUSE_VENDOR ?? '').toLowerCase()) {
+  brandLabel = product.vendor.trim();
+} else {
+  const col = (product.collections ?? []).find((h) => !EXCLUDE_BRAND_HANDLES.has(h.toLowerCase()));
+  if (col) brandLabel = col;
+}
+
+const tagsLower = product.tags.map((t) => t.toLowerCase());
+let badge: { label: string; variant: 'sale' | 'new' | 'lab' | 'default' } | null = null;
+if (hasDiscount || tagsLower.includes('oferta') || tagsLower.includes('sale')) badge = { label: 'Oferta', variant: 'sale' };
+else if (tagsLower.includes('nuevo') || tagsLower.includes('new')) badge = { label: 'Nuevo', variant: 'new' };
+else if (tagsLower.includes('lab')) badge = { label: 'Lab', variant: 'lab' };
+
+const colorOption = product.variants
+  .flatMap((v) => v.selectedOptions)
+  .filter((o) => /color/i.test(o.name))
+  .map((o) => o.value);
+const colorOptions = Array.from(new Set(colorOption));
+
+const swatches = colorOptions.slice(0, 5).map((name) => ({
+  name,
+  hex: colorOf(name),
+}));
+---
+
+<a class="card" href={`/products/${product.handle}`} data-card-style={cardStyle}>
+  <div class="card-img">
+    {badge && <span class={`card-badge mono ${badge.variant}`}>{badge.label}</span>}
+    {product.featuredImage ? (
+      <img
+        src={shopifyImageUrl(product.featuredImage.url, IMAGE_SIZES.card)}
+        srcset={shopifySrcSet(product.featuredImage.url, SRCSET_WIDTHS.card)}
+        sizes="(max-width: 720px) 50vw, (max-width: 1100px) 33vw, 25vw"
+        alt={product.featuredImage.altText ?? product.title}
+        loading="lazy"
+        width={product.featuredImage.width ?? 600}
+        height={product.featuredImage.height ?? 750}
+        decoding="async"
+      />
+    ) : (
+      <div class="card-placeholder">
+        <span class="card-placeholder-label mono">{product.vendor || product.title}</span>
+      </div>
+    )}
+    <div class="card-quick">
+      <span class="btn btn-sm">Ver detalle</span>
+    </div>
+  </div>
+  <div class="card-info">
+    <div class="card-meta">
+      <span class="card-cat mono">{product.productType || product.tags?.[0] || product.vendor}</span>
+      {swatches.length > 0 && (
+        <div class="card-swatches" aria-label="Variantes de color">
+          {swatches.map((s) => (
+            <span class="card-swatch" style={`background:${s.hex}`} title={s.name}></span>
+          ))}
+        </div>
+      )}
+    </div>
+    <div class="card-name">{product.title}</div>
+    <div class="card-meta">
+      <div class="card-price">
+        {hasDiscount && compareAt && (
+          <del class="muted">{formatPrice(compareAt.amount, compareAt.currencyCode, locale)}</del>
+        )}
+        {price && parseFloat(price.amount) > 0 ? (
+          <span>{formatPrice(price.amount, price.currencyCode, locale)}</span>
+        ) : (
+          <span class="muted mono">Cotizar</span>
+        )}
+      </div>
+      {brandLabel && <span class="card-cat mono">{brandLabel}</span>}
+    </div>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    color: var(--fg);
+  }
+  .card-img {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: var(--bg-soft);
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+  .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .4s ease;
+  }
+  .card:hover .card-img img { transform: scale(1.04); }
+  .card-placeholder {
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(135deg, transparent 0 6px, var(--line) 6px 7px);
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+  }
+  .card-placeholder-label {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 5px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+  }
+  .card-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--fg);
+    color: var(--bg);
+    padding: 5px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: var(--radius-sm);
+    z-index: 2;
+  }
+  .card-badge.sale { background: var(--warn); }
+  .card-badge.lab { background: var(--accent-2); }
+  .card-quick {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .2s, transform .2s;
+    z-index: 2;
+  }
+  .card:hover .card-quick {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card-cat {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+  }
+  .card-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg);
+    line-height: 1.3;
+    margin: 2px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-price {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg);
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .card-price del { font-weight: 400; }
+  .card-swatches { display: flex; gap: 4px; }
+  .card-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+  }
+
+  .card[data-card-style="framed"] {
+    border: 1px solid var(--line);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    transition: border-color .2s;
+  }
+  .card[data-card-style="framed"]:hover { border-color: var(--fg); }
+
+  .card[data-card-style="tile"] {
+    background: var(--bg-soft);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+  }
+  .card[data-card-style="tile"] .card-img {
+    aspect-ratio: 5 / 4;
+    margin: -16px -16px 12px;
+    border-radius: 0;
+  }
+</style>

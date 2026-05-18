@@ -1,0 +1,182 @@
+---
+interface Props {
+  min: number;
+  max: number;
+  initialMin?: number;
+  initialMax?: number;
+  currency?: string;
+  locale?: string;
+  step?: number;
+}
+
+const { min, max, initialMin = min, initialMax = max, currency = 'COP', locale = 'es-CO', step = 1000 } = Astro.props;
+---
+
+<div
+  class="price-slider"
+  data-price-slider
+  data-min={min}
+  data-max={max}
+  data-step={step}
+  data-currency={currency}
+  data-locale={locale}
+>
+  <div class="price-slider-display mono">
+    <span data-price-min-display></span>
+    <span aria-hidden="true">—</span>
+    <span data-price-max-display></span>
+  </div>
+  <div class="price-slider-track" data-track>
+    <div class="price-slider-fill" data-fill></div>
+    <div class="price-slider-handle" data-handle="min" tabindex="0" role="slider" aria-valuemin={min} aria-valuemax={max} aria-valuenow={initialMin}></div>
+    <div class="price-slider-handle" data-handle="max" tabindex="0" role="slider" aria-valuemin={min} aria-valuemax={max} aria-valuenow={initialMax}></div>
+  </div>
+  <input type="hidden" data-min-input value={initialMin} />
+  <input type="hidden" data-max-input value={initialMax} />
+</div>
+
+<style>
+  .price-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 8px 4px;
+  }
+  .price-slider-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--fg);
+    font-feature-settings: 'tnum';
+  }
+  .price-slider-track {
+    position: relative;
+    height: 4px;
+    background: var(--line);
+    border-radius: 999px;
+  }
+  .price-slider-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: var(--fg);
+    border-radius: 999px;
+  }
+  .price-slider-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    background: var(--bg);
+    border: 2px solid var(--fg);
+    border-radius: 999px;
+    cursor: grab;
+    touch-action: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .price-slider-handle:hover { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+  .price-slider-handle:active { cursor: grabbing; }
+  .price-slider-handle:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+</style>
+
+<script>
+  function initSlider(root: HTMLElement) {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const fill = root.querySelector<HTMLElement>('[data-fill]')!;
+    const minHandle = root.querySelector<HTMLElement>('[data-handle="min"]')!;
+    const maxHandle = root.querySelector<HTMLElement>('[data-handle="max"]')!;
+    const minInput = root.querySelector<HTMLInputElement>('[data-min-input]')!;
+    const maxInput = root.querySelector<HTMLInputElement>('[data-max-input]')!;
+    const minDisplay = root.querySelector<HTMLElement>('[data-price-min-display]')!;
+    const maxDisplay = root.querySelector<HTMLElement>('[data-price-max-display]')!;
+
+    const min = Number(root.dataset.min);
+    const max = Number(root.dataset.max);
+    const step = Number(root.dataset.step ?? 1);
+    const currency = root.dataset.currency ?? 'COP';
+    const locale = root.dataset.locale ?? 'es-CO';
+    const fmt = new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 });
+
+    let current = { min: Number(minInput.value), max: Number(maxInput.value) };
+
+    function pct(v: number) { return ((v - min) / (max - min)) * 100; }
+    function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)); }
+    function snap(v: number) { return Math.round(v / step) * step; }
+
+    function render() {
+      const pmin = pct(current.min);
+      const pmax = pct(current.max);
+      minHandle.style.left = `${pmin}%`;
+      maxHandle.style.left = `${pmax}%`;
+      fill.style.left = `${pmin}%`;
+      fill.style.width = `${pmax - pmin}%`;
+      minDisplay.textContent = fmt.format(current.min);
+      maxDisplay.textContent = fmt.format(current.max);
+      minInput.value = String(current.min);
+      maxInput.value = String(current.max);
+      minHandle.setAttribute('aria-valuenow', String(current.min));
+      maxHandle.setAttribute('aria-valuenow', String(current.max));
+    }
+
+    function valueFromEvent(clientX: number): number {
+      const rect = track.getBoundingClientRect();
+      const ratio = clamp((clientX - rect.left) / rect.width, 0, 1);
+      return clamp(snap(min + ratio * (max - min)), min, max);
+    }
+
+    function emit() {
+      root.dispatchEvent(new CustomEvent('price-change', {
+        bubbles: true,
+        detail: { min: current.min, max: current.max },
+      }));
+    }
+
+    function startDrag(handle: 'min' | 'max') {
+      return (e: PointerEvent) => {
+        (e.target as Element).setPointerCapture(e.pointerId);
+        const move = (ev: PointerEvent) => {
+          const v = valueFromEvent(ev.clientX);
+          if (handle === 'min') current.min = clamp(v, min, current.max - step);
+          else current.max = clamp(v, current.min + step, max);
+          render();
+        };
+        const up = (ev: PointerEvent) => {
+          (e.target as Element).releasePointerCapture(e.pointerId);
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', up);
+          emit();
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', up);
+      };
+    }
+
+    minHandle.addEventListener('pointerdown', startDrag('min') as any);
+    maxHandle.addEventListener('pointerdown', startDrag('max') as any);
+
+    // Keyboard support
+    function keyHandler(handle: 'min' | 'max') {
+      return (e: KeyboardEvent) => {
+        const big = e.shiftKey ? step * 10 : step;
+        let next = handle === 'min' ? current.min : current.max;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next += big;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next -= big;
+        else if (e.key === 'Home') next = min;
+        else if (e.key === 'End') next = max;
+        else return;
+        e.preventDefault();
+        if (handle === 'min') current.min = clamp(next, min, current.max - step);
+        else current.max = clamp(next, current.min + step, max);
+        render();
+        emit();
+      };
+    }
+    minHandle.addEventListener('keydown', keyHandler('min'));
+    maxHandle.addEventListener('keydown', keyHandler('max'));
+
+    render();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-price-slider]').forEach(initSlider);
+</script>

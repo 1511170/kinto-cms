@@ -1,0 +1,246 @@
+---
+import type { Product } from '../../lib/product-mapper';
+import PriceRangeSlider from './PriceRangeSlider.astro';
+
+interface Props {
+  products: Product[];
+  currency?: string;
+  locale?: string;
+}
+
+const { products, currency = 'COP', locale = 'es-CO' } = Astro.props;
+
+type FilterGroup = {
+  key: string;
+  label: string;
+  options: Array<{ name: string; count: number }>;
+};
+
+// Helper: extrae "categoría" desde productType o (fallback) desde el primer tag.
+function categoryOf(p: Product): string {
+  if (p.productType?.trim()) return p.productType.trim();
+  if (p.tags?.length) return p.tags[0];
+  return '';
+}
+
+// Helper: extrae "brand" desde vendor o (fallback) desde la primera collection no-frontpage.
+const EXCLUDE_BRAND_HANDLES = new Set(['frontpage', 'home-page', 'home', 'all', '']);
+function brandOf(p: Product): string {
+  if (p.vendor?.trim() && p.vendor.trim().toLowerCase() !== (import.meta.env.SHOPIFY_HOUSE_VENDOR ?? '').toLowerCase()) return p.vendor.trim();
+  const col = (p.collections ?? []).find((h) => !EXCLUDE_BRAND_HANDLES.has(h.toLowerCase()));
+  if (col) return col;
+  return p.vendor?.trim() ?? '';
+}
+
+const categoryCounts: Record<string, number> = {};
+for (const p of products) {
+  const c = categoryOf(p);
+  if (!c) continue;
+  categoryCounts[c] = (categoryCounts[c] ?? 0) + 1;
+}
+const categories = Object.entries(categoryCounts)
+  .sort(([, a], [, b]) => b - a)
+  .slice(0, 12)
+  .map(([name, count]) => ({ name, count }));
+
+const brandCounts: Record<string, number> = {};
+for (const p of products) {
+  const v = brandOf(p);
+  if (!v) continue;
+  brandCounts[v] = (brandCounts[v] ?? 0) + 1;
+}
+const brands = Object.entries(brandCounts)
+  .sort(([, a], [, b]) => b - a)
+  .map(([name, count]) => ({ name, count }));
+
+function countStringValues(valuesOf: (p: Product) => Array<string | number | undefined> | undefined) {
+  const counts: Record<string, number> = {};
+  for (const product of products) {
+    const seen = new Set(
+      (valuesOf(product) ?? [])
+        .map((value) => String(value ?? '').trim())
+        .filter(Boolean),
+    );
+    for (const value of seen) counts[value] = (counts[value] ?? 0) + 1;
+  }
+  return Object.entries(counts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([name, count]) => ({ name, count }));
+}
+
+const technicalGroups: FilterGroup[] = [
+  { key: 'application', label: 'Aplicación', options: countStringValues((p) => p.metafields?.application) },
+  { key: 'environment', label: 'Entorno', options: countStringValues((p) => p.metafields?.environment) },
+  { key: 'band', label: 'Banda', options: countStringValues((p) => p.metafields?.band) },
+  { key: 'wifiStandard', label: 'Tecnología WiFi', options: countStringValues((p) => p.metafields?.wifiStandard) },
+  { key: 'ethernetPorts', label: 'Puertos Ethernet', options: countStringValues((p) => p.metafields?.ethernetPorts === undefined ? [] : [p.metafields.ethernetPorts]) },
+  { key: 'sfpPorts', label: 'Puertos SFP', options: countStringValues((p) => p.metafields?.sfpPorts === undefined ? [] : [p.metafields.sfpPorts]) },
+  { key: 'poe', label: 'PoE', options: countStringValues((p) => p.metafields?.poe) },
+  { key: 'topology', label: 'Topología', options: countStringValues((p) => p.metafields?.topology) },
+  { key: 'radioType', label: 'Tipo de radio', options: countStringValues((p) => p.metafields?.radioType) },
+  { key: 'mimo', label: 'MIMO', options: countStringValues((p) => p.metafields?.mimo) },
+  { key: 'switchLayer', label: 'Capa switch', options: countStringValues((p) => p.metafields?.switchLayer) },
+  { key: 'mounting', label: 'Montaje', options: countStringValues((p) => p.metafields?.mounting) },
+].filter((group) => group.options.length > 0);
+
+// Min/Max price
+let minPrice = Infinity, maxPrice = 0;
+for (const p of products) {
+  for (const v of p.variants) {
+    const a = parseFloat(v.price.amount);
+    if (!Number.isNaN(a)) {
+      if (a < minPrice) minPrice = a;
+      if (a > maxPrice) maxPrice = a;
+    }
+  }
+}
+if (!Number.isFinite(minPrice)) minPrice = 0;
+if (maxPrice <= 0) maxPrice = 1000000;
+const priceMin = Math.floor(minPrice / 1000) * 1000;
+const priceMax = Math.ceil(maxPrice / 1000) * 1000;
+
+const stockSale = products.filter((p) => p.availableForSale).length;
+const onSaleCount = products.filter((p) =>
+  p.variants.some((v) => v.compareAtPrice && parseFloat(v.compareAtPrice.amount) > parseFloat(v.price.amount))
+).length;
+---
+
+<aside class="filters" data-filters>
+  <div class="filters-header">
+    <h3 class="eyebrow">Filtros</h3>
+    <button class="filters-clear mono" data-filters-clear>Limpiar</button>
+  </div>
+
+  {categories.length > 0 && (
+    <details class="filter-group" open>
+      <summary class="filter-summary"><span>Categoría</span><span class="filter-chevron" aria-hidden="true">+</span></summary>
+      <div class="filter-list">
+        {categories.map((c) => (
+          <label class="filter-row">
+            <input type="checkbox" data-filter-category={c.name} />
+            <span class="filter-label">{c.name}</span>
+            <span class="mono filter-count">{c.count}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+  )}
+
+  <details class="filter-group" open>
+    <summary class="filter-summary"><span>Precio</span><span class="filter-chevron" aria-hidden="true">+</span></summary>
+    <div class="filter-list">
+      <PriceRangeSlider min={priceMin} max={priceMax} currency={currency} locale={locale} step={10000} />
+    </div>
+  </details>
+
+  {brands.length > 1 && (
+    <details class="filter-group" open>
+      <summary class="filter-summary"><span>Marca</span><span class="filter-chevron" aria-hidden="true">+</span></summary>
+      <div class="filter-list">
+        {brands.slice(0, 12).map((b) => (
+          <label class="filter-row">
+            <input type="checkbox" data-filter-brand={b.name} />
+            <span class="filter-label">{b.name}</span>
+            <span class="mono filter-count">{b.count}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+  )}
+
+  {technicalGroups.map((group) => (
+    <details class="filter-group">
+      <summary class="filter-summary"><span>{group.label}</span><span class="filter-chevron" aria-hidden="true">+</span></summary>
+      <div class="filter-list">
+        {group.options.slice(0, 12).map((option) => (
+          <label class="filter-row">
+            <input type="checkbox" data-filter-tech-key={group.key} data-filter-tech-value={option.name} />
+            <span class="filter-label">{option.name}</span>
+            <span class="mono filter-count">{option.count}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+  ))}
+
+  <details class="filter-group" open>
+    <summary class="filter-summary"><span>Disponibilidad</span><span class="filter-chevron" aria-hidden="true">+</span></summary>
+    <div class="filter-list">
+      <label class="filter-row">
+        <input type="checkbox" data-filter-stock />
+        <span class="filter-label">Solo en stock</span>
+        <span class="mono filter-count">{stockSale}</span>
+      </label>
+      <label class="filter-row">
+        <input type="checkbox" data-filter-sale />
+        <span class="filter-label">En oferta</span>
+        <span class="mono filter-count">{onSaleCount}</span>
+      </label>
+    </div>
+  </details>
+</aside>
+
+<style>
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .filters-clear {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    transition: color .15s;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .filters-clear:hover { color: var(--fg); }
+  .filter-group {
+    border-bottom: 1px solid var(--line);
+  }
+  .filter-summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fg);
+  }
+  .filter-summary::-webkit-details-marker { display: none; }
+  .filter-chevron {
+    font-family: var(--font-mono);
+    color: var(--fg-muted);
+    transition: transform .2s;
+  }
+  details[open] > .filter-summary > .filter-chevron { transform: rotate(45deg); }
+  .filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 0 16px;
+  }
+  .filter-row {
+    display: grid;
+    grid-template-columns: 16px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .filter-row input { accent-color: var(--fg); width: 14px; height: 14px; }
+  .filter-label { color: var(--fg); }
+  .filter-count { color: var(--fg-muted); font-size: 11px; }
+</style>

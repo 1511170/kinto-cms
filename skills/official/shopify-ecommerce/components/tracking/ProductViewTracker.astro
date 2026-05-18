@@ -1,0 +1,38 @@
+---
+import type { Product } from '../../lib/product-mapper';
+
+interface Props {
+  product: Product;
+  listName?: string;
+}
+
+const { product, listName } = Astro.props;
+const variant = product.variants[0];
+const payload = {
+  event: 'view_item',
+  ecommerce: {
+    currency: variant?.price.currencyCode ?? 'USD',
+    value: parseFloat(variant?.price.amount ?? '0'),
+    items: [{
+      item_id: variant?.id ?? product.handle,
+      item_name: product.title,
+      item_brand: product.vendor,
+      item_category: product.productType,
+      item_list_name: listName ?? undefined,
+      price: parseFloat(variant?.price.amount ?? '0'),
+      quantity: 1,
+    }],
+  },
+};
+---
+
+<script type="application/json" data-track-view-item set:html={JSON.stringify(payload)} />
+
+<script>
+  const node = document.querySelector('[data-track-view-item]') as HTMLScriptElement | null;
+  if (node && (window as any).dataLayer) {
+    try {
+      (window as any).dataLayer.push(JSON.parse(node.textContent ?? '{}'));
+    } catch { /* ignore */ }
+  }
+</script>

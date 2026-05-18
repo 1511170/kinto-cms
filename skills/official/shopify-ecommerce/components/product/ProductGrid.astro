@@ -1,0 +1,134 @@
+---
+import type { Product } from '../../lib/product-mapper';
+import ProductCard from './ProductCard.astro';
+
+interface Props {
+  products: Product[];
+  categories: string[];
+}
+
+const { products, categories } = Astro.props;
+---
+
+<section data-product-grid class="space-y-6">
+  <!-- Filter / Sort Bar -->
+  <div class="flex flex-wrap items-center gap-3 py-4 border-b border-gray-200">
+    <!-- Category Chips -->
+    <div class="flex flex-wrap items-center gap-2 flex-1" data-filter-chips>
+      <button
+        data-category="all"
+        class="chip chip--active text-[11px] font-mono uppercase tracking-wider px-3 py-1.5 rounded-full border border-gray-200 bg-[var(--accent,#1f1f1f)] text-white transition-colors"
+      >
+        All
+      </button>
+      {categories.map((cat) => (
+        <button
+          data-category={cat}
+          class="chip text-[11px] font-mono uppercase tracking-wider px-3 py-1.5 rounded-full border border-gray-200 bg-white text-gray-600 hover:border-gray-400 transition-colors"
+        >
+          {cat}
+        </button>
+      ))}
+    </div>
+
+    <!-- Sort Dropdown -->
+    <div class="relative">
+      <select
+        data-sort-select
+        class="appearance-none text-[11px] font-mono uppercase tracking-wider bg-white border border-gray-200 rounded-lg px-3 py-1.5 pr-8 text-gray-600 focus:outline-none focus:ring-1 focus:ring-[var(--accent,#1f1f1f)] cursor-pointer"
+      >
+        <option value="newest">Newest</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="name">Name: A-Z</option>
+      </select>
+      <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Product Count -->
+  <p data-product-count class="text-[11px] font-mono uppercase tracking-wider text-gray-400">
+    {products.length} product{products.length !== 1 ? 's' : ''}
+  </p>
+
+  <!-- Grid -->
+  <div
+    data-grid
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+  >
+    {products.map((product) => (
+      <div data-product-item data-category={product.productType} data-price={product.variants[0]?.price.amount ?? '0'} data-title={product.title} data-handle={product.handle}>
+        <ProductCard product={product} />
+      </div>
+    ))}
+  </div>
+
+  <!-- No Results -->
+  <div data-no-results class="hidden py-16 text-center">
+    <p class="text-sm text-gray-400 font-mono">No products match your filters.</p>
+  </div>
+</section>
+
+<script>
+  const grid = document.querySelector('[data-product-grid]');
+  if (grid) {
+    const chips = grid.querySelectorAll<HTMLButtonElement>('[data-filter-chips] .chip');
+    const sortSelect = grid.querySelector<HTMLSelectElement>('[data-sort-select]');
+    const items = grid.querySelectorAll<HTMLElement>('[data-product-item]');
+    const countEl = grid.querySelector<HTMLElement>('[data-product-count]');
+    const noResults = grid.querySelector<HTMLElement>('[data-no-results]');
+
+    let activeCategory = 'all';
+
+    function applyFilters() {
+      let visible = 0;
+
+      const sorted = Array.from(items).sort((a, b) => {
+        const sort = sortSelect?.value ?? 'newest';
+        if (sort === 'price-asc') return parseFloat(a.dataset.price ?? '0') - parseFloat(b.dataset.price ?? '0');
+        if (sort === 'price-desc') return parseFloat(b.dataset.price ?? '0') - parseFloat(a.dataset.price ?? '0');
+        if (sort === 'name') return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
+        return 0;
+      });
+
+      const gridEl = grid.querySelector('[data-grid]');
+      if (gridEl) {
+        sorted.forEach(el => gridEl.appendChild(el));
+      }
+
+      items.forEach((item) => {
+        const cat = item.dataset.category ?? '';
+        const matchesCategory = activeCategory === 'all' || cat === activeCategory;
+        item.style.display = matchesCategory ? '' : 'none';
+        if (matchesCategory) visible++;
+      });
+
+      if (countEl) {
+        countEl.textContent = `${visible} product${visible !== 1 ? 's' : ''}`;
+      }
+
+      if (noResults) {
+        noResults.classList.toggle('hidden', visible > 0);
+      }
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        activeCategory = chip.dataset.category ?? 'all';
+        chips.forEach((c) => {
+          const isActive = c.dataset.category === activeCategory;
+          c.classList.toggle('chip--active', isActive);
+          c.classList.toggle('bg-[var(--accent,#1f1f1f)]', isActive);
+          c.classList.toggle('text-white', isActive);
+          c.classList.toggle('bg-white', !isActive);
+          c.classList.toggle('text-gray-600', !isActive);
+        });
+        applyFilters();
+      });
+    });
+
+    sortSelect?.addEventListener('change', applyFilters);
+  }
+</script>

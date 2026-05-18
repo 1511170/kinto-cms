@@ -1,0 +1,307 @@
+{
+  "generated": "2026-05-18T05:10:22.361Z",
+  "count": 17,
+  "skills": [
+    {
+      "name": "blog",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Sistema de blog con listados, posts y schema.org BlogPosting",
+      "tags": [
+        "blog",
+        "content",
+        "seo"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static"
+      ],
+      "path": "skills/community/blog"
+    },
+    {
+      "name": "browser-automation",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Testing E2E y screenshots con Puppeteer",
+      "tags": [
+        "testing",
+        "qa",
+        "puppeteer"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/browser-automation"
+    },
+    {
+      "name": "cloudflare-pages",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Configuración de deploy a Cloudflare Pages",
+      "tags": [
+        "deploy",
+        "cloudflare"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static"
+      ],
+      "path": "skills/community/cloudflare-pages"
+    },
+    {
+      "name": "cloudflare-tunnel",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Túnel cloudflared persistente para exponer el sitio local",
+      "tags": [
+        "cloudflare",
+        "tunnel",
+        "dev"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/cloudflare-tunnel"
+    },
+    {
+      "name": "cms-sveltia",
+      "category": "official",
+      "version": "1.0.0",
+      "description": "CMS visual Git-based con Sveltia — panel de edición para el cliente",
+      "tags": [
+        "cms",
+        "sveltia",
+        "content"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/official/cms-sveltia"
+    },
+    {
+      "name": "contact-form",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Formulario de contacto con validación y estilos Tailwind",
+      "tags": [
+        "forms",
+        "contact"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static"
+      ],
+      "path": "skills/community/contact-form"
+    },
+    {
+      "name": "design-bridge",
+      "category": "community",
+      "version": "0.1.0",
+      "description": "Puente opt-in para importar diseños desde open-design.ai (con stubs para Stitch y Claude Design) a tokens CSS y componentes Astro",
+      "tags": [
+        "design",
+        "tokens",
+        "import",
+        "open-design"
+      ],
+      "requires": [],
+      "needs": [
+        "open-design-api-key"
+      ],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/design-bridge"
+    },
+    {
+      "name": "forms-web3forms",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Formularios serverless vía Web3Forms (sin backend propio)",
+      "tags": [
+        "forms",
+        "serverless"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static"
+      ],
+      "path": "skills/community/forms-web3forms"
+    },
+    {
+      "name": "image-optimizer",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Optimización y compresión de imágenes en build",
+      "tags": [
+        "images",
+        "performance"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/image-optimizer"
+    },
+    {
+      "name": "seo-ai-citations",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "SEO + schema.org (6+ tipos) optimizado para citaciones de IA",
+      "tags": [
+        "seo",
+        "schema-org",
+        "ai"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/seo-ai-citations"
+    },
+    {
+      "name": "shopify-ecommerce",
+      "category": "official",
+      "version": "1.0.0",
+      "description": "Storefront headless de Shopify — catálogo, carrito, checkout, búsqueda y SEO vía Worker de Cloudflare",
+      "tags": [
+        "ecommerce",
+        "shopify",
+        "cloudflare",
+        "search",
+        "seo"
+      ],
+      "requires": [],
+      "needs": [
+        "shopify",
+        "cloudflare-kv"
+      ],
+      "recommendedFor": [
+        "ecommerce"
+      ],
+      "path": "skills/official/shopify-ecommerce"
+    },
+    {
+      "name": "testimonials",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Testimonios de clientes con schema.org Review",
+      "tags": [
+        "social-proof",
+        "seo"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/testimonials"
+    },
+    {
+      "name": "tracking-analytics",
+      "category": "official",
+      "version": "1.0.0",
+      "description": "Google Analytics 4 + GTM dataLayer y wiring de analítica reutilizable para sitios Astro/KINTO",
+      "tags": [
+        "analytics",
+        "ga4",
+        "gtm",
+        "tracking"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/official/tracking-analytics"
+    },
+    {
+      "name": "web-scraper",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Scraping de contenido para migración de sitios",
+      "tags": [
+        "scraping",
+        "migration"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static"
+      ],
+      "path": "skills/community/web-scraper"
+    },
+    {
+      "name": "webflow-effects",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Animaciones premium con GSAP y ScrollTrigger",
+      "tags": [
+        "animation",
+        "gsap",
+        "premium"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static"
+      ],
+      "path": "skills/community/webflow-effects"
+    },
+    {
+      "name": "webflow-migration",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Conversor de sitios Webflow a Astro",
+      "tags": [
+        "migration",
+        "webflow"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static"
+      ],
+      "path": "skills/community/webflow-migration"
+    },
+    {
+      "name": "whatsapp-cta",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Botón flotante de WhatsApp + CTA contextual para PDP con tracking GA4",
+      "tags": [
+        "whatsapp",
+        "cta",
+        "conversion",
+        "ecommerce"
+      ],
+      "requires": [],
+      "needs": [],
+      "recommendedFor": [
+        "static",
+        "ecommerce"
+      ],
+      "path": "skills/community/whatsapp-cta"
+    }
+  ]
+}

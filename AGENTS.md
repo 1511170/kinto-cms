@@ -1,81 +1,111 @@
 # 🤖 AGENTS.md — Guía Maestra para Agentes de Código
 
-> **Para:** Kimi Code, Claude Code, Qwen Code, Cursor, GitHub Copilot, o cualquier agente de código.
-> **Versión:** 2.0.0
-> **Última actualización:** 2026-05-09
+> **Para:** Claude Code, Kimi Code, Qwen Code, Codex, Cursor, GitHub Copilot, o
+> cualquier agente de código.
+> **Versión:** 3.0.0 — "Agent-Native"
+> **Esta es la fuente única de verdad.** `CLAUDE.md`, `.cursorrules` y demás son
+> punteros finos a este archivo.
 
 ---
 
 ## 🎯 Contexto Inmediato (Leer Esto Primero)
 
-| Campo | Valor |
-|-------|-------|
-| **Sistema** | KINTO CMS — Generador de sitios estáticos con arquitectura de skills |
-| **Stack** | Astro 5 + Tailwind 3 + Sveltia CMS |
-| **Patrón** | Core mínimo + Skills bajo demanda |
-| **Estado repo** | Core limpio. Sin sitios creados. |
+| Campo       | Valor                                                                   |
+| ----------- | ----------------------------------------------------------------------- |
+| **Sistema** | KINTO CMS — generador de sitios estáticos con arquitectura de skills    |
+| **Stack**   | Astro 5 + Tailwind 3 + Sveltia CMS (+ Cloudflare Worker en modo tienda) |
+| **Patrón**  | Core mínimo + skills bajo demanda                                       |
+| **CLI**     | `kinto` (ver `bin/kinto.js`) — punto de entrada a todo                  |
 
-**Tu misión:** Crear sitios web para clientes usando solo skills reutilizables. Nunca escribas código ad-hoc si existe o puedes crear una skill.
+**Tu misión:** crear y mantener sitios web para clientes usando solo skills
+reutilizables. Nunca escribas código ad-hoc si existe o puedes crear una skill.
 
 ---
 
-## ⚡ Comandos Esenciales
+## ⚡ Arranque en un comando
 
-### Crear un nuevo sitio para cliente
 ```bash
-./kinto create-site nombre-cliente
-cd sites/nombre-cliente
-```
+# Proyecto nuevo desde cero (instala, configura y levanta todo):
+npx kinto-cms@latest start
+# o el instalador de una línea:
+#   Windows : irm https://raw.githubusercontent.com/kinto-cms/kinto-cms/main/install.ps1 | iex
+#   Unix    : curl -fsSL https://raw.githubusercontent.com/kinto-cms/kinto-cms/main/install.sh | bash
 
-### Ver e instalar skills
-```bash
-node scripts/skill-list.js          # Ver disponibles
-node scripts/skill-add.js cms-sveltia   # Instalar una
-node scripts/skill-create.js mi-skill   # Crear nueva skill
-```
-
-### Desarrollo y verificación
-```bash
-npm install
-npm run dev        # localhost:4321
-npm run build      # MUST pass before finishing
-npm run preview    # MUST verify visually before finishing
+# Dentro de un repo KINTO ya clonado:
+kinto start                 # wizard interactivo
+kinto doctor                # diagnostica el entorno
 ```
 
 ---
 
-## 🧠 Principios de Oro (Boris-Style, Adaptados)
+## 🛠️ El CLI `kinto` — todos los comandos
 
-### 1. Planifica Antes de Tocar 3+ Archivos
-Si vas a modificar más de 2 archivos, crea un plan escrito primero:
-- ¿Cuál es el objetivo?
-- ¿Qué archivos tocarás?
-- ¿Qué skill(s) usarás o crearás?
-- ¿Cómo verificarás que funciona?
+| Comando                                              | Qué hace                                                          |
+| ---------------------------------------------------- | ----------------------------------------------------------------- |
+| `kinto start`                                        | Wizard: crea, configura y levanta un sitio                        |
+| `kinto doctor`                                       | Diagnostica el entorno (Node, npm, git, Python)                   |
+| `kinto update`                                       | Actualiza core/skills/templates desde upstream (no toca `sites/`) |
+| `kinto create-site <n> --template=static\|ecommerce` | Crea un sitio nuevo                                               |
+| `kinto dev --site=<n>`                               | Servidor de desarrollo                                            |
+| `kinto build --site=<n>`                             | Build estático                                                    |
+| `kinto deploy --site=<n>`                            | Deploy a Cloudflare                                               |
+| `kinto marketplace`                                  | Lista las site-skills instalables                                 |
+| `kinto skill add <n> --site=<s>`                     | Instala una skill en un sitio                                     |
+| `kinto skill remove <n> --site=<s>`                  | Desinstala una skill                                              |
+| `kinto skill create <n>`                             | Scaffold de una skill nueva                                       |
+| `kinto skill search <texto>`                         | Busca skills por nombre/tag/descripción                           |
+| `kinto skill validate`                               | Valida skills y regenera el registry                              |
+| `kinto sites list \| clone`                          | Gestión de sitios                                                 |
 
-**No ejecutes hasta tener un plan aprobado (implícita o explícitamente).**
+---
 
-### 2. Verificación es Todo
-> *"Si el agente tiene un loop de feedback, la calidad mejora 2-3x"*
+## 🧩 Dos tipos de "skill" — no los confundas
 
-Después de **cada cambio significativo**:
-1. `npm run build` → ¿pasa sin errores?
-2. `npm run preview` → ¿se ve y funciona correctamente?
-3. ¿Los links funcionan? ¿No hay 404s?
-4. ¿El CMS está accesible si aplica?
+| Tipo            | Qué es                                            | Dónde vive                     |
+| --------------- | ------------------------------------------------- | ------------------------------ |
+| **Site-skill**  | Plugin de componentes Astro para construir sitios | `skills/{official,community}/` |
+| **Agent-skill** | Capacidad del agente que trabaja en el repo       | `.claude/skills/`              |
 
-### 3. Skills > Código Ad-Hoc
-- Si existe una skill similar en `skills/` → **ÚSALA**
-- Si no existe → **CREA una skill reutilizable** en `skills/community/`
-- NUNCA copies componentes entre sitios. Extrae a skill.
+El **marketplace** (`kinto marketplace`, `MARKETPLACE.md`) es de site-skills.
+Las agent-skills incluidas son `boris` (metodología) y `graphify` (knowledge
+graph, opt-in, requiere Python).
 
-### 4. Zero Hardcode
-- NUNCA valores específicos de cliente en código de skill
-- Usa `config/site.config.ts` para valores por sitio
-- Usa variables de entorno para secrets (`.env`, nunca commitear)
+---
 
-### 5. Documentación Viva
-Si haces algo incorrecto y luego lo corriges, **actualiza este AGENTS.md** para que no vuelva a pasar. Agrega la regla en la sección "Anti-Patrones".
+## 🧠 Principios de Oro (metodología Boris Cherny)
+
+KINTO adopta la metodología de [howborisusesclaudecode.com](https://howborisusesclaudecode.com).
+La agent-skill `boris` (`.claude/skills/boris/`) tiene el detalle completo.
+
+### 1. Planifica antes de tocar 3+ archivos
+
+Plan escrito primero: objetivo, archivos, skills a usar/crear, cómo verificar.
+
+### 2. Verificación es todo
+
+> _"Dale al agente un loop de feedback y la calidad mejora 2-3x."_
+
+Tras cada cambio significativo: `kinto build` debe pasar y `kinto dev` debe verse
+bien. Build + preview son **obligatorios** antes de entregar.
+
+### 3. Skills > código ad-hoc
+
+Si existe una skill → úsala. Si no → créala con `kinto skill create`. Nunca
+copies componentes entre sitios.
+
+### 4. Zero hardcode
+
+Nada de valores de cliente en código de skill. Usa `config/site.config.ts`,
+props y variables de entorno (`.env`, nunca commitear).
+
+### 5. Documentación viva
+
+Si cometes un error y lo corriges, **actualiza este AGENTS.md** (sección
+Anti-Patrones) para que no se repita.
+
+### 6. Commits incrementales
+
+Commits pequeños y enfocados por unidad lógica de trabajo, bien documentados.
 
 ---
 
@@ -83,204 +113,116 @@ Si haces algo incorrecto y luego lo corriges, **actualiza este AGENTS.md** para 
 
 ```
 kinto-cms/
-├── AGENTS.md                 ← Estás aquí (guía para cualquier agente)
-├── KINTO.md                  ← Guía completa del sistema (léela si es tu primera vez)
-├── STRUCTURE.md              ← Arquitectura detallada
+├── AGENTS.md             ← Estás aquí (fuente de verdad para todo agente)
+├── CLAUDE.md             ← Puntero fino para Claude Code
+├── MARKETPLACE.md        ← Catálogo de skills (autogenerado, no editar)
+├── CONTRIBUTING.md       ← Cómo aportar una skill vía PR
+├── bin/kinto.js          ← Entry point del CLI
+├── cli/                  ← Implementación del CLI (commands/, lib/)
 │
-├── core/                     ← 🚫 NO TOCAR. Motor base Astro + Tailwind
-│   ├── src/layouts/Layout.astro
-│   └── src/utils/skill-loader.ts
+├── core/                 ← 🚫 NO TOCAR. Motor Astro + Tailwind
 │
-├── skills/                   ← 🧩 Marketplace de skills
-│   ├── official/             ← Skills mantenidas (cms-sveltia, etc.)
-│   └── community/            ← Skills creadas por IA (testimonials, etc.)
-│       └── [skill-name]/
-│           ├── SKILL.md      ← Documentación de la skill
-│           ├── index.ts      ← Entry point
-│           ├── components/   ← Componentes Astro
-│           └── config/       ← Config CMS si aplica
+├── skills/               ← 🧩 Marketplace de site-skills
+│   ├── registry.json     ← Manifest autogenerado
+│   ├── official/         ← Skills mantenidas (cms-sveltia, shopify-ecommerce…)
+│   └── community/        ← Skills de la comunidad
 │
-├── sites/                    ← 🌐 Sitios de clientes (vacío en repo base)
-│   └── [nombre-cliente]/     ← Creado con ./kinto create-site
-│       ├── src/pages/        ← Páginas Astro
-│       ├── config/
-│       │   ├── site.config.ts    ← Config por sitio (dominio, CMS, branding)
-│       │   └── cms.config.yml    ← Config Sveltia
-│       ├── scripts/
-│       │   ├── skill-add.js
-│       │   ├── skill-create.js
-│       │   └── skill-list.js
-│       ├── skills-active.json    ← Skills instaladas en este sitio
-│       └── KINTO.md              ← Brief del cliente (si existe)
+├── sites/                ← 🌐 Sitios de clientes (creados con kinto create-site)
 │
 ├── templates/
-│   └── enterprise/           ← Template base para nuevos sitios
+│   ├── enterprise/       ← Template de sitio estático/corporativo
+│   └── ecommerce/        ← Template de tienda Shopify
 │
-└── .claude/                  ← Config específica de Claude Code (si aplica)
-    ├── agents/               ← Subagentes especializados
-    ├── commands/             ← Slash commands
-    └── settings.json         ← Hooks y settings
+└── .claude/
+    ├── agents/           ← Subagentes especializados
+    ├── commands/         ← Slash commands
+    ├── hooks/            ← Hooks (formato scoped al archivo editado)
+    ├── skills/           ← Agent-skills: boris, graphify
+    └── settings.json
 ```
 
 ---
 
-## 🔧 Workflow Detallado
+## 🔧 Workflows
 
-### Paso 1: Crear Sitio
+### Crear un sitio estático (corporativo / informativo)
+
 ```bash
-./kinto create-site nombre-cliente
-cd sites/nombre-cliente
+kinto create-site mi-cliente --template=static
+cd sites/mi-cliente && npm install
+kinto skill add cms-sveltia --site=mi-cliente
+kinto build --site=mi-cliente   # verificar
 ```
 
-### Paso 2: Analizar Brief
-Si existe `sites/[cliente]/KINTO.md`, léelo. Es el brief del cliente.
+### Crear una tienda (ecommerce)
 
-### Paso 3: Revisar Skills Existentes
 ```bash
-node scripts/skill-list.js
+kinto create-site mi-tienda --template=ecommerce
+cd sites/mi-tienda && npm install
+# Copia .env.example a .env y completa credenciales de Shopify.
+kinto build --site=mi-tienda
 ```
 
-Skills disponibles actualmente:
-- ✅ `cms-sveltia` — Panel admin para el cliente
-- ✅ `testimonials` — Testimonios con schema.org
-- ✅ `seo-ai-citations` — SEO + schema.org
-- ✅ `i18n` — Internacionalización
+La skill `shopify-ecommerce` provee catálogo, carrito, checkout, búsqueda, SEO y
+un Worker de Cloudflare. Namespace de metafields configurable
+(`METAFIELD_NAMESPACE` en `config/shopify.graphql.ts`, default `kinto`).
+Ver `skills/official/shopify-ecommerce/docs/METAFIELDS_SETUP.md`.
 
-### Paso 4: Instalar Skills Necesarias
+### Crear una skill nueva
+
 ```bash
-node scripts/skill-add.js cms-sveltia
-node scripts/skill-add.js testimonials
-# ... según el brief
+kinto skill create mi-skill     # scaffold con frontmatter listo
+# implementa, completa SKILL.md, valida y abre PR
+kinto skill validate
 ```
 
-### Paso 5: Generar Contenido
-Editar `src/pages/index.astro` y páginas adicionales usando componentes de skills.
+Detalle completo del flujo de PR: `CONTRIBUTING.md`.
 
-```astro
----
-import { TestimonialsGrid } from '../../../skills/community/testimonials/index.ts';
----
+### Actualizar el motor KINTO en un proyecto existente
 
-<TestimonialsGrid category="default" max={6} />
-```
-
-### Paso 6: Si Falta una Skill, Crearla
 ```bash
-node scripts/skill-create.js mi-nueva-skill
+kinto update    # actualiza core/skills/templates/.claude; sites/ queda intacto
 ```
-
-Esto crea:
-```
-skills/community/mi-nueva-skill/
-├── SKILL.md              # Qué hace, cómo usar, props
-├── index.ts              # Entry point + install function
-├── components/           # Componentes Astro
-└── config/               # Config CMS si aplica
-```
-
-**Reglas para crear skills:**
-1. Debe ser **reutilizable** en otros sitios
-2. Documentar en `SKILL.md` con tabla de props
-3. Exportar componentes en `index.ts`
-4. Usar `schema.org` si aplica (SEO)
-5. Usar Tailwind utility classes, no CSS custom
-
-### Paso 7: Verificar y Entregar
-- [ ] Todas las skills necesarias en `skills-active.json`
-- [ ] CMS configurado en `config/site.config.ts`
-- [ ] Schema.org en lugares relevantes
-- [ ] Imágenes optimizadas en `public/`
-- [ ] **Build exitoso:** `npm run build`
-- [ ] **Preview funciona:** `npm run preview`
-
----
-
-## ✅ Patrones Correctos
-
-### Importar una skill
-```astro
----
-import { Componente } from '../../../skills/community/[skill-name]/index.ts';
----
-```
-
-### Verificar si skill está activa
-```typescript
-import activeSkills from '../skills-active.json';
-const hasSkill = activeSkills.skills.includes('testimonials');
-```
-
-### Config de sitio (site.config.ts)
-```typescript
-export default {
-  site: 'https://cliente.com',
-  cms: {
-    enabled: true,
-    subdomain: 'admin.cliente.com',
-    hidden: true,
-    githubRepo: 'org/repo'
-  }
-};
-```
-
-### CMS oculto
-- Público: `tudominio.com`
-- Admin: `admin.tudominio.com` (sin links públicos, acceso directo únicamente)
 
 ---
 
 ## ❌ Anti-Patrones (NO Hacer)
 
-> **Regla:** Si descubres uno nuevo, agrégalo aquí.
+> **Regla:** si descubres uno nuevo, agrégalo aquí.
 
-| # | Anti-Patrón | Por qué está mal | Qué hacer en su lugar |
-|---|-------------|------------------|----------------------|
-| 1 | Hardcodear valores de cliente en skill | La skill deja de ser reutilizable | Usar `site.config.ts` o props |
-| 2 | Copiar componentes entre sitios | Duplicación, imposible mantener | Extraer a `skills/community/` |
-| 3 | Modificar `core/` directamente | Rompe todos los sitios | Crear una skill o sobreescribir en el sitio |
-| 4 | Instalar skill sin necesidad | Bloat, más tiempo de build | Solo instalar lo que pida el brief |
-| 5 | Olvidar `npm run build` antes de terminar | Errores en producción | Build + preview son obligatorios |
-| 6 | Commitear `.env` o secrets | Riesgo de seguridad | Usar `.env.local` (ya en `.gitignore`) |
-| 7 | Crear código ad-hoc sin considerar skill | Pérdida de reutilización | Preguntar: "¿Esto lo usaré en otro sitio?" |
-
----
-
-## 🆘 ¿Atascado?
-
-1. Ver skills disponibles: `node scripts/skill-list.js`
-2. Ver config del sitio: `cat config/site.config.ts`
-3. Ver skills activas: `cat skills-active.json`
-4. Leer documentación: `cat KINTO.md` o `cat STRUCTURE.md`
+| #   | Anti-Patrón                                      | Por qué está mal                  | En su lugar                         |
+| --- | ------------------------------------------------ | --------------------------------- | ----------------------------------- |
+| 1   | Hardcodear valores de cliente en una skill       | La skill deja de ser reutilizable | `site.config.ts` o props            |
+| 2   | Copiar componentes entre sitios                  | Duplicación imposible de mantener | Extraer a `skills/community/`       |
+| 3   | Modificar `core/`                                | Rompe todos los sitios            | Crear una skill                     |
+| 4   | Instalar skills que el brief no pide             | Bloat, builds lentos              | Solo lo necesario                   |
+| 5   | Olvidar `kinto build` antes de terminar          | Errores en producción             | Build + preview obligatorios        |
+| 6   | Commitear `.env` o secrets                       | Riesgo de seguridad               | `.env` está en `.gitignore`         |
+| 7   | Editar `MARKETPLACE.md` o `registry.json` a mano | Se sobrescriben                   | `kinto skill validate` los regenera |
+| 8   | Confundir site-skill con agent-skill             | Van en carpetas distintas         | Ver la tabla de arriba              |
 
 ---
 
 ## 🔗 Referencias
 
-| Recurso | Ubicación | Para qué |
-|---------|-----------|----------|
-| Guía completa | `KINTO.md` | Entender el sistema a fondo |
-| Arquitectura | `STRUCTURE.md` | Estructura de directorios y flujo de datos |
-| Brief cliente | `sites/[nombre]/KINTO.md` | Requerimientos específicos del proyecto actual |
-| Skill catalog | `SKILLS_CATALOG.md` | Lista de skills disponibles |
+| Recurso                         | Para qué                             |
+| ------------------------------- | ------------------------------------ |
+| `CONTRIBUTING.md`               | Aportar una skill vía PR             |
+| `MARKETPLACE.md`                | Catálogo de skills instalables       |
+| `KINTO.md`                      | Filosofía y deep-dive del sistema    |
+| `STRUCTURE.md`                  | Arquitectura detallada               |
+| `.claude/skills/boris/SKILL.md` | Metodología Boris completa (87 tips) |
 
 ---
 
-## 🚀 TL;DR — Inicio Rápido
+## 🚀 TL;DR
 
 ```bash
-# 1. Crear sitio
-./kinto create-site mi-cliente && cd sites/mi-cliente
-
-# 2. Ver skills
-node scripts/skill-list.js
-
-# 3. Instalar skills necesarias
-node scripts/skill-add.js cms-sveltia
-
-# 4. Generar páginas con componentes de skills
-
-# 5. Verificar antes de entregar
-npm run build && npm run preview
+npx kinto-cms@latest start          # arranque out-of-the-box
+kinto create-site cliente --template=static
+kinto skill add testimonials --site=cliente
+kinto build --site=cliente          # verificar SIEMPRE
 ```
 
-**Recuerda:** Planifica antes de tocar 3+ archivos. Verifica siempre. Skills > código ad-hoc.
+**Recuerda:** planifica antes de tocar 3+ archivos · verifica con build ·
+skills > código ad-hoc · cero hardcode · commits incrementales.

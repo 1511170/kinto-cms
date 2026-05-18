@@ -1,0 +1,52 @@
+---
+interface Props {
+  items: string[];
+  speedSeconds?: number;
+}
+
+const { items, speedSeconds = 38 } = Astro.props;
+const doubled = [...items, ...items];
+---
+
+<div class="strip">
+  <div class="strip-track" style={`animation-duration:${speedSeconds}s`}>
+    {doubled.map((item, i) => (
+      <span class="strip-item">
+        <span>{item}</span>
+        <span class="strip-bullet" aria-hidden="true">●</span>
+      </span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .strip {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    overflow: hidden;
+    padding: 14px 0;
+  }
+  .strip-track {
+    display: flex;
+    gap: 32px;
+    width: max-content;
+    animation: marquee linear infinite;
+  }
+  .strip-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 32px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    white-space: nowrap;
+  }
+  .strip-bullet {
+    color: var(--fg-faint);
+    opacity: 0.4;
+    font-size: 6px;
+  }
+</style>

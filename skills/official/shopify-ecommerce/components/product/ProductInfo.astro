@@ -1,0 +1,489 @@
+---
+import type { Product } from '../../lib/product-mapper';
+import { formatPrice } from '../../lib/format-price';
+import Stars from './Stars.astro';
+
+interface Props {
+  product: Product;
+  locale?: string;
+}
+
+const { product, locale = 'es-CO' } = Astro.props;
+
+const variant = product.variants[0];
+const price = variant?.price;
+const compareAt = variant?.compareAtPrice;
+const onSale = compareAt && parseFloat(compareAt.amount) > parseFloat(price?.amount ?? '0');
+
+// Opciones únicas (Color, Talla, etc).
+// Shopify, cuando un producto NO tiene opciones, igual le pone una "fake variant"
+// con `selectedOptions: [{name: 'Title', value: 'Default Title'}]`. La filtramos
+// para no renderizar un selector vacío sin sentido.
+const optionNames = Array.from(
+  new Set(product.variants.flatMap((v) => v.selectedOptions.map((o) => o.name)))
+).filter((name) => {
+  if (name.toLowerCase() !== 'title') return true;
+  const values = Array.from(new Set(
+    product.variants
+      .map((v) => v.selectedOptions.find((o) => o.name === name)?.value)
+      .filter((v): v is string => Boolean(v))
+  ));
+  // Si la única "opción" es Title=Default Title (single variant), ocultar.
+  return !(values.length === 1 && values[0]?.toLowerCase() === 'default title');
+});
+
+const optionValues: Record<string, string[]> = {};
+optionNames.forEach((name) => {
+  optionValues[name] = Array.from(
+    new Set(
+      product.variants
+        .map((v) => v.selectedOptions.find((o) => o.name === name)?.value)
+        .filter((v): v is string => Boolean(v))
+    )
+  );
+});
+const isColor = (name: string) => /color|colour|farbe|couleur/i.test(name);
+
+import { colorOf } from '../../lib/color-hex';
+
+const ratingMeta = product.metafields?.rating ?? 0;
+const reviewCount = product.metafields?.reviewCount ?? product.metafields?.reviews?.length ?? 0;
+
+// Modo catálogo: si el precio es 0 (tienda sin precios cargados),
+// ocultamos el bloque de precio pero conservamos el badge de stock.
+// Cuando el cliente ponga precios reales, el precio aparece automáticamente.
+const priceAmount = price ? parseFloat(price.amount) : 0;
+const hasPrice = priceAmount > 0;
+
+const eyebrowParts = [
+  product.productType,
+  product.collections?.[0],
+  variant?.sku,
+].filter(Boolean);
+---
+
+<div class="pdp-info" data-product-info>
+  <div class="pdp-eyebrow eyebrow">
+    {eyebrowParts.map((p, i) => (
+      <>
+        {i > 0 && <span class="muted" aria-hidden="true">·</span>}
+        <span>{p}</span>
+      </>
+    ))}
+  </div>
+
+  <h1 class="pdp-title h-title">{product.title}</h1>
+
+  {product.description && (
+    <p class="pdp-short muted">
+      {product.description.slice(0, 200)}{product.description.length > 200 ? '…' : ''}
+    </p>
+  )}
+
+  {ratingMeta > 0 && reviewCount > 0 && (
+    <div class="pdp-rating">
+      <Stars rating={ratingMeta} size={14} showValue reviewCount={reviewCount} />
+    </div>
+  )}
+
+  <div class={`pdp-price-row ${hasPrice ? '' : 'no-price'}`}>
+    {hasPrice ? (
+      <>
+        <span class="pdp-price h-display" data-current-price>
+          {price && formatPrice(price.amount, price.currencyCode, locale)}
+        </span>
+        {onSale && compareAt && (
+          <del class="pdp-price-old muted" data-compare-price>
+            {formatPrice(compareAt.amount, compareAt.currencyCode, locale)}
+          </del>
+        )}
+      </>
+    ) : (
+      <span class="pdp-price-quote mono">Consultar precio por WhatsApp</span>
+    )}
+    <span class={`pdp-stock ${product.availableForSale ? 'in' : 'out'}`}>
+      <span class="pdp-stock-dot" aria-hidden="true"></span>
+      {product.availableForSale ? 'Disponible' : 'Agotado'}
+    </span>
+  </div>
+
+  {optionNames.map((name) => (
+    <div class="pdp-options" data-option-group data-option-name={name}>
+      <div class="pdp-option-label">
+        <span class="eyebrow">{name}</span>
+        <span class="mono pdp-option-value" data-option-current>{optionValues[name][0]}</span>
+      </div>
+      {isColor(name) ? (
+        <div class="pdp-swatches" data-option-buttons>
+          {optionValues[name].map((value, i) => (
+            <button
+              class={`pdp-sw ${i === 0 ? 'active' : ''}`}
+              data-option-value={value}
+              style={`background:${colorOf(value)}`}
+              aria-label={value}
+              title={value}
+            ></button>
+          ))}
+        </div>
+      ) : (
+        <div class="pdp-pills" data-option-buttons>
+          {optionValues[name].map((value, i) => (
+            <button class={`pdp-pill ${i === 0 ? 'active' : ''}`} data-option-value={value}>
+              {value}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  ))}
+
+  <slot name="cta-extras" />
+
+  {hasPrice && (
+    <>
+      <div class="pdp-cta-row">
+        <div class="pdp-qty">
+          <button class="pdp-qty-btn" data-qty-minus aria-label="Disminuir cantidad">−</button>
+          <input type="number" class="pdp-qty-input mono" value="1" min="1" max="99" data-qty-input />
+          <button class="pdp-qty-btn" data-qty-plus aria-label="Aumentar cantidad">+</button>
+        </div>
+        <button
+          class="btn btn-lg pdp-add"
+          data-add-to-cart
+          data-variant-id={variant?.id}
+          disabled={!product.availableForSale}
+        >
+          {product.availableForSale ? 'Agregar al Carrito' : 'Agotado'}
+        </button>
+      </div>
+
+      <div data-cart-feedback class="pdp-feedback mono" hidden>
+        Agregado al carrito
+      </div>
+    </>
+  )}
+
+  <dl class="pdp-meta">
+    {variant?.sku && <><dt class="mono">SKU</dt><dd>{variant.sku}</dd></>}
+    {product.vendor && <><dt class="mono">Marca</dt><dd>{product.vendor}</dd></>}
+    {product.productType && <><dt class="mono">Categoría</dt><dd>{product.productType}</dd></>}
+    {product.collections.length > 0 && <><dt class="mono">Colección</dt><dd>{product.collections[0]}</dd></>}
+    <dt class="mono">Envío</dt><dd>Despacho a toda Colombia · Coordinar por WhatsApp</dd>
+    <dt class="mono">Garantía</dt><dd>6 meses por defectos de fábrica</dd>
+  </dl>
+</div>
+
+<style>
+  .pdp-info {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .pdp-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pdp-title {
+    font-size: clamp(36px, 4vw, 56px);
+    margin: 0;
+    color: var(--fg);
+  }
+  .pdp-short {
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    margin: 0;
+    max-width: 540px;
+  }
+  .pdp-rating { margin: -8px 0; }
+
+  .pdp-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .pdp-price {
+    font-size: 32px;
+    color: var(--fg);
+  }
+  .pdp-price-old {
+    font-size: 16px;
+    text-decoration: line-through;
+  }
+  .pdp-price-quote {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    padding: 4px 0;
+  }
+  .pdp-price-row.no-price { padding-top: 12px; padding-bottom: 4px; }
+  .pdp-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    margin-left: auto;
+  }
+  .pdp-stock-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  .pdp-stock.in .pdp-stock-dot { background: var(--positive); }
+  .pdp-stock.out .pdp-stock-dot { background: var(--warn); }
+
+  .pdp-options { display: flex; flex-direction: column; gap: 10px; }
+  .pdp-option-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .pdp-option-value { font-size: 11px; color: var(--fg); text-transform: none; }
+  .pdp-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pdp-sw {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    transition: transform .15s, outline .15s;
+    cursor: pointer;
+  }
+  .pdp-sw.active {
+    outline: 1.5px solid var(--fg);
+    outline-offset: 3px;
+  }
+  .pdp-sw:hover { transform: scale(1.04); }
+
+  .pdp-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pdp-pill {
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    font-size: 13px;
+    color: var(--fg);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .pdp-pill:hover { border-color: var(--fg); }
+  .pdp-pill.active {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+
+  .pdp-cta-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .pdp-qty {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    height: 56px;
+    overflow: hidden;
+  }
+  .pdp-qty-btn {
+    width: 44px;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 18px;
+    transition: background .15s;
+  }
+  .pdp-qty-btn:hover { background: var(--bg-soft); }
+  .pdp-qty-input {
+    width: 56px;
+    border: 0;
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    text-align: center;
+    background: transparent;
+    font-size: 14px;
+    color: var(--fg);
+    -moz-appearance: textfield;
+  }
+  .pdp-qty-input::-webkit-outer-spin-button,
+  .pdp-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .pdp-qty-input:focus { outline: none; }
+  .pdp-add { flex: 1; height: 56px; }
+
+  .pdp-feedback {
+    font-size: 12px;
+    color: var(--positive);
+    text-align: center;
+    padding: 8px;
+    background: var(--bg-tint);
+    border-radius: var(--radius-sm);
+  }
+  .pdp-feedback[hidden] { display: none; }
+
+  .pdp-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+    row-gap: 12px;
+    margin: 16px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .pdp-meta dt {
+    color: var(--fg-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+  }
+  .pdp-meta dd { margin: 0; color: var(--fg); }
+
+  @media (max-width: 720px) {
+    .pdp-cta-row { flex-direction: column; }
+    .pdp-meta { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script define:vars={{ productJson: product }}>
+  (() => {
+    const info = document.querySelector('[data-product-info]');
+    if (!info) return;
+
+    const productData = productJson;
+    const qtyInput = info.querySelector('[data-qty-input]');
+    const qtyMinus = info.querySelector('[data-qty-minus]');
+    const qtyPlus = info.querySelector('[data-qty-plus]');
+    const addBtn = info.querySelector('[data-add-to-cart]');
+    const feedback = info.querySelector('[data-cart-feedback]');
+    const currentPriceEl = info.querySelector('[data-current-price]');
+    const comparePriceEl = info.querySelector('[data-compare-price]');
+
+    const selected = {};
+    const groups = info.querySelectorAll('[data-option-group]');
+    groups.forEach((group) => {
+      const name = group.dataset.optionName;
+      const firstBtn = group.querySelector('[data-option-buttons] button');
+      if (firstBtn) selected[name] = firstBtn.dataset.optionValue;
+    });
+
+    function getQty() { return Math.max(1, parseInt(qtyInput?.value ?? '1', 10) || 1); }
+    function setQty(v) {
+      const next = Math.max(1, Math.min(99, v));
+      if (qtyInput) qtyInput.value = String(next);
+    }
+
+    function findVariant() {
+      return productData.variants.find((v) =>
+        v.selectedOptions.every((opt) => selected[opt.name] === opt.value)
+      );
+    }
+
+    function fmt(amount, currency) {
+      const zeroDecimalCurrencies = new Set(['BIF','CLP','COP','DJF','GNF','JPY','KMF','KRW','MGA','PYG','RWF','UGX','VND','VUV','XAF','XOF','XPF']);
+      const fractionDigits = zeroDecimalCurrencies.has(String(currency || 'COP').toUpperCase()) ? 0 : 2;
+      return new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: currency || 'COP',
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits,
+      }).format(parseFloat(amount));
+    }
+
+    function applyVariant(variant) {
+      if (!variant) return;
+      if (currentPriceEl) currentPriceEl.textContent = fmt(variant.price.amount, variant.price.currencyCode);
+      if (comparePriceEl) {
+        if (variant.compareAtPrice) {
+          comparePriceEl.textContent = fmt(variant.compareAtPrice.amount, variant.compareAtPrice.currencyCode);
+          comparePriceEl.hidden = false;
+        } else {
+          comparePriceEl.hidden = true;
+        }
+      }
+      if (variant.image?.url) {
+        document.dispatchEvent(new CustomEvent('product-gallery-select', { detail: { url: variant.image.url } }));
+      }
+      if (addBtn) {
+        addBtn.dataset.variantId = variant.id;
+        addBtn.disabled = !variant.availableForSale;
+        addBtn.textContent = variant.availableForSale ? 'Agregar al Carrito' : 'Agotado';
+      }
+    }
+
+    groups.forEach((group) => {
+      const name = group.dataset.optionName;
+      const buttons = group.querySelectorAll('[data-option-buttons] button');
+      const display = group.querySelector('[data-option-current]');
+      buttons.forEach((b) => {
+        b.addEventListener('click', () => {
+          selected[name] = b.dataset.optionValue;
+          buttons.forEach((x) => x.classList.toggle('active', x === b));
+          if (display) display.textContent = selected[name];
+          const v = findVariant();
+          if (v) applyVariant(v);
+        });
+      });
+    });
+
+    qtyMinus?.addEventListener('click', () => setQty(getQty() - 1));
+    qtyPlus?.addEventListener('click', () => setQty(getQty() + 1));
+
+    addBtn?.addEventListener('click', async () => {
+      const vid = addBtn.dataset.variantId;
+      if (!vid) return;
+      addBtn.disabled = true;
+      const original = addBtn.textContent;
+      addBtn.textContent = 'Agregando…';
+
+      const v = findVariant() ?? productData.variants[0];
+
+      const onSuccess = () => {
+        if (window.dataLayer && v) {
+          window.dataLayer.push({
+            event: 'add_to_cart',
+            ecommerce: {
+              currency: v.price.currencyCode,
+              value: parseFloat(v.price.amount) * getQty(),
+              items: [{
+                item_id: v.id,
+                item_name: productData.title,
+                item_brand: productData.vendor,
+                item_category: productData.productType,
+                price: parseFloat(v.price.amount),
+                quantity: getQty(),
+              }],
+            },
+          });
+        }
+        if (feedback) {
+          feedback.hidden = false;
+          setTimeout(() => { feedback.hidden = true; }, 2000);
+        }
+        addBtn.textContent = original;
+        addBtn.disabled = !productData.availableForSale;
+      };
+
+      const onError = (err) => {
+        console.error('[ProductInfo] addToCart failed', err);
+        addBtn.textContent = 'Error';
+        setTimeout(() => { addBtn.textContent = original; }, 2000);
+        addBtn.disabled = !productData.availableForSale;
+      };
+
+      document.dispatchEvent(new CustomEvent('cart-add-request', {
+        detail: { variantId: vid, quantity: getQty(), onSuccess, onError },
+      }));
+    });
+  })();
+</script>

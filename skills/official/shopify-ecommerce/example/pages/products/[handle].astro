@@ -1,0 +1,92 @@
+---
+import type { Product, Collection } from '../../lib/product-mapper';
+import { fetchAllProducts, fetchAllCollections } from '../../lib/shopify-fetch';
+import { mapShopifyProduct, mapShopifyCollection } from '../../lib/product-mapper';
+import StoreHeader from '../../components/layout/StoreHeader.astro';
+import StoreFooter from '../../components/layout/StoreFooter.astro';
+import SearchOverlay from '../../components/layout/SearchOverlay.astro';
+import CartDrawer from '../../components/cart/CartDrawer.astro';
+import ProductGallery from '../../components/product/ProductGallery.astro';
+import ProductInfo from '../../components/product/ProductInfo.astro';
+import ProductSchema from '../../components/product/ProductSchema.astro';
+import ProductBreadcrumb from '../../components/seo/ProductBreadcrumb.astro';
+import OrganizationSchema from '../../components/seo/OrganizationSchema.astro';
+import LittledataPixel from '../../components/tracking/LittledataPixel.astro';
+import GTMSetup from '../../components/tracking/GTMSetup.astro';
+
+const options = {
+  storeDomain: import.meta.env.SHOPIFY_STORE_DOMAIN,
+  storefrontAccessToken: import.meta.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+  apiVersion: import.meta.env.SHOPIFY_API_VERSION ?? '2026-04',
+};
+
+export async function getStaticPaths() {
+  const [rawProducts, rawCollections] = await Promise.all([
+    fetchAllProducts(options),
+    fetchAllCollections(options),
+  ]);
+
+  const products = rawProducts.map(mapShopifyProduct);
+  const allCollections = rawCollections.map(mapShopifyCollection);
+
+  return products.map((product: Product) => ({
+    params: { handle: product.handle },
+    props: { product, allCollections },
+  }));
+}
+
+const { product, allCollections } = Astro.props;
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Tienda', href: '/store' },
+  ...(product.collections.length > 0 ? [{ name: product.collections[0], href: `/store/${product.collections[0]}` }] : []),
+  { name: product.title },
+];
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{product.seo.title || `${product.title} — Tu Tienda`}</title>
+  <meta name="description" content={product.seo.description || product.description.slice(0, 160)} />
+  <link rel="canonical" href={`${Astro.site?.origin ?? ''}/products/${product.handle}`} />
+  <meta property="og:type" content="product" />
+  <meta property="product:price:amount" content={product.variants[0]?.price.amount ?? '0'} />
+  <meta property="product:price:currency" content={product.variants[0]?.price.currencyCode ?? 'USD'} />
+  {product.featuredImage && <meta property="og:image" content={product.featuredImage.url} />}
+  <ProductSchema product={product} url={`${Astro.site?.origin ?? ''}/products/${product.handle}`} />
+  <OrganizationSchema
+    name="Tu Tienda"
+    url={Astro.site?.origin ?? ''}
+    logo="/logo.svg"
+    description="Premium hardware and electronics with radical transparency."
+  />
+  <LittledataPixel trackerId={import.meta.env.LITTLEDATA_TRACKER_ID ?? ''} />
+  <GTMSetup containerId={import.meta.env.GTM_CONTAINER_ID ?? ''} />
+</head>
+<body class="bg-white text-gray-900 antialiased">
+  <StoreHeader collections={allCollections} />
+  <SearchOverlay collections={allCollections} />
+  <CartDrawer />
+
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <ProductBreadcrumb items={breadcrumbs} />
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-8">
+      <ProductGallery images={product.images} />
+      <ProductInfo product={product} />
+    </div>
+
+    <div class="mt-16 border-t border-gray-200 pt-12">
+      <div class="max-w-3xl">
+        <h2 class="text-xl font-bold mb-4">Descripcion</h2>
+        <div class="prose prose-gray max-w-none" set:html={product.descriptionHtml} />
+      </div>
+    </div>
+  </main>
+
+  <StoreFooter collections={allCollections} />
+</body>
+</html>

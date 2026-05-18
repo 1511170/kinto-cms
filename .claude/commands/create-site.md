@@ -1,21 +1,24 @@
 # /create-site
 
-Create a new KINTO CMS client site with base setup
+Crea un sitio nuevo de KINTO CMS desde un template.
 
-## Usage
+## Uso
+
 ```
-/create-site <site-name>
+/create-site <nombre> [static|ecommerce]
 ```
 
-## What it does
-1. Runs `./kinto create-site <site-name>`
-2. cd into `sites/<site-name>/`
-3. Installs base skill: `node scripts/skill-add.js cms-sveltia`
-4. Runs `npm install`
-5. Scaffolds a basic `src/pages/index.astro` with Layout
-6. Runs `npm run build` to verify
+## Qué hace
 
-## Example
+1. Ejecuta `kinto create-site <nombre> --template=<static|ecommerce>`
+2. Ejecuta `npm install` dentro de `sites/<nombre>/`
+3. Para `static`: sugiere `kinto skill add cms-sveltia`
+4. Para `ecommerce`: recuerda copiar `.env.example` a `.env` (credenciales Shopify)
+5. Ejecuta `kinto build --site=<nombre>` para verificar
+
+## Ejemplo
+
 ```
-/create-site acme-corp
+/create-site acme-corp static
+/create-site mi-tienda ecommerce
 ```

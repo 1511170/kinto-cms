@@ -1,0 +1,18 @@
+---
+interface Props {
+  trackerId?: string;
+}
+
+const { trackerId } = Astro.props;
+const enabled =
+  typeof trackerId === 'string' &&
+  trackerId.trim().length > 0 &&
+  !trackerId.trim().startsWith('REPLACE_ME');
+---
+
+{enabled && (
+  <script
+    src={`https://scripts.littledata.io/track/${trackerId}.js`}
+    async
+  ></script>
+)}

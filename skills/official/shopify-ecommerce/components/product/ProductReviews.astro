@@ -1,0 +1,112 @@
+---
+import type { ReviewEntry } from '../../lib/product-mapper';
+import Stars from './Stars.astro';
+
+interface Props {
+  reviews?: ReviewEntry[];
+  rating?: number;
+}
+
+const { reviews = [], rating: ratingProp } = Astro.props;
+const hasReviews = reviews.length > 0;
+
+const computedRating = hasReviews
+  ? reviews.reduce((sum, r) => sum + (r.rating ?? 0), 0) / reviews.length
+  : (ratingProp ?? 0);
+
+const distribution = [5, 4, 3, 2, 1].map((star) => {
+  const count = reviews.filter((r) => Math.round(r.rating) === star).length;
+  const pct = hasReviews ? (count / reviews.length) * 100 : 0;
+  return { star, count, pct };
+});
+---
+
+{hasReviews ? (
+  <div class="pdp-reviews">
+    <div class="pdp-reviews-summary">
+      <div class="pdp-reviews-score">
+        <span class="h-display pdp-reviews-rating">{computedRating.toFixed(1)}</span>
+        <Stars rating={computedRating} size={16} />
+        <span class="muted mono pdp-reviews-count">{reviews.length} reviews</span>
+      </div>
+      <div class="pdp-reviews-dist">
+        {distribution.map((d) => (
+          <div class="pdp-dist-row">
+            <span class="mono pdp-dist-label">{d.star}★</span>
+            <div class="pdp-dist-bar"><span class="pdp-dist-fill" style={`width:${d.pct}%`}></span></div>
+            <span class="mono pdp-dist-count">{d.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <ul class="pdp-reviews-list">
+      {reviews.map((r) => (
+        <li class="pdp-review">
+          <div class="pdp-review-head">
+            <Stars rating={r.rating} size={12} />
+            <span class="pdp-review-author">{r.author}</span>
+            {r.verified && <span class="pdp-review-verified mono">Verificado</span>}
+            {r.date && <span class="muted mono pdp-review-date">{r.date}</span>}
+          </div>
+          <p class="pdp-review-text">{r.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+) : (
+  <p class="muted">No hay reviews todavía para este producto.</p>
+)}
+
+<style>
+  .pdp-reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .pdp-reviews-summary {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 48px;
+    align-items: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .pdp-reviews-score { display: flex; flex-direction: column; gap: 6px; }
+  .pdp-reviews-rating { font-size: 56px; line-height: 1; }
+  .pdp-reviews-count { font-size: 11px; }
+  .pdp-reviews-dist { display: flex; flex-direction: column; gap: 6px; max-width: 320px; }
+  .pdp-dist-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 32px;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+  }
+  .pdp-dist-bar {
+    height: 6px;
+    background: var(--bg-soft);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .pdp-dist-fill { display: block; height: 100%; background: var(--fg); }
+  .pdp-dist-count { text-align: right; color: var(--fg-muted); }
+  .pdp-reviews-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 24px; }
+  .pdp-review { display: flex; flex-direction: column; gap: 8px; }
+  .pdp-review-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pdp-review-author { font-size: 13px; font-weight: 500; }
+  .pdp-review-verified {
+    background: var(--accent-2);
+    color: var(--bg);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+  }
+  .pdp-review-date { font-size: 11px; }
+  .pdp-review-text { font-size: 14px; line-height: 1.6; margin: 0; color: var(--fg); }
+  @media (max-width: 720px) {
+    .pdp-reviews-summary { grid-template-columns: 1fr; gap: 24px; }
+  }
+</style>

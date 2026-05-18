@@ -1,0 +1,57 @@
+---
+interface Props {
+  measurementId?: string;
+  forwardDataLayerEvents?: boolean;
+}
+
+const { measurementId, forwardDataLayerEvents = true } = Astro.props;
+const enabled = typeof measurementId === 'string' && measurementId.trim().length > 0;
+---
+
+{enabled && (
+  <>
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}></script>
+    <script is:inline define:vars={{ gaMeasurementId: measurementId, forwardDataLayerEvents }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ window.dataLayer.push(arguments); }
+      window.gtag = window.gtag || gtag;
+
+      window.gtag('js', new Date());
+      window.gtag('config', gaMeasurementId);
+
+      if (forwardDataLayerEvents && !window.__kinto_ga4_data_layer_bridge) {
+        window.__kinto_ga4_data_layer_bridge = true;
+
+        const ga4Events = new Set([
+          'view_item',
+          'view_item_list',
+          'add_to_cart',
+          'remove_from_cart',
+          'begin_checkout',
+          'whatsapp_click_floating',
+          'whatsapp_click_product',
+        ]);
+
+        const originalPush = window.dataLayer.push.bind(window.dataLayer);
+        window.dataLayer.push = function (...items) {
+          const result = originalPush(...items);
+
+          for (const item of items) {
+            if (!item || typeof item !== 'object' || typeof item.event !== 'string') continue;
+            if (!ga4Events.has(item.event)) continue;
+
+            const params = item.ecommerce && typeof item.ecommerce === 'object'
+              ? { ...item.ecommerce }
+              : { ...item };
+            delete params.event;
+            delete params.ecommerce;
+
+            window.gtag('event', item.event, params);
+          }
+
+          return result;
+        };
+      }
+    </script>
+  </>
+)}
