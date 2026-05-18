@@ -1,0 +1,227 @@
+/*
+ * shopify-ecommerce design tokens
+ * Source: KINTO ecommerce design tokens — paleta cálida + tipografía Inter Tight / Inter / JetBrains Mono
+ * Sites pueden override estos vars en :root local para personalizar el storefront.
+ */
+
+:root {
+  /* Colors */
+  --bg: #ffffff;
+  --bg-soft: #f5f3ee;
+  --bg-tint: #faf8f3;
+  --fg: #0e0e0e;
+  --fg-muted: #6e6c66;
+  --fg-faint: #aeaba2;
+  --line: #e6e3da;
+  --line-strong: #cfcbbe;
+  --accent: #1f1f1f;
+  --accent-2: #3d5a3d;
+  --positive: #3d5a3d;
+  --warn: #a14b2e;
+
+  /* Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.08);
+
+  /* Fonts */
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono:
+    "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Card variant */
+  --card-style: minimal;
+}
+
+/* === Base === */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* === Typography utility classes === */
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+.h-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "zero", "ss01";
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.muted {
+  color: var(--fg-muted);
+}
+.faint {
+  color: var(--fg-faint);
+}
+
+/* === Layout shell === */
+.shell {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+@media (max-width: 720px) {
+  .shell {
+    padding: 0 20px;
+  }
+}
+
+.section {
+  padding: 96px 0;
+}
+.section-tight {
+  padding: 56px 0;
+}
+@media (max-width: 720px) {
+  .section {
+    padding: 64px 0;
+  }
+  .section-tight {
+    padding: 40px 0;
+  }
+}
+
+/* === Buttons base === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+.btn:hover {
+  opacity: 0.9;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--line-strong);
+}
+.btn-ghost:hover {
+  background: var(--bg-soft);
+  border-color: var(--fg);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.btn-lg {
+  height: 56px;
+  padding: 0 24px;
+  font-size: 14px;
+}
+
+/* === Section heads === */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(28px, 3vw, 40px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+/* === Animations === */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

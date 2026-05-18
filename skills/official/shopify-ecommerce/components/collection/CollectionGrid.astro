@@ -1,0 +1,458 @@
+---
+import type { Product } from '../../lib/product-mapper';
+import ProductCard from '../product/ProductCard.astro';
+import CollectionFilters from './CollectionFilters.astro';
+import SortDropdown from './SortDropdown.astro';
+import CategoryChips from './CategoryChips.astro';
+
+interface Props {
+  products: Product[];
+  showFilters?: boolean;
+  currency?: string;
+  locale?: string;
+  cardStyle?: 'minimal' | 'framed' | 'tile';
+  pageSize?: number;
+}
+
+const { products, showFilters = true, currency = 'COP', locale = 'es-CO', cardStyle = 'minimal', pageSize } = Astro.props;
+
+const EXCLUDE_BRAND_HANDLES = new Set(['frontpage', 'home-page', 'home', 'all', '']);
+function categoryOf(p: import('../../lib/product-mapper').Product): string {
+  if (p.productType?.trim()) return p.productType.trim();
+  if (p.tags?.length) return p.tags[0];
+  return '';
+}
+function brandOf(p: import('../../lib/product-mapper').Product): string {
+  if (p.vendor?.trim() && p.vendor.trim().toLowerCase() !== (import.meta.env.SHOPIFY_HOUSE_VENDOR ?? '').toLowerCase()) return p.vendor.trim();
+  const col = (p.collections ?? []).find((h) => !EXCLUDE_BRAND_HANDLES.has(h.toLowerCase()));
+  if (col) return col;
+  return p.vendor?.trim() ?? '';
+}
+
+function dataList(values: Array<string | number | undefined> | undefined): string {
+  return (values ?? [])
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join('||');
+}
+
+const catCounts: Record<string, number> = {};
+for (const p of products) {
+  const c = categoryOf(p);
+  if (c) catCounts[c] = (catCounts[c] ?? 0) + 1;
+}
+const topCategories = Object.entries(catCounts)
+  .sort(([, a], [, b]) => b - a)
+  .slice(0, 8)
+  .map(([name, count]) => ({ value: name, label: name, count }));
+---
+
+<section class="collection-section">
+  <div class={`collection-layout ${showFilters ? 'has-filters' : ''}`}>
+    {showFilters && (
+      <div class="collection-sidebar">
+        <CollectionFilters products={products} currency={currency} locale={locale} />
+      </div>
+    )}
+
+    <div class="collection-content" data-collection-content>
+      {topCategories.length > 1 && (
+        <div class="collection-chips">
+          <CategoryChips chips={topCategories} active={null} param="cat" />
+        </div>
+      )}
+
+      <div class="collection-bar">
+        <span class="mono collection-count">
+          <span data-results-count>{products.length}</span> de {products.length} productos
+        </span>
+        <SortDropdown initial="relevance" />
+      </div>
+
+      <div class="collection-grid" data-grid>
+        {products.map((p) => (
+          <article
+            class="collection-grid-item"
+            data-grid-item
+            data-handle={p.handle}
+            data-category={categoryOf(p)}
+            data-brand={brandOf(p)}
+            data-application={dataList(p.metafields?.application)}
+            data-environment={dataList(p.metafields?.environment)}
+            data-band={dataList(p.metafields?.band)}
+            data-wifi-standard={dataList(p.metafields?.wifiStandard)}
+            data-ethernet-ports={dataList(p.metafields?.ethernetPorts === undefined ? [] : [p.metafields.ethernetPorts])}
+            data-sfp-ports={dataList(p.metafields?.sfpPorts === undefined ? [] : [p.metafields.sfpPorts])}
+            data-poe={dataList(p.metafields?.poe)}
+            data-topology={dataList(p.metafields?.topology)}
+            data-radio-type={dataList(p.metafields?.radioType)}
+            data-mimo={dataList(p.metafields?.mimo)}
+            data-switch-layer={dataList(p.metafields?.switchLayer)}
+            data-mounting={dataList(p.metafields?.mounting)}
+            data-price={parseFloat(p.variants[0]?.price.amount ?? '0')}
+            data-compare={p.variants[0]?.compareAtPrice ? parseFloat(p.variants[0].compareAtPrice.amount) : ''}
+            data-available={p.availableForSale ? '1' : '0'}
+            data-title={p.title}
+          >
+            <ProductCard product={p} cardStyle={cardStyle} locale={locale} />
+          </article>
+        ))}
+      </div>
+
+      <div class="collection-empty" data-empty hidden>
+        <p class="muted">No hay productos que coincidan con tus filtros.</p>
+        <button class="btn btn-ghost btn-sm" data-empty-clear>Limpiar filtros</button>
+      </div>
+
+      {pageSize && pageSize > 0 && products.length > pageSize && (
+        <nav class="pagination" data-pagination aria-label="Paginación" data-page-size={pageSize} data-total-items={products.length}>
+          <a class="page-link" data-page-prev href="#">← Anterior</a>
+          <div class="page-numbers" data-page-numbers></div>
+          <a class="page-link" data-page-next href="#">Siguiente →</a>
+        </nav>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .collection-section { padding: 24px 0 64px; }
+  .collection-layout { display: grid; gap: 48px; }
+  .collection-layout.has-filters { grid-template-columns: 240px 1fr; }
+  .collection-sidebar {
+    position: sticky;
+    top: 96px;
+    align-self: start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+  .collection-content { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+  .collection-chips { padding-bottom: 4px; }
+  .collection-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .collection-count {
+    font-size: 11px;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .collection-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px 24px;
+  }
+  .collection-grid-item.hidden { display: none; }
+  .collection-grid-item.paginated-out { display: none; }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 40px 0; }
+  .page-link, .page-num { padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 13px; color: var(--fg); text-decoration: none; transition: all .15s; cursor: pointer; }
+  .page-link:hover, .page-num:hover { border-color: var(--fg); }
+  .page-num.active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .page-link.disabled { opacity: 0.4; pointer-events: none; }
+  .page-ellipsis { color: var(--fg-muted); padding: 0 4px; }
+  .collection-empty {
+    padding: 64px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  @media (max-width: 1100px) { .collection-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 900px) {
+    .collection-layout.has-filters { grid-template-columns: 1fr; }
+    .collection-sidebar { position: static; max-height: none; }
+  }
+  @media (max-width: 720px) {
+    .collection-grid { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; }
+  }
+</style>
+
+<script>
+  import {
+    type ListingFilters,
+    createDefaultFilters,
+    readFiltersFromURL,
+    writeFiltersToURL,
+    debounce,
+  } from '../../lib/filters-client';
+
+  function init(root: HTMLElement) {
+    const grid = root.querySelector<HTMLElement>('[data-grid]');
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-grid-item]'));
+    const countEl = root.querySelector<HTMLElement>('[data-results-count]');
+    const emptyEl = root.querySelector<HTMLElement>('[data-empty]');
+    const paginationEl = root.querySelector<HTMLElement>('[data-pagination]');
+    const pageSize = paginationEl ? parseInt(paginationEl.dataset.pageSize ?? '0', 10) : 0;
+    let currentPage = 1;
+    if (!grid) return;
+
+    let filters: ListingFilters = readFiltersFromURL();
+
+    const technicalFilterKeys: Array<keyof Pick<
+      ListingFilters,
+      | 'application'
+      | 'environment'
+      | 'band'
+      | 'wifiStandard'
+      | 'ethernetPorts'
+      | 'sfpPorts'
+      | 'poe'
+      | 'topology'
+      | 'radioType'
+      | 'mimo'
+      | 'switchLayer'
+      | 'mounting'
+    >> = [
+      'application',
+      'environment',
+      'band',
+      'wifiStandard',
+      'ethernetPorts',
+      'sfpPorts',
+      'poe',
+      'topology',
+      'radioType',
+      'mimo',
+      'switchLayer',
+      'mounting',
+    ];
+
+    function hasSelectedValue(raw: string | undefined, selected: string[]) {
+      if (!selected.length) return true;
+      const values = new Set((raw ?? '').split('||').map((v) => v.toLowerCase()).filter(Boolean));
+      return selected.some((value) => values.has(value.toLowerCase()));
+    }
+
+    function apply() {
+      let visible = 0;
+      for (const it of items) {
+        const cat = (it.dataset.category ?? '').toLowerCase();
+        const brand = (it.dataset.brand ?? '').toLowerCase();
+        const price = Number(it.dataset.price ?? 0);
+        const compare = it.dataset.compare ? Number(it.dataset.compare) : null;
+        const available = it.dataset.available === '1';
+
+        let show = true;
+        if (filters.category.length && !filters.category.map((c) => c.toLowerCase()).includes(cat)) show = false;
+        if (filters.brand.length && !filters.brand.map((b) => b.toLowerCase()).includes(brand)) show = false;
+        if (!hasSelectedValue(it.dataset.application, filters.application)) show = false;
+        if (!hasSelectedValue(it.dataset.environment, filters.environment)) show = false;
+        if (!hasSelectedValue(it.dataset.band, filters.band)) show = false;
+        if (!hasSelectedValue(it.dataset.wifiStandard, filters.wifiStandard)) show = false;
+        if (!hasSelectedValue(it.dataset.ethernetPorts, filters.ethernetPorts)) show = false;
+        if (!hasSelectedValue(it.dataset.sfpPorts, filters.sfpPorts)) show = false;
+        if (!hasSelectedValue(it.dataset.poe, filters.poe)) show = false;
+        if (!hasSelectedValue(it.dataset.topology, filters.topology)) show = false;
+        if (!hasSelectedValue(it.dataset.radioType, filters.radioType)) show = false;
+        if (!hasSelectedValue(it.dataset.mimo, filters.mimo)) show = false;
+        if (!hasSelectedValue(it.dataset.switchLayer, filters.switchLayer)) show = false;
+        if (!hasSelectedValue(it.dataset.mounting, filters.mounting)) show = false;
+        if (filters.priceMin !== undefined && price < filters.priceMin) show = false;
+        if (filters.priceMax !== undefined && price > filters.priceMax) show = false;
+        if (filters.inStockOnly && !available) show = false;
+        if (filters.saleOnly && !(compare && compare > price)) show = false;
+
+        it.classList.toggle('hidden', !show);
+        if (show) visible++;
+      }
+
+      if (countEl) countEl.textContent = String(visible);
+      if (emptyEl) {
+        if (visible === 0) emptyEl.removeAttribute('hidden');
+        else emptyEl.setAttribute('hidden', '');
+      }
+
+      const visibleItems = items.filter((it) => !it.classList.contains('hidden'));
+      const sorted = visibleItems.slice().sort((a, b) => {
+        switch (filters.sort) {
+          case 'price-asc': return Number(a.dataset.price) - Number(b.dataset.price);
+          case 'price-desc': return Number(b.dataset.price) - Number(a.dataset.price);
+          case 'name-asc': return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
+          default: return 0;
+        }
+      });
+      sorted.forEach((it) => grid.appendChild(it));
+
+      if (pageSize && pageSize > 0) {
+        currentPage = 1;
+        updatePagination(visibleItems.length);
+      }
+
+      writeFiltersToURL(filters);
+    }
+
+    function updatePagination(totalVisible: number) {
+      if (!paginationEl) return;
+      const totalPages = Math.ceil(totalVisible / pageSize) || 1;
+      const prevBtn = paginationEl.querySelector<HTMLElement>('[data-page-prev]');
+      const nextBtn = paginationEl.querySelector<HTMLElement>('[data-page-next]');
+      const numbersEl = paginationEl.querySelector<HTMLElement>('[data-page-numbers]');
+      if (!numbersEl) return;
+
+      const visibleItems = items.filter((it) => !it.classList.contains('hidden'));
+      visibleItems.forEach((it, idx) => {
+        const onPage = Math.floor(idx / pageSize) + 1;
+        it.classList.toggle('paginated-out', onPage !== currentPage);
+      });
+
+      if (prevBtn) {
+        prevBtn.classList.toggle('disabled', currentPage === 1);
+        prevBtn.setAttribute('aria-disabled', String(currentPage === 1));
+      }
+      if (nextBtn) {
+        nextBtn.classList.toggle('disabled', currentPage === totalPages);
+        nextBtn.setAttribute('aria-disabled', String(currentPage === totalPages));
+      }
+
+      const pages: (number | string)[] = [];
+      const maxVisible = 5;
+      if (totalPages <= maxVisible) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        let start = Math.max(2, currentPage - 1);
+        let end = Math.min(totalPages - 1, currentPage + 1);
+        if (currentPage <= 3) { start = 2; end = Math.min(totalPages - 1, 4); }
+        if (currentPage >= totalPages - 2) { start = Math.max(2, totalPages - 3); end = totalPages - 1; }
+        if (start > 2) pages.push('...');
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (end < totalPages - 1) pages.push('...');
+        pages.push(totalPages);
+      }
+
+      numbersEl.innerHTML = '';
+      for (const p of pages) {
+        if (p === '...') {
+          const span = document.createElement('span');
+          span.className = 'page-ellipsis';
+          span.textContent = '…';
+          numbersEl.appendChild(span);
+        } else {
+          const a = document.createElement('a');
+          a.className = `page-num ${p === currentPage ? 'active' : ''}`;
+          a.href = '#';
+          a.textContent = String(p);
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentPage = p as number;
+            updatePagination(totalVisible);
+          });
+          numbersEl.appendChild(a);
+        }
+      }
+    }
+
+    if (paginationEl && pageSize > 0) {
+      paginationEl.querySelector<HTMLElement>('[data-page-prev]')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage > 1) { currentPage--; updatePagination(items.filter((it) => !it.classList.contains('hidden')).length); }
+      });
+      paginationEl.querySelector<HTMLElement>('[data-page-next]')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const totalPages = Math.ceil(items.filter((it) => !it.classList.contains('hidden')).length / pageSize) || 1;
+        if (currentPage < totalPages) { currentPage++; updatePagination(items.filter((it) => !it.classList.contains('hidden')).length); }
+      });
+    }
+
+    const applyDebounced = debounce(apply, 50);
+
+    root.querySelectorAll<HTMLInputElement>('[data-filter-category]').forEach((cb) => {
+      const cat = cb.dataset.filterCategory!;
+      cb.checked = filters.category.includes(cat);
+      cb.addEventListener('change', () => {
+        if (cb.checked) {
+          if (!filters.category.includes(cat)) filters.category.push(cat);
+        } else {
+          filters.category = filters.category.filter((c) => c !== cat);
+        }
+        applyDebounced();
+      });
+    });
+
+    root.querySelectorAll<HTMLInputElement>('[data-filter-brand]').forEach((cb) => {
+      const brand = cb.dataset.filterBrand!;
+      cb.checked = filters.brand.includes(brand);
+      cb.addEventListener('change', () => {
+        if (cb.checked) {
+          if (!filters.brand.includes(brand)) filters.brand.push(brand);
+        } else {
+          filters.brand = filters.brand.filter((b) => b !== brand);
+        }
+        applyDebounced();
+      });
+    });
+
+    root.querySelectorAll<HTMLInputElement>('[data-filter-tech-key]').forEach((cb) => {
+      const key = cb.dataset.filterTechKey as (typeof technicalFilterKeys)[number] | undefined;
+      const value = cb.dataset.filterTechValue ?? '';
+      if (!key || !technicalFilterKeys.includes(key)) return;
+      cb.checked = filters[key].includes(value);
+      cb.addEventListener('change', () => {
+        if (cb.checked) {
+          if (!filters[key].includes(value)) filters[key].push(value);
+        } else {
+          filters[key] = filters[key].filter((current) => current !== value);
+        }
+        applyDebounced();
+      });
+    });
+
+    const stockCb = root.querySelector<HTMLInputElement>('[data-filter-stock]');
+    if (stockCb) {
+      stockCb.checked = filters.inStockOnly;
+      stockCb.addEventListener('change', () => { filters.inStockOnly = stockCb.checked; applyDebounced(); });
+    }
+    const saleCb = root.querySelector<HTMLInputElement>('[data-filter-sale]');
+    if (saleCb) {
+      saleCb.checked = filters.saleOnly;
+      saleCb.addEventListener('change', () => { filters.saleOnly = saleCb.checked; applyDebounced(); });
+    }
+
+    root.addEventListener('price-change', ((e: CustomEvent) => {
+      filters.priceMin = e.detail.min;
+      filters.priceMax = e.detail.max;
+      applyDebounced();
+    }) as EventListener);
+
+    root.addEventListener('sort-change', ((e: CustomEvent) => {
+      filters.sort = e.detail.sort;
+      applyDebounced();
+    }) as EventListener);
+
+    root.querySelectorAll<HTMLButtonElement>('[data-chip-value]').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const value = chip.dataset.chipValue ?? '';
+        filters.category = value === '' ? [] : [value];
+        root.querySelectorAll<HTMLButtonElement>('[data-chip-value]').forEach((c) => {
+          c.classList.toggle('active', (c.dataset.chipValue ?? '') === value);
+        });
+        root.querySelectorAll<HTMLInputElement>('[data-filter-category]').forEach((cb) => {
+          cb.checked = filters.category.includes(cb.dataset.filterCategory!);
+        });
+        applyDebounced();
+      });
+    });
+
+    const clearBtn = root.querySelector<HTMLButtonElement>('[data-filters-clear]');
+    const clearEmpty = root.querySelector<HTMLButtonElement>('[data-empty-clear]');
+    function clearAll() {
+      filters = createDefaultFilters();
+      root.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
+      apply();
+    }
+    clearBtn?.addEventListener('click', clearAll);
+    clearEmpty?.addEventListener('click', clearAll);
+
+    apply();
+  }
+
+  document.querySelectorAll<HTMLElement>('.collection-section').forEach(init);
+</script>

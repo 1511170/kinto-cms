@@ -1,0 +1,107 @@
+---
+import type { Collection } from '../../lib/product-mapper';
+import { shopifyImageUrl, IMAGE_SIZES } from '../../lib/shopify-image';
+
+interface Props {
+  collection: Collection;
+  productCount?: number;
+  index?: number;
+  tagline?: string;
+}
+
+const { collection, productCount, index = 0, tagline } = Astro.props;
+const dark = index % 3 === 1;
+---
+
+<a class={`coll-tile ${dark ? 'dark' : ''}`} href={`/store/${collection.handle}`}>
+  <div class="coll-tile-content">
+    <span class="eyebrow">Colección · {String(index + 1).padStart(2, '0')}</span>
+    <h3 class="coll-tile-name h-display">{collection.title}</h3>
+    {tagline && <p class="coll-tile-tagline muted">{tagline}</p>}
+    {productCount !== undefined && (
+      <span class="mono coll-tile-meta">{productCount} productos</span>
+    )}
+  </div>
+  {collection.image ? (
+    <div class="coll-tile-image">
+      <img src={shopifyImageUrl(collection.image.url, IMAGE_SIZES.card)} alt={collection.image.altText ?? collection.title} loading="lazy" />
+    </div>
+  ) : (
+    <div class="coll-tile-placeholder" aria-hidden="true"></div>
+  )}
+</a>
+
+<style>
+  .coll-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    aspect-ratio: 16 / 10;
+    padding: 28px;
+    background: var(--bg-soft);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    color: var(--fg);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .coll-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .coll-tile.dark {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .coll-tile.dark .eyebrow { color: rgba(255,255,255,0.6); }
+  .coll-tile.dark .coll-tile-tagline { color: rgba(255,255,255,0.7); }
+  .coll-tile-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 60%;
+  }
+  .coll-tile-name {
+    font-size: clamp(28px, 3vw, 40px);
+    margin: 0;
+  }
+  .coll-tile-tagline {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .coll-tile-meta {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+  }
+  .coll-tile.dark .coll-tile-meta { color: rgba(255,255,255,0.6); }
+
+  .coll-tile-image {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 50%;
+    z-index: 1;
+  }
+  .coll-tile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .coll-tile-placeholder {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(0,0,0,0.04) 6px 7px);
+    z-index: 0;
+  }
+  .coll-tile.dark .coll-tile-placeholder {
+    background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(255,255,255,0.06) 6px 7px);
+  }
+
+  @media (max-width: 720px) {
+    .coll-tile { aspect-ratio: 4 / 3; padding: 20px; }
+    .coll-tile-content { max-width: 100%; }
+  }
+</style>

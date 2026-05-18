@@ -1,0 +1,105 @@
+---
+import type { Product } from '../../lib/product-mapper';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const faqs = product.metafields?.faqs ?? [];
+---
+
+{faqs.length > 0 ? (
+  <section class="pdp-faq" aria-label="Preguntas frecuentes">
+    {faqs.map((faq, index) => (
+      <details class="pdp-faq-item" name="product-faq">
+        <summary>
+          <span class="pdp-faq-index mono">Q{String(index + 1).padStart(2, '0')}</span>
+          <span class="pdp-faq-question">{faq.question}</span>
+          <span class="pdp-faq-mark" aria-hidden="true"></span>
+        </summary>
+        <div class="pdp-faq-answer">
+          <p>{faq.answer}</p>
+        </div>
+      </details>
+    ))}
+  </section>
+) : (
+  <p class="muted">Preguntas frecuentes no configuradas para este producto.</p>
+)}
+
+<style>
+  .pdp-faq {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--line);
+  }
+  .pdp-faq-item {
+    border-bottom: 1px solid var(--line);
+  }
+  .pdp-faq-item summary {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 54px 1fr 18px;
+    gap: 20px;
+    align-items: center;
+    min-height: 74px;
+    cursor: pointer;
+    color: var(--fg);
+  }
+  .pdp-faq-item summary::-webkit-details-marker { display: none; }
+  .pdp-faq-index {
+    font-size: 10px;
+    color: var(--fg-faint);
+    letter-spacing: 0.12em;
+  }
+  .pdp-faq-question {
+    font-family: var(--font-display);
+    font-size: 18px;
+    line-height: 1.25;
+    font-weight: 560;
+  }
+  .pdp-faq-mark {
+    width: 18px;
+    height: 18px;
+    position: relative;
+  }
+  .pdp-faq-mark::before,
+  .pdp-faq-mark::after {
+    content: '';
+    position: absolute;
+    inset: 8px 2px auto;
+    height: 1px;
+    background: currentColor;
+    transition: transform .18s ease;
+  }
+  .pdp-faq-mark::after {
+    transform: rotate(90deg);
+  }
+  .pdp-faq-item[open] .pdp-faq-mark::after {
+    transform: rotate(0deg);
+  }
+  .pdp-faq-answer {
+    max-width: 760px;
+    padding: 0 38px 26px 74px;
+  }
+  .pdp-faq-answer p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--fg-muted);
+  }
+  @media (max-width: 720px) {
+    .pdp-faq-item summary {
+      grid-template-columns: 42px 1fr 18px;
+      gap: 14px;
+      min-height: 68px;
+    }
+    .pdp-faq-question {
+      font-size: 16px;
+    }
+    .pdp-faq-answer {
+      padding: 0 0 22px 56px;
+    }
+  }
+</style>

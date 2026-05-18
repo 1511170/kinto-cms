@@ -1,0 +1,66 @@
+---
+import type { Product, Collection } from '../../lib/product-mapper';
+
+interface Props {
+  collection: Collection | null;
+  products: Product[];
+  baseUrl: string;
+  listName?: string;
+  listLimit?: number;
+}
+
+const {
+  collection,
+  products,
+  baseUrl,
+  listName,
+  listLimit = 50,
+} = Astro.props;
+
+const items = products.slice(0, listLimit).map((p, idx) => {
+  const variant = p.variants[0];
+  const priceAmt = variant?.price ? parseFloat(variant.price.amount) : 0;
+  const offer = priceAmt > 0
+    ? {
+        '@type': 'Offer',
+        url: `${baseUrl}/products/${p.handle}`,
+        priceCurrency: variant.price.currencyCode,
+        price: variant.price.amount,
+        availability: p.availableForSale
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+      }
+    : null;
+
+  const item: Record<string, any> = {
+    '@type': 'Product',
+    name: p.title,
+    url: `${baseUrl}/products/${p.handle}`,
+    sku: variant?.sku ?? p.handle,
+  };
+  if (p.featuredImage?.url) item.image = p.featuredImage.url;
+  if (p.description) item.description = p.description.slice(0, 240);
+  if (p.vendor && p.vendor.toLowerCase() !== (import.meta.env.SHOPIFY_HOUSE_VENDOR ?? '').toLowerCase()) {
+    item.brand = { '@type': 'Brand', name: p.vendor };
+  }
+  if (offer) item.offers = offer;
+
+  return {
+    '@type': 'ListItem',
+    position: idx + 1,
+    item,
+  };
+});
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: listName ?? collection?.title ?? 'Catálogo',
+  description: collection?.description ?? `Catálogo con ${products.length} productos`,
+  url: collection ? `${baseUrl}/store/${collection.handle}` : `${baseUrl}/store`,
+  numberOfItems: products.length,
+  itemListElement: items,
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

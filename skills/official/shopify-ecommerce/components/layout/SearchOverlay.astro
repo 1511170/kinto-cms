@@ -1,0 +1,355 @@
+---
+import type { Collection } from '../../lib/product-mapper';
+
+interface Props {
+  collections: Collection[];
+  suggestions?: string[];
+  popularHandles?: string[];
+}
+
+const {
+  collections,
+  suggestions = ['ubiquiti', 'mikrotik', 'tp-link', 'outdoor', 'switch', 'router', 'antena'],
+} = Astro.props;
+
+const INTERNAL_HANDLES = new Set(['frontpage', 'home-page', 'home', 'all']);
+const publicCollections = collections.filter((c) => !INTERNAL_HANDLES.has(c.handle.toLowerCase()));
+---
+
+<div data-search-overlay class="search-overlay" hidden role="dialog" aria-modal="true" aria-label="Buscar productos">
+  <div class="search-head shell">
+    <svg class="search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+    </svg>
+    <input
+      type="text"
+      data-search-input
+      class="search-input h-display"
+      placeholder="Buscar producto, marca o SKU…"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button data-search-close class="mono search-close" aria-label="Cerrar">Esc</button>
+  </div>
+
+  <div class="search-body shell">
+    <div class="search-empty-state" data-search-empty-state>
+      <div class="search-section">
+        <h3 class="eyebrow">Búsquedas populares</h3>
+        <div class="search-chips">
+          {suggestions.map((s) => (
+            <button class="search-chip" data-search-suggestion={s}>{s}</button>
+          ))}
+        </div>
+      </div>
+
+      <div class="search-section">
+        <h3 class="eyebrow">Filtrar por marca</h3>
+        <div class="search-chips">
+          <button class="search-chip active" data-search-category="all">Todas</button>
+          {publicCollections.slice(0, 8).map((col) => (
+            <button class="search-chip" data-search-category={col.handle}>{col.title}</button>
+          ))}
+        </div>
+      </div>
+
+      <div class="search-section" data-popular-section>
+        <h3 class="eyebrow">Más populares</h3>
+        <div class="search-popular-grid" data-popular-grid>
+          <p class="muted">Cargando…</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-results-state" data-search-results-state hidden>
+      <div class="search-section-head">
+        <span class="eyebrow"><span data-result-count>0</span> resultados</span>
+      </div>
+      <div class="search-results-grid" data-search-list></div>
+      <div class="search-no-results" data-search-empty hidden>
+        <p class="mono muted">Sin resultados. Probá con otra palabra.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-foot shell">
+    <span class="mono muted">
+      <kbd>↑↓</kbd> navegar · <kbd>Enter</kbd> abrir · <kbd>Esc</kbd> cerrar
+    </span>
+  </div>
+</div>
+
+<style>
+  .search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    animation: fade-up .25s ease;
+  }
+  .search-overlay[hidden] { display: none; }
+  .search-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 32px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .search-icon { color: var(--fg-muted); flex-shrink: 0; }
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    font-size: clamp(28px, 4vw, 48px);
+    color: var(--fg);
+    line-height: 1;
+    padding: 8px 0;
+    letter-spacing: -0.03em;
+  }
+  .search-input:focus { outline: none; }
+  .search-input::placeholder { color: var(--fg-faint); }
+
+  .search-close {
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+  }
+  .search-close:hover { color: var(--fg); border-color: var(--fg); }
+
+  .search-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+  }
+  .search-section { margin-bottom: 40px; }
+  .search-section .eyebrow { display: block; margin-bottom: 14px; }
+  .search-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .search-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 13px;
+    color: var(--fg);
+    cursor: pointer;
+    transition: all .15s;
+    font-family: var(--font-body);
+    text-transform: none;
+  }
+  .search-chip:hover { border-color: var(--fg); }
+  .search-chip.active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+  .search-popular-grid, .search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 900px) {
+    .search-popular-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .search-popular-grid, .search-results-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .search-section-head { margin-bottom: 16px; }
+  .search-no-results { padding: 64px 24px; text-align: center; }
+
+  .search-foot {
+    padding: 14px 32px;
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .search-foot kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-size: 9px;
+    margin: 0 2px;
+  }
+
+  /* Result item */
+  .search-result {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--fg);
+  }
+  .search-result-img {
+    aspect-ratio: 4/5;
+    background: var(--bg-soft);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .search-result-img img { width: 100%; height: 100%; object-fit: cover; }
+  .search-result-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
+  .search-result-meta { font-size: 11px; color: var(--fg-muted); }
+  .search-result.selected .search-result-img { outline: 2px solid var(--fg); outline-offset: 2px; }
+</style>
+
+<script>
+  (() => {
+    const overlay = document.querySelector<HTMLElement>('[data-search-overlay]');
+    if (!overlay) return;
+
+    const input = overlay.querySelector<HTMLInputElement>('[data-search-input]')!;
+    const closeBtn = overlay.querySelector<HTMLButtonElement>('[data-search-close]')!;
+    const emptyState = overlay.querySelector<HTMLElement>('[data-search-empty-state]')!;
+    const resultsState = overlay.querySelector<HTMLElement>('[data-search-results-state]')!;
+    const listEl = overlay.querySelector<HTMLElement>('[data-search-list]')!;
+    const popularGrid = overlay.querySelector<HTMLElement>('[data-popular-grid]')!;
+    const countEl = overlay.querySelector<HTMLElement>('[data-result-count]')!;
+    const emptyResults = overlay.querySelector<HTMLElement>('[data-search-empty]')!;
+    const chips = Array.from(overlay.querySelectorAll<HTMLButtonElement>('[data-search-category]'));
+    const suggestions = Array.from(overlay.querySelectorAll<HTMLButtonElement>('[data-search-suggestion]'));
+
+    let mini: any = null;
+    let allDocs: any[] = [];
+    let activeCategory = 'all';
+    let selectedIndex = -1;
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    function open() {
+      overlay.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+      input.focus();
+      loadIndex();
+    }
+    function close() {
+      overlay.setAttribute('hidden', '');
+      document.body.style.overflow = '';
+      input.value = '';
+      showEmptyState();
+      selectedIndex = -1;
+    }
+
+    function showEmptyState() {
+      emptyState.removeAttribute('hidden');
+      resultsState.setAttribute('hidden', '');
+    }
+    function showResultsState() {
+      emptyState.setAttribute('hidden', '');
+      resultsState.removeAttribute('hidden');
+    }
+
+    function renderCard(r: any): string {
+      const imgUrl = r.img ? r.img + (r.img.includes('cdn.shopify.com') ? '?width=80' : '') : '';
+      const img = imgUrl
+        ? `<img src="${imgUrl}" alt="" loading="lazy" />`
+        : `<div></div>`;
+      const price = r.p ? new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(r.p) : '';
+      return `
+        <a class="search-result" href="/products/${r.h}" data-result>
+          <div class="search-result-img">${img}</div>
+          <div class="search-result-name">${r.t}</div>
+          <div class="search-result-meta mono">${r.b ?? ''} · ${price}</div>
+        </a>
+      `;
+    }
+
+    async function loadIndex() {
+      if (mini) return;
+      try {
+        const res = await fetch('/search-index.json');
+        const data = await res.json();
+        const products = Array.isArray(data) ? data : (data.products ?? []);
+        allDocs = products;
+
+        // Render most popular grid (primeros 4)
+        if (popularGrid) {
+          popularGrid.innerHTML = products.slice(0, 4).map(renderCard).join('') || '<p class="muted">Sin productos</p>';
+        }
+
+        const { default: MiniSearch } = await import('minisearch');
+        mini = new MiniSearch({
+          fields: ['t', 'd', 'sku', 'b'],
+          storeFields: ['h', 't', 'p', 'img', 'b', 'c', 'col'],
+          idField: 'h',
+          searchOptions: { boost: { t: 3, sku: 2 }, fuzzy: 0.2, prefix: true },
+        });
+        mini.addAll(products);
+      } catch (err) {
+        console.warn('[SearchOverlay] No se pudo cargar /search-index.json', err);
+      }
+    }
+
+    function runSearch(query: string) {
+      if (!mini || query.length < 2) {
+        showEmptyState();
+        return;
+      }
+      let matched = mini.search(query);
+      if (activeCategory !== 'all') {
+        matched = matched.filter((r: any) => Array.isArray(r.col) && r.col.includes(activeCategory));
+      }
+      const top = matched.slice(0, 16);
+      countEl.textContent = String(top.length);
+
+      if (top.length === 0) {
+        listEl.innerHTML = '';
+        emptyResults.removeAttribute('hidden');
+      } else {
+        listEl.innerHTML = top.map(renderCard).join('');
+        emptyResults.setAttribute('hidden', '');
+      }
+      selectedIndex = -1;
+      showResultsState();
+    }
+
+    input.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => runSearch(input.value.trim()), 150);
+    });
+
+    suggestions.forEach((b) => {
+      b.addEventListener('click', () => {
+        input.value = b.dataset.searchSuggestion ?? '';
+        runSearch(input.value);
+      });
+    });
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        activeCategory = chip.dataset.searchCategory ?? 'all';
+        chips.forEach((c) => c.classList.toggle('active', c === chip));
+        if (input.value.trim().length >= 2) runSearch(input.value.trim());
+      });
+    });
+
+    overlay.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') return close();
+      const items = Array.from(listEl.querySelectorAll<HTMLAnchorElement>('[data-result]'));
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, 0);
+      } else if (e.key === 'Enter' && selectedIndex >= 0) {
+        e.preventDefault();
+        items[selectedIndex]?.click();
+        return;
+      }
+      items.forEach((it, i) => it.classList.toggle('selected', i === selectedIndex));
+    });
+
+    closeBtn?.addEventListener('click', close);
+    document.addEventListener('open-search', open);
+  })();
+</script>

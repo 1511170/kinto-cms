@@ -1,0 +1,94 @@
+---
+import type { SpecRow } from '../../lib/product-mapper';
+
+interface Props {
+  specs?: SpecRow[];
+  features?: string[];
+}
+
+const { specs = [], features = [] } = Astro.props;
+const hasContent = specs.length > 0 || features.length > 0;
+---
+
+{hasContent ? (
+  <div class="pdp-specs">
+    {specs.length > 0 && (
+      <table class="pdp-specs-table">
+        <tbody>
+          {specs.map((s) => (
+            <tr>
+              <th class="mono">{s.label}</th>
+              <td>{s.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+    {features.length > 0 && (
+      <div class="pdp-features">
+        <h3 class="eyebrow">Características</h3>
+        <ul>
+          {features.map((f) => <li>{f}</li>)}
+        </ul>
+      </div>
+    )}
+  </div>
+) : (
+  <p class="muted">Especificaciones no disponibles para este producto.</p>
+)}
+
+<style>
+  .pdp-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .pdp-specs-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .pdp-specs-table tr { border-bottom: 1px solid var(--line); }
+  .pdp-specs-table tr:last-child { border-bottom: 0; }
+  .pdp-specs-table th {
+    text-align: left;
+    padding: 12px 16px 12px 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    width: 200px;
+    vertical-align: top;
+  }
+  .pdp-specs-table td {
+    padding: 12px 0;
+    font-size: 14px;
+    color: var(--fg);
+  }
+  .pdp-features h3 { margin: 0 0 16px; }
+  .pdp-features ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .pdp-features li {
+    font-size: 14px;
+    padding: 4px 0 4px 20px;
+    position: relative;
+  }
+  .pdp-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent-2);
+  }
+  @media (max-width: 720px) {
+    .pdp-specs-table th { width: auto; display: block; padding-bottom: 4px; }
+    .pdp-specs-table td { display: block; padding-top: 0; padding-bottom: 12px; }
+    .pdp-features ul { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,58 @@
+---
+interface Props {
+  items?: string[];
+}
+
+const defaultItems = [
+  'Envíos a toda Colombia',
+  '6 meses garantía fabricante',
+  'Soporte técnico WhatsApp',
+  'Pedidos por WhatsApp',
+];
+
+const { items = defaultItems } = Astro.props;
+---
+
+<div class="utility-strip">
+  <div class="shell utility-row">
+    {items.map((item, i) => (
+      <>
+        <span class="utility-item mono">{item}</span>
+        {i < items.length - 1 && <span class="utility-sep" aria-hidden="true">·</span>}
+      </>
+    ))}
+  </div>
+</div>
+
+<style>
+  .utility-strip {
+    background: var(--bg-tint);
+    border-bottom: 1px solid var(--line);
+  }
+  .utility-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 8px 32px;
+    font-size: 11px;
+    color: var(--fg-muted);
+    flex-wrap: wrap;
+  }
+  .utility-sep {
+    opacity: 0.4;
+    color: var(--fg-faint);
+  }
+  .utility-item {
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+  @media (max-width: 720px) {
+    .utility-row {
+      gap: 8px;
+      font-size: 10px;
+      padding: 6px 16px;
+    }
+    .utility-item:nth-child(n+5) { display: none; }
+  }
+</style>

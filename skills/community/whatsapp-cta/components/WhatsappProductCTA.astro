@@ -1,0 +1,90 @@
+---
+import WhatsappIcon from './WhatsappIcon.astro';
+import { buildWhatsappUrl, fillTemplate } from '../lib/whatsapp-ga4';
+
+interface Props {
+  phone: string;
+  productName: string;
+  productUrl: string;
+  productId?: string;
+  productBrand?: string;
+  productCategory?: string;
+  messageTemplate?: string;
+  label?: string;
+}
+
+const {
+  phone,
+  productName,
+  productUrl,
+  productId,
+  productBrand,
+  productCategory,
+  messageTemplate = 'Hola, me interesa "{name}". ¿Está disponible? {url}',
+  label = 'Consultar por WhatsApp',
+} = Astro.props;
+
+const message = fillTemplate(messageTemplate, { name: productName, url: productUrl });
+const href = buildWhatsappUrl(phone, message);
+
+const payload: Record<string, string> = {
+  click_location: 'product_page',
+  item_name: productName,
+};
+if (productId) payload.item_id = productId;
+if (productBrand) payload.item_brand = productBrand;
+if (productCategory) payload.item_category = productCategory;
+---
+
+<a
+  class="wa-product-cta"
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={`${label}: ${productName}`}
+  data-wa-cta
+  data-wa-event="whatsapp_click_product"
+  data-wa-payload={JSON.stringify(payload)}
+>
+  <WhatsappIcon size={20} color="#fff" />
+  <span>{label}</span>
+</a>
+
+<style>
+  .wa-product-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 48px;
+    padding: 0 20px;
+    background: #25D366;
+    border: 1px solid #25D366;
+    border-radius: 2px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(37, 211, 102, 0.18);
+    transition: background .15s ease, box-shadow .2s ease, transform .12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wa-product-cta:hover {
+    background: #1ebe5d;
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.32);
+    transform: translateY(-1px);
+  }
+  .wa-product-cta:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(37, 211, 102, 0.18);
+  }
+  .wa-product-cta:focus-visible {
+    outline: 2px solid rgba(37, 211, 102, 0.6);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  import '../lib/init-listener';
+</script>

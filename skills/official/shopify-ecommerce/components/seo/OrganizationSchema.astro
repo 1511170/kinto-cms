@@ -1,0 +1,46 @@
+---
+interface Props {
+  name: string;
+  url: string;
+  logo: string;
+  description: string;
+  sameAs?: string[];
+}
+
+const { name, url, logo, description, sameAs = [] } = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${url}/#organization`,
+      name,
+      url,
+      logo: {
+        '@type': 'ImageObject',
+        url: logo,
+      },
+      description,
+      sameAs: sameAs.length ? sameAs : undefined,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${url}/#website`,
+      url,
+      name,
+      publisher: { '@id': `${url}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${url}/store?q={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />
