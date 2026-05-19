@@ -3,7 +3,7 @@
 > Catálogo de site-skills instalables. **Generado automáticamente** desde
 > `skills/registry.json` — no lo edites a mano (corre `kinto skill validate`).
 
-Total: **17 skills** · Última generación: 2026-05-18
+Total: **17 skills**
 
 Instala cualquier skill con: `kinto skill add <nombre> --site=<sitio>`
 

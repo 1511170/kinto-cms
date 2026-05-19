@@ -44,8 +44,9 @@ export function scanSkills(root) {
 /** Genera y escribe `skills/registry.json` + `MARKETPLACE.md`. */
 export function generateRegistry(root) {
   const p = paths(root);
+  // Sin timestamp: el registry es un artefacto generado y commiteado, debe ser
+  // determinista para que `git diff` no muestre cambios espurios en cada CI.
   const registry = {
-    generated: new Date().toISOString(),
     count: 0,
     skills: scanSkills(root),
   };
@@ -63,7 +64,7 @@ function renderMarketplace(registry) {
     "> Catálogo de site-skills instalables. **Generado automáticamente** desde",
     "> `skills/registry.json` — no lo edites a mano (corre `kinto skill validate`).",
     "",
-    `Total: **${registry.count} skills** · Última generación: ${registry.generated.slice(0, 10)}`,
+    `Total: **${registry.count} skills**`,
     "",
     "Instala cualquier skill con: `kinto skill add <nombre> --site=<sitio>`",
     "",
