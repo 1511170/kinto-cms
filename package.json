@@ -4,7 +4,7 @@
   "description": "KINTO CMS — generador de sitios estáticos agent-native con arquitectura de skills",
   "type": "module",
   "bin": {
-    "kinto": "./bin/kinto.js"
+    "kinto": "bin/kinto.js"
   },
   "files": [
     "bin/",
