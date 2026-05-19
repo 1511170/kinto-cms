@@ -4,8 +4,8 @@
 # Uso:
 #   irm get.kinto.co | iex
 #
-# Clona el repo kinto-cms en la carpeta actual y lanza el wizard `kinto start`
-# dentro del repo. El sitio queda en kinto-cms/sites/<nombre>/.
+# Clona el repo kinto-cms DENTRO de la carpeta actual (sin crear subcarpeta)
+# y lanza el wizard `kinto start`. Ejecutalo en una carpeta vacia.
 
 $ErrorActionPreference = 'Stop'
 Write-Host ''
@@ -30,17 +30,21 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 }
 
 $repoUrl = 'https://github.com/1511170/kinto-cms.git'
-$target = Join-Path (Get-Location) 'kinto-cms'
+$cwd = (Get-Location).Path
 
-if (Test-Path $target) {
-    Write-Host "-> 'kinto-cms' ya existe; actualizando con git pull..." -ForegroundColor Cyan
-    git -C $target pull --ff-only
+if (Test-Path (Join-Path $cwd '.git')) {
+    Write-Host '-> KINTO ya esta clonado aqui; actualizando con git pull...' -ForegroundColor Cyan
+    git pull --ff-only
+} elseif ((Get-ChildItem -Force -LiteralPath $cwd | Measure-Object).Count -gt 0) {
+    Write-Host 'X  Esta carpeta no esta vacia.' -ForegroundColor Red
+    Write-Host '   KINTO se instala DENTRO de la carpeta actual. Usa una carpeta vacia:' -ForegroundColor Yellow
+    Write-Host '     mkdir mi-proyecto; cd mi-proyecto; irm get.kinto.co | iex' -ForegroundColor Yellow
+    exit 1
 } else {
-    Write-Host "-> Clonando KINTO CMS en $target ..." -ForegroundColor Cyan
-    git clone $repoUrl $target
+    Write-Host "-> Clonando KINTO CMS en $cwd ..." -ForegroundColor Cyan
+    git clone $repoUrl .
 }
 
-Set-Location $target
 Write-Host '-> Lanzando el wizard de KINTO...' -ForegroundColor Cyan
 Write-Host ''
 node bin/kinto.js start

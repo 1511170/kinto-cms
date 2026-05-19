@@ -7,15 +7,15 @@ de mantener por agentes de IA (Claude Code, Kimi, Qwen, Codex, Cursor).
 ## 🚀 Arranque en un comando
 
 ```bash
+# Crea una carpeta vacía y ejecuta el instalador DENTRO de ella —
+# KINTO se clona en esa misma carpeta, sin crear subcarpetas.
+mkdir mi-proyecto && cd mi-proyecto
+
 # Windows (PowerShell)
 irm get.kinto.co | iex
 
 # macOS / Linux
 curl -fsSL get.kinto.co | bash
-
-# o manualmente: clona el repo y lanza el wizard dentro
-git clone https://github.com/1511170/kinto-cms.git
-cd kinto-cms && node bin/kinto.js start
 ```
 
 El wizard `kinto start` instala dependencias, te pregunta el tipo de sitio

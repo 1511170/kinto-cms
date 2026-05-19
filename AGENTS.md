@@ -25,8 +25,9 @@ reutilizables. Nunca escribas código ad-hoc si existe o puedes crear una skill.
 ## ⚡ Arranque en un comando
 
 ```bash
-# Proyecto nuevo desde cero — instalador de una línea (clona el repo y
-# lanza el wizard; el Worker get.kinto.co detecta el SO):
+# Proyecto nuevo — instalador de una línea. Clona KINTO en la carpeta
+# ACTUAL (sin subcarpeta); ejecútalo dentro de una carpeta vacía:
+#   mkdir mi-proyecto && cd mi-proyecto
 #   Windows : irm get.kinto.co | iex
 #   Unix    : curl -fsSL get.kinto.co | bash
 

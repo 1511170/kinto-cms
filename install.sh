@@ -4,8 +4,8 @@
 # Uso:
 #   curl -fsSL get.kinto.co | bash
 #
-# Clona el repo kinto-cms en la carpeta actual y lanza el wizard `kinto start`
-# dentro del repo. El sitio queda en kinto-cms/sites/<nombre>/.
+# Clona el repo kinto-cms DENTRO de la carpeta actual (sin crear subcarpeta)
+# y lanza el wizard `kinto start`. Ejecútalo en una carpeta vacía.
 
 set -euo pipefail
 
@@ -31,17 +31,20 @@ if ! command -v git >/dev/null 2>&1; then
 fi
 
 REPO_URL="https://github.com/1511170/kinto-cms.git"
-TARGET="$(pwd)/kinto-cms"
 
-if [ -d "$TARGET" ]; then
-  echo "▸ 'kinto-cms' ya existe; actualizando con git pull..."
-  git -C "$TARGET" pull --ff-only
+if [ -d ".git" ]; then
+  echo "▸ KINTO ya está clonado aquí; actualizando con git pull..."
+  git pull --ff-only
+elif [ -n "$(ls -A 2>/dev/null)" ]; then
+  echo "❌ Esta carpeta no está vacía."
+  echo "   KINTO se instala DENTRO de la carpeta actual. Usa una carpeta vacía:"
+  echo "     mkdir mi-proyecto && cd mi-proyecto && curl -fsSL get.kinto.co | bash"
+  exit 1
 else
-  echo "▸ Clonando KINTO CMS en $TARGET ..."
-  git clone "$REPO_URL" "$TARGET"
+  echo "▸ Clonando KINTO CMS en $(pwd) ..."
+  git clone "$REPO_URL" .
 fi
 
-cd "$TARGET"
 echo "▸ Lanzando el wizard de KINTO..."
 echo ""
 # `curl | bash` deja el script en stdin; el wizard es interactivo, así que
