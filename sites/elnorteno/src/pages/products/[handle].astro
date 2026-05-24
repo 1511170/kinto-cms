@@ -1,0 +1,253 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductGallery from '../../components/product/ProductGallery.astro';
+import { ProductInfo, ProductSchema } from '@skills-official/shopify-ecommerce';
+import { getCachedProducts } from '../../lib/build-data';
+
+export async function getStaticPaths() {
+  const products = await getCachedProducts();
+  return (products as any[]).map((p) => ({
+    params: { handle: p.handle },
+    props: { product: p },
+  }));
+}
+
+const { product } = Astro.props;
+const notFound = !product;
+
+// Compute related products at render time (cheaper per-page than O(n²) in getStaticPaths)
+let related: any[] = [];
+if (product) {
+  const allProducts = await getCachedProducts();
+  const productCollections: string[] = Array.isArray(product.collections) ? product.collections : [];
+  const productCollectionSet = new Set(productCollections);
+  related = (allProducts as any[])
+    .filter((r) =>
+      r.handle !== product.handle &&
+      Array.isArray(r.collections) &&
+      r.collections.some((c: string) => productCollectionSet.has(c))
+    )
+    .slice(0, 4);
+}
+
+function fmtPrice(n: number) {
+  return '$' + Math.round(n).toLocaleString('es-CO');
+}
+---
+
+{notFound && (
+  <Layout title="Producto no encontrado">
+    <div style="text-align:center;padding:120px 24px;">
+      <h1 style="font-family:var(--font-display);font-size:48px;color:var(--pine);text-transform:uppercase;margin:0 0 16px;">Producto no encontrado</h1>
+      <p style="color:var(--slate);margin:0 0 24px;">El producto que buscas no existe o fue removido.</p>
+      <a href="/store" class="btn btn-primary">Ver catálogo</a>
+    </div>
+  </Layout>
+)}
+
+{!notFound && product && (
+  <Layout
+    title={product.seo?.title || product.title}
+    description={product.seo?.description || product.description}
+    image={product.featuredImage?.url}
+  >
+    <ProductSchema product={product} url={Astro.url.href} slot="head" />
+
+    <!-- Breadcrumb -->
+    <nav class="crumb" aria-label="Breadcrumb">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <a href="/store">Tienda</a>
+      <span>/</span>
+      <span style="color:var(--ink)">{product.title}</span>
+    </nav>
+
+    <!-- PDP grid: gallery + info -->
+    <section class="pdp">
+      <ProductGallery images={product.images ?? []} />
+      <div class="pdp-right">
+        <ProductInfo product={product} />
+
+        <!-- Trust badges -->
+        <div class="pdp-features">
+          <div class="pdp-feature">
+            <div class="ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.5"/><circle cx="17" cy="18" r="1.5"/></svg>
+            </div>
+            <div><strong>Envío nacional</strong><span>Servientrega y Coordinadora</span></div>
+          </div>
+          <div class="pdp-feature">
+            <div class="ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4 3 7 8 9 5-2 8-5 8-9V6l-8-3Z"/></svg>
+            </div>
+            <div><strong>Garantía 2 años</strong><span>En este producto</span></div>
+          </div>
+          <div class="pdp-feature">
+            <div class="ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6l3 3"/><path d="M21 4v5h-5"/><path d="M21 12a9 9 0 0 1-15 6l-3-3"/><path d="M3 20v-5h5"/></svg>
+            </div>
+            <div><strong>30 días</strong><span>Para devolución</span></div>
+          </div>
+          <div class="pdp-feature">
+            <div class="ico">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C12 21 4 13.5 4 9a8 8 0 0 1 16 0c0 4.5-8 12-8 12z"/><circle cx="12" cy="9" r="2"/></svg>
+            </div>
+            <div><strong>Recoge en tienda</strong><span>Bucaramanga · Medellín · Valledupar</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <section class="pdp-tabs">
+      <nav class="pdp-tabs-nav" role="tablist">
+        <button class="pdp-tab on" data-tab="detalles" role="tab" aria-selected="true">Detalles</button>
+        <button class="pdp-tab" data-tab="specs" role="tab" aria-selected="false">Ficha técnica</button>
+        <button class="pdp-tab" data-tab="reviews" role="tab" aria-selected="false">Reseñas · 124</button>
+        <button class="pdp-tab" data-tab="envio" role="tab" aria-selected="false">Envío y devoluciones</button>
+      </nav>
+
+      <!-- Detalles -->
+      <div class="pdp-tab-content" data-panel="detalles">
+        <div class="pdp-tab-body">
+          <div>
+            <div class="pdp-tab-eyebrow">Construcción</div>
+            <p>Cada pieza pasa por una revisión manual en nuestra bodega antes de salir. Buscamos detalles que delatan corte de costo — costuras flojas, herrajes blandos, telas que pierden tacto con el primer lavado — y solo dejamos pasar lo que aguantaría una salida nuestra.</p>
+            <p>Este producto se fabricó pensando en uso intenso y mantenimiento mínimo. Si te falla algo dentro de los primeros 24 meses, lo reparamos o lo reemplazamos.</p>
+          </div>
+          <div>
+            <div class="pdp-tab-eyebrow">Pensado para</div>
+            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
+              {['Salidas de fin de semana en condiciones variables', 'Uso intensivo con mantenimiento básico', 'Cargar peso real sin compromisos de durabilidad', 'Trabajar bien en frío, humedad y polvo'].map((item, i) => (
+                <li style="display:flex;gap:10px;align-items:flex-start;font-size:14px;">
+                  <span style="color:var(--terra);font-family:var(--font-mono);font-size:11px;margin-top:3px;flex-shrink:0;">0{i+1}</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specs -->
+      <div class="pdp-tab-content" data-panel="specs" hidden>
+        <div class="pdp-tab-body">
+          <dl class="spec-table">
+            <dt>Marca</dt><dd>{product.vendor || '—'}</dd>
+            <dt>Categoría</dt><dd>{product.productType || '—'}</dd>
+            <dt>SKU</dt><dd>{product.variants?.[0]?.sku || product.handle.toUpperCase()}</dd>
+            <dt>Material principal</dt><dd>Según especificación técnica</dd>
+            <dt>Origen</dt><dd>Diseño Colombia</dd>
+          </dl>
+          <dl class="spec-table">
+            <dt>Garantía</dt><dd>2 años (defectos de fábrica)</dd>
+            <dt>Vida útil estimada</dt><dd>5-8 años uso intenso</dd>
+            <dt>Cuidado</dt><dd>Ver etiqueta del producto</dd>
+            <dt>Resistencia</dt><dd>Apta para uso en campo</dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Reseñas -->
+      <div class="pdp-tab-content" data-panel="reviews" hidden>
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:48px;max-width:1100px;">
+          <div>
+            <div style="font-family:var(--font-display);font-size:72px;line-height:1;color:var(--pine);">4.8</div>
+            <div style="color:var(--gold);font-size:20px;margin:8px 0;">★★★★★</div>
+            <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--slate);">Basado en 124 reseñas</div>
+            <div style="margin-top:24px;">
+              {[[5,72],[4,20],[3,5],[2,2],[1,1]].map(([n, pct]) => (
+                <div class="review-bar-row">
+                  <span style="width:14px;color:var(--slate);font-size:12px;">{n}</span>
+                  <div class="review-bar-track"><div class="review-bar-fill" style={`width:${pct}%`}></div></div>
+                  <span style="width:32px;text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--slate);">{pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            {[
+              { name: 'Mateo R.', loc: 'Bucaramanga · Verificado', date: '15 abr 2026', rating: 5, title: 'Muy buena calidad', text: 'Llevo 3 meses usándolo en salidas de fin de semana. Aguanta lluvia, polvo, todo. La construcción se siente sólida.' },
+              { name: 'Laura C.', loc: 'Medellín · Verificado', date: '22 mar 2026', rating: 5, title: 'Cumple lo prometido', text: 'Lo compré para el viaje al Cocuy. Funcionó perfecto a 4.000m. La asesoría por WhatsApp también fue muy buena.' },
+              { name: 'Andrés P.', loc: 'Valledupar · Verificado', date: '8 feb 2026', rating: 4, title: 'Casi perfecto', text: 'Solo le bajo una estrella porque el empaque venía un poco arrugado, pero el producto en sí está impecable.' },
+            ].map((r) => (
+              <div class="review-card">
+                <div class="review-meta">
+                  <div>
+                    <div style="font-weight:600;font-size:14px;">{r.name}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--slate);">{r.loc}</div>
+                  </div>
+                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--slate);">{r.date}</div>
+                </div>
+                <div class="review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5-r.rating)}</div>
+                <div class="review-title">{r.title}</div>
+                <div class="review-text">{r.text}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Envío -->
+      <div class="pdp-tab-content" data-panel="envio" hidden>
+        <div class="pdp-tab-body">
+          <div>
+            <div class="pdp-tab-eyebrow">Envíos</div>
+            <p>Envío nacional por <strong>Servientrega</strong> y <strong>Coordinadora</strong> con guía rastreable. Tarifa según ciudad y peso. Entrega entre 1-5 días hábiles.</p>
+            <p>También puedes recoger sin costo en cualquiera de nuestras tres tiendas físicas: <strong>Bucaramanga, Medellín y Valledupar</strong>.</p>
+          </div>
+          <div>
+            <div class="pdp-tab-eyebrow">Devoluciones</div>
+            <p>Tienes <strong>30 días</strong> desde la entrega para devolver tu producto, sin preguntas, siempre que esté en su empaque original y sin uso.</p>
+            <p>Si encuentras un defecto de fábrica, lo reparamos o reemplazamos durante los <strong>2 años de garantía</strong>. Escríbenos por WhatsApp y nos encargamos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Relacionados -->
+    {related.length > 0 && (
+      <section class="rel-section">
+        <div class="section-head">
+          <div>
+            <div class="h-meta"><span class="line-el"></span><span>Lo combinan con</span></div>
+            <h2>También<br />llevaron.</h2>
+          </div>
+        </div>
+        <div class="rel-grid">
+          {related.map((p: any) => (
+            <a href={`/products/${p.handle}`} class="rel-card">
+              <div class="rel-img">
+                {p.featuredImage?.url
+                  ? <img src={p.featuredImage.url} alt={p.featuredImage.altText ?? p.title} loading="lazy" />
+                  : <div style="width:100%;height:100%;background:var(--bg-2);"></div>
+                }
+              </div>
+              <div class="rel-brand">{p.vendor || ''}</div>
+              <div class="rel-name">{p.title}</div>
+              <div class="rel-price">{p.price ? fmtPrice(p.price) : ''}</div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </Layout>
+)}
+
+<style>
+  .pdp-right { padding-top: 12px; }
+</style>
+
+<script>
+  // Tab switcher
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.pdp-tab');
+  const panels = document.querySelectorAll<HTMLElement>('.pdp-tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => { t.classList.toggle('on', t === tab); t.setAttribute('aria-selected', String(t === tab)); });
+      panels.forEach(p => { p.hidden = p.dataset.panel !== target; });
+    });
+  });
+</script>

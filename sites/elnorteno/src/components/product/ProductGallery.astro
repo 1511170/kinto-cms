@@ -1,0 +1,130 @@
+---
+interface Props {
+  images: Array<{ url: string; altText?: string }>;
+}
+const { images } = Astro.props;
+const imgs = images?.length ? images : [];
+---
+
+<div class="pdp-gallery">
+  {imgs.length > 1 && (
+    <div class="pdp-thumbs" id="pdp-thumbs">
+      {imgs.map((img, i) => (
+        <button
+          class={`pdp-thumb${i === 0 ? ' on' : ''}`}
+          data-idx={i}
+          aria-label={`Vista ${i + 1}`}
+          type="button"
+        >
+          <img src={img.url} alt={img.altText ?? ''} loading={i === 0 ? 'eager' : 'lazy'} />
+        </button>
+      ))}
+    </div>
+  )}
+  <div class="pdp-main" id="pdp-main">
+    {imgs[0] ? (
+      <img id="pdp-main-img" src={imgs[0].url} alt={imgs[0].altText ?? ''} loading="eager" />
+    ) : (
+      <div class="pdp-main-placeholder"></div>
+    )}
+    {imgs.length > 0 && (
+      <div class="pdp-main-label" id="pdp-main-label">Vista 1/{imgs.length}</div>
+    )}
+  </div>
+</div>
+
+<style>
+  .pdp-gallery {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .pdp-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pdp-thumb {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: var(--bg-2);
+    border: 2px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+    padding: 0;
+    transition: border-color 0.15s;
+    display: block;
+  }
+  .pdp-thumb.on { border-color: var(--pine); }
+  .pdp-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pdp-main {
+    aspect-ratio: 4/5;
+    border-radius: 10px;
+    background: var(--bg-2);
+    position: relative;
+    overflow: hidden;
+    grid-column: 2;
+  }
+  .pdp-main #pdp-main-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .pdp-main-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-2);
+  }
+  .pdp-main-label {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    pointer-events: none;
+  }
+  /* Single image: no thumbs column */
+  .pdp-gallery:not(:has(.pdp-thumbs)) {
+    grid-template-columns: 1fr;
+  }
+  @media (max-width: 900px) {
+    .pdp-gallery {
+      grid-template-columns: 1fr;
+    }
+    .pdp-thumbs {
+      flex-direction: row;
+      overflow-x: auto;
+    }
+    .pdp-thumb {
+      width: 64px;
+      flex-shrink: 0;
+    }
+    .pdp-main { grid-column: 1; }
+  }
+</style>
+
+<script>
+  const thumbs = document.querySelectorAll<HTMLButtonElement>('#pdp-thumbs .pdp-thumb');
+  const mainImg = document.getElementById('pdp-main-img') as HTMLImageElement | null;
+  const mainLabel = document.getElementById('pdp-main-label');
+  const srcs = Array.from(thumbs).map(t => t.querySelector('img')?.src ?? '');
+  const alts = Array.from(thumbs).map(t => t.querySelector('img')?.alt ?? '');
+
+  function select(i: number) {
+    thumbs.forEach((t, j) => t.classList.toggle('on', j === i));
+    if (mainImg && srcs[i]) { mainImg.src = srcs[i]; mainImg.alt = alts[i]; }
+    if (mainLabel) mainLabel.textContent = `Vista ${i + 1}/${thumbs.length}`;
+  }
+
+  thumbs.forEach((t, i) => t.addEventListener('click', () => select(i)));
+
+  document.addEventListener('product-gallery-select', (e: Event) => {
+    const idx = (e as CustomEvent).detail?.index ?? 0;
+    if (idx < thumbs.length) select(idx);
+  });
+</script>

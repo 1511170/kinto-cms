@@ -1,0 +1,112 @@
+---
+import type { Collection } from '@skills-official/shopify-ecommerce';
+import {
+  buildNavCategories,
+  STORE_LOCATIONS,
+  googleMapsUrl,
+} from '../../lib/categories';
+
+interface Props {
+  collections: Collection[];
+  brandName?: string;
+}
+
+const { collections, brandName = 'El Norteño' } = Astro.props;
+const availableHandles = new Set(
+  collections.map((c) => c.handle.toLowerCase())
+);
+const mainCats = buildNavCategories(availableHandles);
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="ftr-el">
+  <!-- Top: brand + cats + soporte/empresa -->
+  <div class="ftr-el-top">
+    <div class="ftr-el-brand">
+      <a href="/" style="text-decoration:none;display:inline-block;">
+        <span class="brand-mark">EL NORTEÑO</span>
+      </a>
+      <p class="ftr-el-tagline">
+        Equipo outdoor profesional desde 1987. Tres tiendas físicas en Colombia
+        y atención por WhatsApp.
+      </p>
+    </div>
+
+    {mainCats.slice(0, 3).map((cat) => (
+      <div class="ftr-el-col">
+        <h4>{cat.title}</h4>
+        <ul>
+          {cat.parentHandle && (
+            <li>
+              <a href={`/store/${cat.parentHandle}`}>Ver toda</a>
+            </li>
+          )}
+          {cat.subs.slice(0, 6).map((sub) => (
+            <li>
+              <a href={`/store/${sub.handle}`}>{sub.title}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    <div class="ftr-el-col">
+      <h4>Soporte</h4>
+      <ul>
+        <li><a href="/contacto">Contáctanos</a></li>
+        <li><a href="/store">Catálogo</a></li>
+        <li>
+          <a
+            href="https://wa.me/573156819303"
+            target="_blank"
+            rel="noopener"
+          >WhatsApp</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tiendas -->
+  <div class="ftr-el-stores">
+    <h4 class="ftr-el-stores-head">Visítanos · 3 tiendas en Colombia</h4>
+    <div class="ftr-el-stores-grid">
+      {STORE_LOCATIONS.map((loc) => (
+        <div class="ftr-el-store">
+          <h5 class="city">{loc.city}</h5>
+          <address>{loc.address}</address>
+          <div class="contact-line">
+            {loc.phones.map((p, i) => (
+              <a href={`tel:${p.replace(/\s+/g, '')}`}>
+                {p}{i < loc.phones.length - 1 ? ' ·' : ''}
+              </a>
+            ))}
+          </div>
+          <div class="contact-line">
+            <a
+              href={`https://wa.me/${loc.whatsapp}`}
+              target="_blank"
+              rel="noopener"
+              class="wa"
+            >
+              WA {loc.whatsappDisplay}
+            </a>
+            <a
+              href={googleMapsUrl(loc.address, loc.city)}
+              target="_blank"
+              rel="noopener"
+            >Mapa →</a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="ftr-el-bottom">
+    <span>© {currentYear} {brandName} · Todos los derechos reservados</span>
+    <div>
+      <a href="/contacto">Contacto</a>
+      <a href="/sitemap.xml">Sitemap</a>
+    </div>
+  </div>
+</footer>
