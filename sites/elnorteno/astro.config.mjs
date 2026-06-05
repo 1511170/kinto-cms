@@ -24,7 +24,7 @@ try {
 // https://astro.build/config
 export default defineConfig({
   output: "static",
-  site: "https://example.com", // Se actualiza en cada proyecto
+  site: "https://elnorteno.com", // Cloudflare Workers
 
   // Integración oficial de Tailwind 3 para Astro
   integrations: [tailwind()],
