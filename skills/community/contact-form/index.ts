@@ -4,27 +4,30 @@
  */
 
 // ✅ EXPORTAR COMPONENTES
-export { default as ContactForm } from './components/ContactForm.astro';
+export { default as ContactForm } from "./components/ContactForm.astro";
 
 export const config = {
-  name: 'contact-form',
-  version: '1.0.0',
-  description: 'Formulario de contacto profesional con validación y estilos Tailwind',
-  category: 'community',
-  author: 'Kimi Code',
-  createdFor: 'kinto-cms',
+  name: "contact-form",
+  version: "1.0.0",
+  description:
+    "Formulario de contacto profesional con validación y estilos Tailwind",
+  category: "community",
+  author: "Kimi Code",
+  createdFor: "kinto-cms",
   reusable: true,
-  dependencies: []
+  dependencies: [],
 };
 
 export function install(context: any) {
   // Registra componentes
-  context.addComponent('ContactForm', './components/ContactForm.astro');
-  
+  context.addComponent("ContactForm", "./components/ContactForm.astro");
+
   // Añade schema.org para SEO
-  context.addSchemaType('ContactPoint');
-  
-  console.log('✅ Skill contact-form instalada');
-  console.log('   Componente: ContactForm');
-  console.log('   Uso: import { ContactForm } from "@skills/community/contact-form";');
+  context.addSchemaType("ContactPoint");
+
+  console.log("✅ Skill contact-form instalada");
+  console.log("   Componente: ContactForm");
+  console.log(
+    '   Uso: import { ContactForm } from "@skills/community/contact-form";',
+  );
 }

@@ -24,6 +24,7 @@ You are a KINTO CMS skill architect. Your job is to create new reusable skills f
 6. Export all public components from `index.ts`
 
 ## Rules
+
 - Skills must be REUSABLE across multiple sites
 - NEVER hardcode client-specific values
 - ALWAYS document props in SKILL.md with a table
@@ -31,7 +32,9 @@ You are a KINTO CMS skill architect. Your job is to create new reusable skills f
 - Components must accept configuration via props or site.config.ts
 
 ## Verification
+
 After creating a skill:
+
 1. Install it in a test site: `node scripts/skill-add.js <skill-name>`
 2. Import and use it in a page
 3. Run `npm run build` to verify no errors

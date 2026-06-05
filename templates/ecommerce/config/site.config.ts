@@ -1,6 +1,6 @@
 /**
  * Configuración del sitio: {SITE_NAME}
- * 
+ *
  * Domains:
  * - Public: {DOMAIN}
  * - CMS (oculto): {CMS_SUBDOMAIN}
@@ -23,9 +23,9 @@ export interface SiteConfig {
     authEndpoint?: string;
   };
   build: {
-    output: 'static';
+    output: "static";
     compressHTML: boolean;
-    inlineStylesheets: 'auto' | 'always' | 'never';
+    inlineStylesheets: "auto" | "always" | "never";
   };
   skills: {
     // Skills activas se leen de skills-active.json
@@ -34,24 +34,24 @@ export interface SiteConfig {
 
 export default {
   site: {
-    domain: '{DOMAIN}',
-    name: '{SITE_NAME}',
-    description: '{DESCRIPTION}',
-    language: '{LANG}',
-    logo: '/logo.svg',
-    favicon: '/favicon.ico'
+    domain: "{DOMAIN}",
+    name: "{SITE_NAME}",
+    description: "{DESCRIPTION}",
+    language: "{LANG}",
+    logo: "/logo.svg",
+    favicon: "/favicon.ico",
   },
   cms: {
     enabled: true,
-    subdomain: '{CMS_SUBDOMAIN}',
+    subdomain: "{CMS_SUBDOMAIN}",
     hidden: true,
-    githubRepo: 'kinto-cms/{SITE_NAME}-content',
-    authEndpoint: 'https://{CMS_PREFIX}-auth.kinto.workers.dev'
+    githubRepo: "kinto-cms/{SITE_NAME}-content",
+    authEndpoint: "https://{CMS_PREFIX}-auth.kinto.workers.dev",
   },
   build: {
-    output: 'static',
+    output: "static",
     compressHTML: true,
-    inlineStylesheets: 'auto'
+    inlineStylesheets: "auto",
   },
-  skills: {}
+  skills: {},
 } satisfies SiteConfig;

@@ -58,6 +58,7 @@ bucket = "./dist"
 ### 4. Configurar dominio personalizado
 
 En el dashboard de Cloudflare Pages:
+
 1. Ir a "Custom domains"
 2. Agregar dominio: `tudominio.com`
 3. Cloudflare configura DNS automáticamente
@@ -65,11 +66,13 @@ En el dashboard de Cloudflare Pages:
 ## Flujo de Trabajo Recomendado
 
 ### Desarrollo (Dev)
+
 - **URL:** `*.1511170.xyz` o `*.611160.xyz`
 - **Servidor:** Astro dev (hot reload)
 - **Comando:** `./start-development.sh`
 
 ### Producción (Prod)
+
 - **URL:** `*.kinto.info`
 - **Servidor:** Cloudflare Pages (CDN)
 - **Comando:** `./deploy-production.sh`

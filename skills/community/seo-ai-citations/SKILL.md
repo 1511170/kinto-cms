@@ -57,7 +57,7 @@ interface Props {
   schemaData?: Record<string, any>;
 }
 
-const { 
+const {
   title = 'Mi Sitio',
   description = 'Descripción por defecto',
   type = 'website',
@@ -72,17 +72,17 @@ const {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+
   <!-- SEO + AI Citations -->
-  <SEOHead 
+  <SEOHead
     title={title}
     description={description}
     type={type}
     keywords={keywords}
   />
-  
+
   <!-- Structured Data -->
-  <SchemaOrg 
+  <SchemaOrg
     type={schemaType}
     data={schemaData}
   />
@@ -103,7 +103,7 @@ const {
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout 
+<Layout
   title="Inicio - Mi Sitio"
   description="Bienvenidos a mi sitio web"
   keywords={["inicio", "bienvenida"]}
@@ -115,7 +115,7 @@ import Layout from '../layouts/Layout.astro';
 ### Página de servicio
 
 ```astro
-<SchemaOrg 
+<SchemaOrg
   type={["Organization", "WebSite", "FinancialService"]}
   data={{
     name: "International Student Payments",
@@ -130,7 +130,7 @@ import Layout from '../layouts/Layout.astro';
 ### Página con FAQ
 
 ```astro
-<SchemaOrg 
+<SchemaOrg
   type={["Organization", "FAQPage"]}
   faqs={[
     { q: "How long do transfers take?", a: "1-2 business days" },
@@ -142,7 +142,7 @@ import Layout from '../layouts/Layout.astro';
 ### Página con Breadcrumbs
 
 ```astro
-<SchemaOrg 
+<SchemaOrg
   type={["Organization", "BreadcrumbList"]}
   breadcrumbs={[
     { name: "Home", url: "/" },
@@ -155,7 +155,7 @@ import Layout from '../layouts/Layout.astro';
 ### Página con HowTo
 
 ```astro
-<SchemaOrg 
+<SchemaOrg
   type={["Organization", "HowTo"]}
   howToName="How to send money"
   howToDescription="Step by step guide to send money"
@@ -174,16 +174,17 @@ import Layout from '../layouts/Layout.astro';
 El componente genera automáticamente los meta tags necesarios para que el thumbnail se vea correctamente al compartir en WhatsApp, Telegram, Facebook, Twitter/X y LinkedIn:
 
 ```html
-<meta property="og:image"        content="https://tusitio.com/images/og-home.png" />
-<meta property="og:image:alt"    content="Título de la página" />
-<meta property="og:image:width"  content="1200" />
+<meta property="og:image" content="https://tusitio.com/images/og-home.png" />
+<meta property="og:image:alt" content="Título de la página" />
+<meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:type"   content="image/png" />
-<meta name="twitter:image"       content="https://tusitio.com/images/og-home.png" />
-<meta name="twitter:image:alt"   content="Título de la página" />
+<meta property="og:image:type" content="image/png" />
+<meta name="twitter:image" content="https://tusitio.com/images/og-home.png" />
+<meta name="twitter:image:alt" content="Título de la página" />
 ```
 
 **Recomendaciones para la imagen OG:**
+
 - Tamaño ideal: **1200 × 630 px** (ratio 1.91:1)
 - Formato: PNG o JPG (< 8 MB, idealmente < 1 MB)
 - Asigna una imagen diferente por página para mejor CTR: `<Layout image="/images/og-pagina.png">`
@@ -193,6 +194,7 @@ El componente genera automáticamente los meta tags necesarios para que el thumb
 Para maximizar LCP (Largest Contentful Paint) y minimizar CLS:
 
 **Imágenes hero / above-the-fold (primera imagen visible):**
+
 ```astro
 <img
   src="/images/hero.png"
@@ -204,6 +206,7 @@ Para maximizar LCP (Largest Contentful Paint) y minimizar CLS:
 ```
 
 **Imágenes below-the-fold (catálogo, bio, extras):**
+
 ```astro
 <img
   src="/images/product.png"
@@ -217,28 +220,28 @@ Para maximizar LCP (Largest Contentful Paint) y minimizar CLS:
 
 ## Props SEOHead
 
-| Prop | Tipo | Default | Descripción |
-|------|------|---------|-------------|
-| title | string | required | Título de la página |
-| description | string | required | Meta description |
-| canonical | string | Astro.url.href | URL canónica |
-| image | string | '/logo.png' | Imagen OG/Twitter (1200×630 px recomendado) |
-| type | 'website' \| 'article' | 'website' | Tipo de contenido |
-| publishedTime | string | - | Fecha de publicación |
-| modifiedTime | string | - | Fecha de modificación |
-| author | string | siteConfig.site.name | Autor |
-| noindex | boolean | false | No indexar página |
-| keywords | string[] | [] | Keywords para meta tag |
+| Prop          | Tipo                   | Default              | Descripción                                 |
+| ------------- | ---------------------- | -------------------- | ------------------------------------------- |
+| title         | string                 | required             | Título de la página                         |
+| description   | string                 | required             | Meta description                            |
+| canonical     | string                 | Astro.url.href       | URL canónica                                |
+| image         | string                 | '/logo.png'          | Imagen OG/Twitter (1200×630 px recomendado) |
+| type          | 'website' \| 'article' | 'website'            | Tipo de contenido                           |
+| publishedTime | string                 | -                    | Fecha de publicación                        |
+| modifiedTime  | string                 | -                    | Fecha de modificación                       |
+| author        | string                 | siteConfig.site.name | Autor                                       |
+| noindex       | boolean                | false                | No indexar página                           |
+| keywords      | string[]               | []                   | Keywords para meta tag                      |
 
 ## Props SchemaOrg
 
-| Prop | Tipo | Descripción |
-|------|------|-------------|
-| type | SchemaType \| SchemaType[] | Tipo(s) de schema |
-| data | Record<string, any> | Datos adicionales del schema |
-| breadcrumbs | Array<{name, url}> | Items de breadcrumb |
-| faqs | Array<{q, a}> | Preguntas y respuestas |
-| steps | Array<{name, text, url?}> | Pasos para HowTo |
+| Prop        | Tipo                       | Descripción                  |
+| ----------- | -------------------------- | ---------------------------- |
+| type        | SchemaType \| SchemaType[] | Tipo(s) de schema            |
+| data        | Record<string, any>        | Datos adicionales del schema |
+| breadcrumbs | Array<{name, url}>         | Items de breadcrumb          |
+| faqs        | Array<{q, a}>              | Preguntas y respuestas       |
+| steps       | Array<{name, text, url?}>  | Pasos para HowTo             |
 
 ## Metadata
 

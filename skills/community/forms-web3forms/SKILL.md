@@ -41,7 +41,7 @@ import { ContactForm } from '../../../skills/community/forms-web3forms';
 const WEB3FORMS_KEY = import.meta.env.WEB3FORMS_KEY || '';
 ---
 
-<ContactForm 
+<ContactForm
   title="Contáctanos"
   subtitle="Te responderemos en 24 horas"
   recipientEmail="hola@tudominio.com"
@@ -53,7 +53,7 @@ const WEB3FORMS_KEY = import.meta.env.WEB3FORMS_KEY || '';
 ### Con selector de servicios personalizado
 
 ```astro
-<ContactForm 
+<ContactForm
   title="Solicita una cotización"
   subtitle="Cuéntanos sobre tu proyecto"
   recipientEmail="ventas@tudominio.com"
@@ -71,19 +71,19 @@ const WEB3FORMS_KEY = import.meta.env.WEB3FORMS_KEY || '';
 
 ## Props
 
-| Prop | Tipo | Default | Descripción |
-|------|------|---------|-------------|
-| `title` | string | "Contáctanos" | Título del formulario |
-| `subtitle` | string | "" | Subtítulo descriptivo |
-| `recipientEmail` | string | "" | Email del destinatario |
-| `submitLabel` | string | "Enviar mensaje" | Texto del botón |
-| `showPhone` | boolean | true | Mostrar campo teléfono |
-| `showCompany` | boolean | true | Mostrar campo empresa |
-| `serviceSelect` | boolean | false | Mostrar selector de servicios |
-| `services` | array | [...] | Opciones para el selector |
-| `web3formsKey` | string | "" | API key de Web3Forms |
-| `siteName` | string | "" | Nombre del sitio (para el subject) |
-| `subject` | string | auto | Asunto del email |
+| Prop             | Tipo    | Default          | Descripción                        |
+| ---------------- | ------- | ---------------- | ---------------------------------- |
+| `title`          | string  | "Contáctanos"    | Título del formulario              |
+| `subtitle`       | string  | ""               | Subtítulo descriptivo              |
+| `recipientEmail` | string  | ""               | Email del destinatario             |
+| `submitLabel`    | string  | "Enviar mensaje" | Texto del botón                    |
+| `showPhone`      | boolean | true             | Mostrar campo teléfono             |
+| `showCompany`    | boolean | true             | Mostrar campo empresa              |
+| `serviceSelect`  | boolean | false            | Mostrar selector de servicios      |
+| `services`       | array   | [...]            | Opciones para el selector          |
+| `web3formsKey`   | string  | ""               | API key de Web3Forms               |
+| `siteName`       | string  | ""               | Nombre del sitio (para el subject) |
+| `subject`        | string  | auto             | Asunto del email                   |
 
 ## Sin Configuración (Modo Demo)
 

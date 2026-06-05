@@ -33,14 +33,17 @@ npm run dev
 ## 🧠 Principios Clave
 
 ### 1. **ZERO Skills por Defecto**
+
 Cada sitio arranca limpio (solo Astro + Tailwind). No instales nada que no se pida explícitamente.
 
 ### 2. **Skills = Plugins Reutilizables**
+
 - Ubicación: `kinto-cms/skills/{official,community}/`
 - Una vez creada una skill → disponible para TODOS los sitios
 - Si necesitas funcionalidad nueva, crea una skill, no código ad-hoc
 
 ### 3. **CMS Oculto**
+
 - Sitio público: `tudominio.com`
 - CMS privado: `admin.tudominio.com` (sin enlaces públicos)
 - El cliente edita contenido sin tocar código
@@ -69,33 +72,40 @@ kinto-cms/
 ## 🎯 Workflow de Generación
 
 ### Paso 1: Crear el Sitio
+
 ```bash
 ./kinto create-site nombre-cliente
 cd sites/nombre-cliente
 ```
 
 ### Paso 2: Analizar el Brief
-Ejemplo: *"Necesito página de inicio con hero, servicios, testimonios y un formulario de contacto"*
+
+Ejemplo: _"Necesito página de inicio con hero, servicios, testimonios y un formulario de contacto"_
 
 ### Paso 3: Revisar Skills Existentes
+
 ```bash
 node scripts/skill-list.js
 ```
 
 **Skills disponibles actualmente:**
+
 - ✅ `cms-sveltia` - Panel de admin para el cliente
 - ✅ `testimonials` - Testimonios con schema.org
 
 ### Paso 4: Instalar Skills Necesarias
+
 ```bash
 node scripts/skill-add.js cms-sveltia
 node scripts/skill-add.js testimonials
 ```
 
 ### Paso 5: Generar Contenido
+
 Editar `src/pages/index.astro` y crear las páginas necesarias usando las skills instaladas.
 
 ### Paso 6: Si Falta una Skill, Crearla
+
 ```bash
 # Ejemplo: Necesitamos un formulario de contacto
 node scripts/skill-create.js contact-form
@@ -115,6 +125,7 @@ node scripts/skill-create.js nombre-skill
 ```
 
 Esto crea:
+
 ```
 skills/community/nombre-skill/
 ├── SKILL.md              # Documentación
@@ -124,6 +135,7 @@ skills/community/nombre-skill/
 ```
 
 **Reglas para crear skills:**
+
 1. La skill debe ser **reutilizable** en otros sitios
 2. Documentar en `SKILL.md` cómo usarla
 3. Exportar componentes en `index.ts`
@@ -144,19 +156,20 @@ skills/community/nombre-skill/
 
 ## 🔗 Referencias Rápidas
 
-| Recurso | Ubicación |
-|---------|-----------|
-| Config sitio | `sites/[nombre-cliente]/config/site.config.ts` |
-| Skills activas | `sites/[nombre-cliente]/skills-active.json` |
-| Skills disponibles | `kinto-cms/skills/` |
-| Guía completa IA | `kinto-cms/docs/AI_GENERATION.md` |
-| Arquitectura | `kinto-cms/STRUCTURE.md` |
+| Recurso            | Ubicación                                      |
+| ------------------ | ---------------------------------------------- |
+| Config sitio       | `sites/[nombre-cliente]/config/site.config.ts` |
+| Skills activas     | `sites/[nombre-cliente]/skills-active.json`    |
+| Skills disponibles | `kinto-cms/skills/`                            |
+| Guía completa IA   | `kinto-cms/docs/AI_GENERATION.md`              |
+| Arquitectura       | `kinto-cms/STRUCTURE.md`                       |
 
 ---
 
 ## 💡 Patrones Comunes
 
 ### Importar una skill en una página:
+
 ```astro
 ---
 import { TestimonialsGrid } from '../../../skills/community/testimonials/index.ts';
@@ -166,10 +179,11 @@ import { TestimonialsGrid } from '../../../skills/community/testimonials/index.t
 ```
 
 ### Verificar si una skill está activa:
-```typescript
-import activeSkills from '../skills-active.json';
 
-const hasTestimonials = activeSkills.skills.includes('testimonials');
+```typescript
+import activeSkills from "../skills-active.json";
+
+const hasTestimonials = activeSkills.skills.includes("testimonials");
 ```
 
 ---
@@ -184,6 +198,7 @@ const hasTestimonials = activeSkills.skills.includes('testimonials');
 ---
 
 **Empieza aquí:**
+
 ```bash
 ./kinto create-site mi-cliente && cd sites/mi-cliente && node scripts/skill-list.js
 ```
