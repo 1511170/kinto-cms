@@ -1,0 +1,39 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { VEHICLE_MAKES } from '../../data/catalog';
+import { getStorefrontCollections, getStorefrontCollection, getStorefrontProducts, isShopifyCollection, isShopifyProduct, collectionHref } from '../../lib/shopify-catalog';
+
+export async function getStaticPaths() {
+  const collections = await getStorefrontCollections();
+  return [
+    { params: { cat: 'todos' } },
+    ...collections.map((collection) => ({ params: { cat: isShopifyCollection(collection) ? collection.handle : collection.id } })),
+  ];
+}
+
+const handle = Astro.params.cat!;
+const allCollections = await getStorefrontCollections();
+const isAll = handle === 'todos';
+const result = isAll
+  ? { collection: undefined, products: await getStorefrontProducts({ limit: 250 }) }
+  : await getStorefrontCollection(handle);
+const collection = result.collection;
+const products = result.products;
+const label = isAll ? 'Todos los repuestos' : collection ? (isShopifyCollection(collection) ? collection.title : collection.label) : 'Catálogo';
+const blurb = isAll ? 'Catálogo general conectado a Shopify Storefront.' : collection ? (isShopifyCollection(collection) ? (collection.description || 'Colección de repuestos conectada a Shopify.') : collection.blurb) : 'Repuestos disponibles en Distribuidor Miranda.';
+const brands = [...new Set(products.map((product) => isShopifyProduct(product) ? (product.vendor || 'Distribuidor Miranda') : product.brand))].slice(0, 12);
+---
+<Layout title={`${label} — Catálogo`} description={`${blurb} Compra repuestos en Distribuidor Miranda.`}>
+  <Header current={handle} />
+  <main class="dm-main dm-collection">
+    <div class="dm-coll-head"><div class="dm-crumbs mono"><a href="/">INICIO</a><span>/</span><span>CATÁLOGO</span><span>/</span><span class="active">{label.toUpperCase()}</span></div><div class="dm-coll-titlewrap"><div><h1 class="dm-coll-title">{label}</h1><p class="dm-coll-sub">{blurb} {products.length} referencias renderizadas desde {isAll || isShopifyCollection(collection!) ? 'Shopify' : 'catálogo local temporal'}.</p></div><div class="dm-coll-categoryjump"><a class={isAll ? 'active' : ''} href="/catalogo/todos/">Todos</a>{allCollections.slice(0, 10).map(c => <a class={collectionHref(c).includes(`/catalogo/${handle}/`) ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}</div></div></div>
+    <div class="dm-coll-grid">
+      <aside class="dm-filters"><div class="dm-filters-head"><h3>Filtros</h3><a class="dm-filters-clear" href={`/catalogo/${handle}/`}>Limpiar</a></div><div class="dm-filter-group"><h4>Vehículo</h4><div class="dm-vehicle-sel"><select><option>Cualquier marca</option>{VEHICLE_MAKES.map(m => <option>{m}</option>)}</select><select><option>Cualquier modelo</option><option>Hilux</option><option>Aveo</option><option>Sportage</option></select></div></div><div class="dm-filter-group"><h4>Marca del repuesto</h4><ul class="dm-check-list">{brands.map(b => <li><label><input type="checkbox" /><span>{b}</span><span class="dm-check-count mono">{products.filter(p => (isShopifyProduct(p) ? (p.vendor || 'Distribuidor Miranda') : p.brand) === b).length}</span></label></li>)}</ul></div><div class="dm-filter-group"><h4>Disponibilidad</h4><ul class="dm-check-list"><li><label><input type="checkbox" checked /><span>En stock / disponible</span></label></li><li><label><input type="checkbox" /><span>Cotizar</span></label></li></ul></div><div class="dm-help-card"><div class="dm-help-icon mono">?</div><div><strong>¿No encuentras la pieza?</strong><p>Envíanos el VIN o una foto y la cotizamos en menos de 2 horas hábiles.</p><a class="dm-help-btn" href="mailto:ventas@distribuidormiranda.ec">Pedir cotización</a></div></div></aside>
+      <section class="dm-coll-main"><div class="dm-toolbar"><div class="dm-toolbar-left mono">Mostrando <strong>{products.length}</strong> referencias</div><div class="dm-toolbar-right"><label>Ordenar: <select><option>Relevancia</option><option>Precio: menor a mayor</option><option>Disponibilidad</option></select></label><div class="dm-view-toggle"><button class="active">▦</button><button>☰</button></div></div></div><div class="dm-active-filters"><span>{label}</span><span>Shopify Storefront</span><span>Garantía 90 días</span></div><div class="dm-product-grid dm-product-grid-coll">{products.map(p => <ProductCard product={p} />)}</div></section>
+    </div>
+  </main>
+  <Footer />
+</Layout>

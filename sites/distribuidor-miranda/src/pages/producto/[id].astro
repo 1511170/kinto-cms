@@ -1,0 +1,106 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import PartPlaceholder from '../../components/PartPlaceholder.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { formatPrice as formatLocalPrice } from '../../data/catalog';
+import { formatPrice as formatShopifyPrice } from '@skills-official/shopify-ecommerce/lib/format-price';
+import { getStorefrontProducts, getStorefrontProduct, isShopifyProduct, productHref } from '../../lib/shopify-catalog';
+
+export async function getStaticPaths() {
+  const products = await getStorefrontProducts();
+  return products.map((product) => ({
+    params: { id: isShopifyProduct(product) ? product.handle : product.id },
+  }));
+}
+
+const p = await getStorefrontProduct(Astro.params.id!);
+if (!p) return Astro.redirect('/');
+const products = await getStorefrontProducts({ limit: 80 });
+const isShopify = isShopifyProduct(p);
+const title = isShopify ? p.title : p.name;
+const description = isShopify ? (p.seo.description || p.description || `${title} en Distribuidor Miranda Ecuador.`) : `${p.name} ${p.brand}, SKU ${p.sku}.`;
+const variant = isShopify ? p.variants[0] : null;
+const sku = isShopify ? (variant?.sku || p.handle) : p.sku;
+const brand = isShopify ? (p.vendor || 'Distribuidor Miranda') : p.brand;
+const category = isShopify ? (p.productType || p.collections[0] || 'Repuesto') : p.catLabel;
+const price = isShopify
+  ? (variant?.price && Number(variant.price.amount) > 0 ? formatShopifyPrice(variant.price.amount, variant.price.currencyCode, 'es-EC') : 'Cotizar')
+  : formatLocalPrice(p.price);
+const compareAt = isShopify
+  ? (variant?.compareAtPrice ? formatShopifyPrice(variant.compareAtPrice.amount, variant.compareAtPrice.currencyCode, 'es-EC') : null)
+  : (p.oldPrice ? formatLocalPrice(p.oldPrice) : null);
+const image = isShopify ? p.featuredImage : null;
+const applications = isShopify ? (p.metafields.application ?? p.tags).slice(0, 8) : p.applications.map((app) => `${app.make} ${app.model} · ${app.years}`);
+const specs = isShopify ? (p.metafields.specs ?? []) : [
+  { label: 'SKU', value: p.sku },
+  { label: 'Marca', value: p.brand },
+  { label: 'Categoría', value: p.catLabel },
+  { label: 'Lado', value: p.side },
+];
+const related = products
+  .filter((product) => productHref(product) !== productHref(p))
+  .filter((product) => isShopifyProduct(product) && isShopify ? product.productType === p.productType : true)
+  .slice(0, 4);
+---
+<Layout title={title} description={description}>
+  <Header />
+  <main class="dm-main dm-product">
+    <div class="dm-crumbs mono dm-product-crumbs"><a href="/">INICIO</a><span>/</span><a href="/catalogo/todos/">CATÁLOGO</a><span>/</span><span class="active">{sku}</span></div>
+    <div class="dm-product-top">
+      <div class="dm-gallery">
+        <div class="dm-gallery-thumbs">
+          {(isShopify && p.images.length ? p.images.slice(0,4) : [null, null, null, null]).map((img, i) => <button class={`dm-thumb ${i===0?'active':''}`}>{img ? <img src={img.url} alt={img.altText ?? title} /> : <PartPlaceholder code={`${sku}`.slice(0, 8)} label={['VISTA FRONTAL','VISTA POSTERIOR','DETALLE','EMPAQUE'][i]} accent={['warm','steel','olive','cool'][i]} size="sm" />}</button>)}
+          <button class="dm-thumb dm-thumb-360"><span class="mono">SKU</span><span>{sku}</span></button>
+        </div>
+        <div class="dm-gallery-main">
+          {image ? <img class="dm-product-main-img" src={image.url} alt={image.altText ?? title} /> : <PartPlaceholder code={`${sku}`.slice(0, 8)} label={category.toUpperCase()} accent={isShopify ? 'steel' : p.accent} size="xl" />}
+          <div class="dm-gallery-counter mono">SHOPIFY</div>
+        </div>
+      </div>
+      <section class="dm-pinfo">
+        <div class="dm-pinfo-eyebrow"><span class="mono">{brand}</span><span>·</span><span class="mono">{sku}</span><span>·</span><span>{category}</span></div>
+        <h1 class="dm-pinfo-title">{title}</h1>
+        <div class="dm-pinfo-rating"><div class="dm-stars">★★★★★</div><span>{isShopify && p.availableForSale ? 'Disponible' : 'Consultar disponibilidad'}</span><span>·</span><a>Asesoría técnica</a></div>
+        <div class="dm-pinfo-price"><div class="dm-pinfo-price-main"><span class="dm-price-now">{price}</span>{compareAt && <span class="dm-price-old">{compareAt}</span>}</div><div class="dm-pinfo-price-meta mono">IVA incluido · checkout Shopify</div></div>
+        <div class="dm-stockline"><span class="dm-stock-dot"></span><strong>{isShopify ? (p.availableForSale ? 'Disponible para compra' : 'Consultar precio y stock') : `${p.stock} unidades en stock`}</strong><span>·</span><span>Bodega Quito / Guayaquil</span></div>
+        <div class="dm-vcheck"><div class="dm-vcheck-head">▰ ¿Calza en tu vehículo?</div><div class="dm-vcheck-row"><select><option>Aplicación</option>{applications.map(a => <option>{a}</option>)}</select><button class="dm-btn dm-btn-outline">Verificar</button></div></div>
+        <div class="dm-buybox"><div class="dm-buybox-row"><div class="dm-qty"><button>−</button><input value="1" readonly /><button>+</button></div><button class="dm-btn dm-btn-primary dm-btn-lg" data-add-to-cart data-variant-id={variant?.id ?? ''}>Agregar al carrito · {price}</button></div><a class="dm-btn dm-btn-dark dm-btn-lg dm-btn-full" href="mailto:ventas@distribuidormiranda.ec">Comprar / cotizar ahora</a><div class="dm-buybox-extras"><button>♡ Guardar</button><button>⇄ Comparar</button><button>↗ Compartir</button></div></div>
+        <ul class="dm-trust-list"><li>Garantía de 90 días</li><li>Verificación por VIN/foto antes de despacho</li><li>Envíos nacionales 24–48h</li></ul>
+      </section>
+    </div>
+    <section class="dm-ptabs"><div class="dm-ptabs-head"><button class="active">Descripción</button><button>Especificaciones</button><button>Compatibilidad</button><button>Envío</button></div><div class="dm-ptabs-body"><div class="dm-tab-desc"><div><h3>Sobre esta pieza</h3>{isShopify && p.descriptionHtml ? <Fragment set:html={p.descriptionHtml} /> : <p>El <strong>{title.toLowerCase()}</strong> es un repuesto disponible en Distribuidor Miranda Ecuador.</p>}<h4>Compatibilidad principal</h4><ul>{applications.map(app => <li>{app}</li>)}</ul></div><aside class="dm-aside-card"><div class="mono">FICHA RÁPIDA</div><dl><dt>SKU</dt><dd class="mono">{sku}</dd><dt>Marca</dt><dd>{brand}</dd><dt>Categoría</dt><dd>{category}</dd>{specs.slice(0,6).map((spec) => <><dt>{spec.label}</dt><dd>{spec.value}</dd></>)}</dl></aside></div></div></section>
+    <section class="dm-feature"><div class="dm-section-head"><div><div class="dm-section-eyebrow mono">/ RELACIONADOS</div><h2>También te puede servir</h2></div></div><div class="dm-product-grid">{related.map(product => <ProductCard product={product} />)}</div></section>
+  </main>
+  <Footer />
+  <script>
+    document.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-add-to-cart]');
+      if (!button) return;
+      const variantId = button.dataset.variantId;
+      if (!variantId) {
+        window.location.href = 'mailto:ventas@distribuidormiranda.ec';
+        return;
+      }
+      button.disabled = true;
+      const original = button.textContent;
+      button.textContent = 'Agregando…';
+      document.dispatchEvent(new CustomEvent('cart-add-request', {
+        detail: {
+          variantId,
+          quantity: 1,
+          onSuccess: () => {
+            button.disabled = false;
+            button.textContent = original;
+          },
+          onError: () => {
+            button.disabled = false;
+            button.textContent = 'Error, intentar de nuevo';
+            setTimeout(() => { button.textContent = original; }, 1800);
+          },
+        },
+      }));
+    });
+  </script>
+</Layout>

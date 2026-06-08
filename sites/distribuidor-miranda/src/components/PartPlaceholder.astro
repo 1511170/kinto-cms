@@ -1,0 +1,8 @@
+---
+interface Props { code: string; label: string; accent?: 'warm'|'cool'|'olive'|'steel'; size?: 'sm'|'md'|'lg'|'xl'; }
+const { code, label, accent = 'warm', size = 'md' } = Astro.props;
+---
+<div class={`dm-placeholder accent-${accent} size-${size}`}>
+  <div class="dm-ph-tag">{label}</div>
+  <div class="dm-ph-code">{code}</div>
+</div>

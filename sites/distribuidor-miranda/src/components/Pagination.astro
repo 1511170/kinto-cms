@@ -1,0 +1,123 @@
+---
+// Pagination.astro - Paginación para listados
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+}
+
+const { currentPage, totalPages, baseUrl } = Astro.props;
+
+const pages = [];
+const maxVisible = 5;
+let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+let end = Math.min(totalPages, start + maxVisible - 1);
+
+if (end - start + 1 < maxVisible) {
+  start = Math.max(1, end - maxVisible + 1);
+}
+
+for (let i = start; i <= end; i++) {
+  pages.push(i);
+}
+---
+
+<nav class="dm-pagination" aria-label="Paginación">
+  <div class="dm-pagination-info">
+    Página {currentPage} de {totalPages}
+  </div>
+  
+  <div class="dm-pagination-buttons">
+    {currentPage > 1 && (
+      <a href={`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}page=${currentPage - 1}`} class="dm-pagination-btn dm-pagination-btn--prev">
+        ← Anterior
+      </a>
+    )}
+    
+    {start > 1 && (
+      <a href={`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}page=1`} class="dm-pagination-btn">1</a>
+    )}
+    
+    {start > 2 && <span class="dm-pagination-ellipsis">...</span>}
+    
+    {pages.map(page => (
+      page === currentPage ? (
+        <span class="dm-pagination-btn dm-pagination-btn--active" aria-current="page">{page}</span>
+      ) : (
+        <a href={`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}page=${page}`} class="dm-pagination-btn">{page}</a>
+      )
+    ))}
+    
+    {end < totalPages - 1 && <span class="dm-pagination-ellipsis">...</span>}
+    
+    {end < totalPages && (
+      <a href={`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}page=${totalPages}`} class="dm-pagination-btn">{totalPages}</a>
+    )}
+    
+    {currentPage < totalPages && (
+      <a href={`${baseUrl}${baseUrl.includes('?') ? '&' : '?'}page=${currentPage + 1}`} class="dm-pagination-btn dm-pagination-btn--next">
+        Siguiente →
+      </a>
+    )}
+  </div>
+</nav>
+
+<style>
+  .dm-pagination {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 0;
+  }
+
+  .dm-pagination-info {
+    font-size: 13px;
+    color: var(--ink-3, #666);
+  }
+
+  .dm-pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .dm-pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--line, #ddd);
+    border-radius: 8px;
+    background: var(--surface, #fff);
+    color: var(--ink-2, #333);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+
+  .dm-pagination-btn:hover {
+    border-color: var(--accent, #f59e0b);
+    color: var(--accent, #f59e0b);
+  }
+
+  .dm-pagination-btn--active {
+    background: var(--accent, #f59e0b);
+    border-color: var(--accent, #f59e0b);
+    color: #fff;
+  }
+
+  .dm-pagination-btn--prev,
+  .dm-pagination-btn--next {
+    padding: 0 16px;
+  }
+
+  .dm-pagination-ellipsis {
+    color: var(--ink-3, #666);
+    padding: 0 8px;
+  }
+</style>
