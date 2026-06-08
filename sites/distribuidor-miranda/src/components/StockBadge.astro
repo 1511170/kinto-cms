@@ -18,6 +18,9 @@ if (available) {
   } else if (quantity > 0) {
     status = 'low-stock';
     label = `Solo ${quantity} disponibles`;
+  } else {
+    status = 'in-stock';
+    label = 'Disponible';
   }
 }
 ---

@@ -85,8 +85,9 @@ if (!skipBuild) {
       try {
         execSync('npm run build', { 
           cwd: rootDir,
-          stdio: 'pipe',
-          timeout: 60000
+          stdio: 'ignore',
+          timeout: 300000,
+          maxBuffer: 1024 * 1024 * 20
         });
         return true;
       } catch {

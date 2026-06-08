@@ -1,40 +1,46 @@
 ---
 // QuickView.astro - Vista rápida de producto en modal
-import type { Product } from '../lib/shopify-catalog';
+import { productAvailable, productHref, productImageUrl, productKey as getProductKey, productPlaceholder, productSku, type Product } from '../lib/shopify-catalog';
+import PartPlaceholder from './PartPlaceholder.astro';
 import StockBadge from './StockBadge.astro';
 
 interface Props {
   product: Product;
+  productKey?: string;
 }
 
-const { product } = Astro.props;
-const price = product.price || 0;
-const compareAtPrice = product.compareAtPrice;
-const available = product.available !== false;
+const { product, productKey: providedProductKey } = Astro.props;
+const variant = product.variants?.[0];
+const price = Number(variant?.price?.amount ?? 0);
+const compareAtPrice = Number(variant?.compareAtPrice?.amount ?? 0) || undefined;
+const available = productAvailable(product);
+const sku = productSku(product);
+const imageUrl = productImageUrl(product, 720);
+const modalKey = providedProductKey || getProductKey(product);
+const placeholder = productPlaceholder(product);
+const href = productHref(product);
 ---
 
-<div class="dm-quickview" data-quickview={product.id} hidden>
+<div class="dm-quickview" data-quickview={modalKey} hidden>
   <div class="dm-quickview-overlay"></div>
   <div class="dm-quickview-content">
     <button class="dm-quickview-close" aria-label="Cerrar">×</button>
     
     <div class="dm-quickview-grid">
       <div class="dm-quickview-image">
-        {product.image ? (
-          <img src={product.image} alt={product.title} loading="lazy" />
+        {imageUrl ? (
+          <img src={imageUrl} alt={product.title} loading="lazy" decoding="async" onerror="this.style.display='none';" />
         ) : (
-          <div class="dm-quickview-placeholder">
-            <span class="mono">{product.sku || product.handle}</span>
-          </div>
+          <PartPlaceholder code={placeholder.code} label={placeholder.label} accent={placeholder.accent} size="lg" />
         )}
       </div>
       
       <div class="dm-quickview-info">
-        <div class="dm-quickview-sku mono">{product.sku || product.handle}</div>
+        <div class="dm-quickview-sku mono">{sku}</div>
         <h3 class="dm-quickview-title">{product.title}</h3>
         
         <div class="dm-quickview-price">
-          <span class="dm-quickview-price-now">${price.toFixed(2)}</span>
+          <span class="dm-quickview-price-now">{price > 0 ? `$${price.toFixed(2)}` : 'Cotizar'}</span>
           {compareAtPrice && compareAtPrice > price && (
             <span class="dm-quickview-price-compare">${compareAtPrice.toFixed(2)}</span>
           )}
@@ -45,7 +51,7 @@ const available = product.available !== false;
         <p class="dm-quickview-desc">{product.description || 'Repuesto original y alternativo para vehículos.'}</p>
         
         <div class="dm-quickview-actions">
-          <a href={`/producto/${product.handle}/`} class="dm-btn dm-btn-primary dm-btn-full">
+          <a href={href} class="dm-btn dm-btn-primary dm-btn-full">
             Ver detalles →
           </a>
         </div>

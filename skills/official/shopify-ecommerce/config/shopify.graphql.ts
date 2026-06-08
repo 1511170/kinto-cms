@@ -37,6 +37,7 @@ const METAFIELD_IDENTIFIERS = METAFIELD_KEYS.map(
 
 export const PRODUCT_FRAGMENT = `
   fragment ProductFragment on Product {
+    id
     handle
     title
     description

@@ -13,3 +13,28 @@
 .dm-footer{background:var(--ink);color:var(--paper);margin-top:40px}.dm-footer-grid{max-width:1440px;margin:0 auto;padding:54px 28px;display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:28px}.dm-footer p,.dm-footer li,.dm-footer-news{color:#C9C5B8;font-size:13px}.dm-footer h5{font-family:var(--font-display);font-size:16px;margin:0 0 14px}.dm-footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}.dm-footer-name{font-family:var(--font-display);font-size:24px;font-weight:900;margin-top:12px}.dm-footer-cert,.dm-pays{display:flex;gap:8px;flex-wrap:wrap}.dm-footer-cert span,.dm-pays span{border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:5px 8px;font-size:10px}.dm-footer-locs li{display:grid;gap:2px}.dm-news-form{display:flex;gap:6px}.dm-news-form input{min-width:0;flex:1;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);border-radius:6px;padding:0 10px;color:#fff}.dm-news-form button{height:38px;border:0;border-radius:6px;background:var(--accent);color:#fff;font-weight:800}.dm-footer-base{max-width:1440px;margin:0 auto;border-top:1px solid rgba(255,255,255,.12);padding:18px 28px;display:flex;gap:18px;color:#C9C5B8;font-size:12px}
 @media(max-width:1100px){.dm-mainbar{flex-wrap:wrap}.dm-search{order:3;flex-basis:100%}.dm-hero-grid,.dm-product-top{grid-template-columns:1fr}.dm-hero-right{height:500px}.dm-product-grid{grid-template-columns:repeat(2,1fr)}.dm-product-grid-coll{grid-template-columns:repeat(2,1fr)}.dm-cats-grid,.dm-brands-grid{grid-template-columns:1fr 1fr}.dm-coll-grid{grid-template-columns:1fr}.dm-filters{position:static}.dm-footer-grid{grid-template-columns:1fr 1fr}.dm-services{grid-template-columns:1fr 1fr!important}.dm-service:first-child,.dm-service:last-child{border-radius:12px}.dm-tab-desc{grid-template-columns:1fr}.dm-gallery-main{min-height:420px}}
 @media(max-width:720px){.dm-utility{display:none}.dm-mainbar{padding:14px}.dm-actions{display:none}.dm-nav-inner{padding:0 14px}.dm-home>section,.dm-feature,.dm-cats,.dm-brands,.dm-services,.dm-cta,.dm-collection,.dm-product{padding:36px 16px}.dm-hero-title{font-size:46px}.dm-finder-row,.dm-vcheck-row,.dm-buybox-row{grid-template-columns:1fr}.dm-hero-stats{grid-template-columns:repeat(2,1fr)}.dm-hero-right{display:none}.dm-cats-grid,.dm-product-grid,.dm-product-grid-coll,.dm-brands-grid,.dm-services,.dm-footer-grid,.dm-trust-list{grid-template-columns:1fr!important}.dm-cat-tile{grid-template-columns:1fr}.dm-section-head,.dm-coll-titlewrap,.dm-cta-inner,.dm-toolbar{align-items:flex-start;flex-direction:column}.dm-gallery{grid-template-columns:1fr}.dm-gallery-thumbs{grid-template-columns:repeat(4,1fr)}.dm-gallery-main{min-height:320px}.dm-pinfo-price-main{flex-wrap:wrap}.dm-footer-base{flex-wrap:wrap}.dm-hero-card{position:static;transform:none;width:100%;margin-bottom:12px}}
+
+
+/* Distribuidor Miranda UX hardening: denser catalog, readable cards, mobile nav/cart */
+.dm-product-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+.dm-product-grid-coll{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:20px}
+.dm-nav-inner{scrollbar-width:thin;overscroll-behavior-x:contain}
+.dm-nav-inner::-webkit-scrollbar{height:6px}
+.dm-nav-inner::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px}
+.dm-card-media.has-real-image{background:linear-gradient(180deg,#fff,var(--surface-2))}
+.dm-card-media.has-placeholder{background:var(--paper-2)}
+@media(max-width:720px){
+  .dm-logo-sub{display:none}
+  .dm-logo-name{font-size:16px}
+  .dm-mainbar{gap:12px}
+  .dm-search kbd{display:none}
+  .dm-actions{display:flex;margin-left:auto}
+  .dm-actions .dm-iconbtn{display:none}
+  .dm-cart{height:36px;padding:0 12px;font-size:13px}
+  .dm-nav-inner>a{padding:10px 12px;font-size:12px}
+  .dm-product-grid,.dm-product-grid-coll{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px}
+  .dm-card-body{padding:12px}
+  .dm-card-title{font-size:13px;min-height:51px}
+  .dm-card-actions .dm-btn{font-size:12px;padding:0 10px}
+}
+@media(max-width:420px){.dm-product-grid,.dm-product-grid-coll{grid-template-columns:1fr!important}}

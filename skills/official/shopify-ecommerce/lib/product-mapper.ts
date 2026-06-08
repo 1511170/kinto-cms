@@ -1,4 +1,5 @@
 export interface Product {
+  id: string;
   handle: string;
   title: string;
   description: string;
@@ -109,6 +110,7 @@ export interface CartState {
 
 export function mapShopifyProduct(raw: any): Product {
   return {
+    id: raw.id ?? raw.handle,
     handle: raw.handle,
     title: raw.title,
     description: raw.description,
@@ -306,6 +308,7 @@ function mapShopifyVariant(raw: any): Variant {
 
 export function mapShopifyCollection(raw: any): Collection {
   return {
+    id: raw.id ?? raw.handle,
     handle: raw.handle,
     title: raw.title,
     description: raw.description,

@@ -2,6 +2,7 @@
 import { getStorefrontCollections, isShopifyCollection, collectionHref } from '../lib/shopify-catalog';
 const collections = await getStorefrontCollections();
 const current = Astro.props.current || '';
+const navCollections = collections.filter((c) => collectionHref(c) !== '/catalogo/todos-los-productos/').slice(0, 7);
 ---
 <header class="dm-topbar">
   <div class="dm-utility"><div class="dm-utility-inner"><span>Envío a todo Ecuador en 24–48h</span><span>·</span><span>Quito · Guayaquil · Cuenca</span><span class="spacer"></span><span>Mayoristas: <strong>+593 99 614 0000</strong></span></div></div>
@@ -10,5 +11,5 @@ const current = Astro.props.current || '';
     <form class="dm-search" action="/catalogo/todos/"><span>⌕</span><input name="q" placeholder="Buscar por código, parte, marca o modelo…" /><kbd>⌘K</kbd></form>
     <div class="dm-actions"><a class="dm-iconbtn" href="/catalogo/todos/">⇄</a><a class="dm-iconbtn" href="/catalogo/todos/">♡</a><a class="dm-cart" data-cart-trigger href="#">Carrito <span class="dm-cart-pill" data-cart-count hidden>0</span></a></div>
   </div>
-  <nav class="dm-nav"><div class="dm-nav-inner"><a class="dm-nav-cats" href="/catalogo/todos/">☰ Todas las categorías</a>{collections.slice(0, 8).map(c => <a class={current === (isShopifyCollection(c) ? c.handle : c.id) ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}<span class="spacer"></span><a class="dm-nav-promo" href="/catalogo/todos/"><span class="dm-pulse"></span>Ofertas</a><a href="#mayoristas">Mayoristas</a><a href="#">Catálogo PDF</a></div></nav>
+  <nav class="dm-nav"><div class="dm-nav-inner"><a class="dm-nav-cats" href="/catalogo/todos/">☰ Todas las categorías</a>{navCollections.map(c => <a class={current === (isShopifyCollection(c) ? c.handle : c.id) ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}<span class="spacer"></span><a class="dm-nav-promo" href="/catalogo/todos/"><span class="dm-pulse"></span>Ofertas</a><a href="#mayoristas">Mayoristas</a><a href="#">Catálogo PDF</a></div></nav>
 </header>

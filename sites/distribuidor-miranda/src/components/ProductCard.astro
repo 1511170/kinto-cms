@@ -3,7 +3,7 @@ import PartPlaceholder from './PartPlaceholder.astro';
 import StockBadge from './StockBadge.astro';
 import QuickView from './QuickView.astro';
 import { formatPrice as formatLocalPrice, type Product as LocalProduct } from '../data/catalog';
-import { isShopifyProduct, productHref, type Product as ShopifyProduct } from '../lib/shopify-catalog';
+import { isShopifyProduct, productHref, productAvailable, productImage, productImageUrl, productKey, productPlaceholder, productSku, productTitle, type Product as ShopifyProduct } from '../lib/shopify-catalog';
 
 export type ProductCardProps = {
   product: ShopifyProduct | LocalProduct;
@@ -12,31 +12,53 @@ export type ProductCardProps = {
 const { product } = Astro.props as ProductCardProps;
 
 const isShopify = isShopifyProduct(product);
-const title = isShopify ? product.title : product.label;
+const title = productTitle(product);
 const variant = isShopify && product.variants?.[0] ? product.variants[0] : undefined;
 const price = isShopify ? Number(variant?.price?.amount ?? 0) : product.price;
-const image = isShopify ? (product.featuredImage?.url ?? variant?.image?.url) : undefined;
+const image = productImage(product);
+const image640 = productImageUrl(product, 640);
+const image320 = productImageUrl(product, 320);
+const image960 = productImageUrl(product, 960);
 const href = isShopify ? productHref(product) : `/producto/${product.code}/`;
-const sku = isShopify ? (variant?.sku || product.handle) : product.code;
-const available = isShopify ? Boolean(product.availableForSale || variant?.availableForSale) : true;
+const sku = productSku(product);
+const key = productKey(product);
+const available = productAvailable(product);
 const compareAtPrice = isShopify ? Number(variant?.compareAtPrice?.amount ?? 0) || undefined : undefined;
 const formattedPrice = isShopify
   ? (price > 0 ? `$${price.toFixed(2)}` : 'Consultar')
   : formatLocalPrice(product.price);
+const placeholder = productPlaceholder(product);
+const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${title} (${sku})`)}`;
 ---
 
-<article class="dm-card dm-product-card" data-product-id={isShopify ? product.id : product.code}>
-  <a href={href} class="dm-card-media">
-    {image ? (
-      <img src={image} alt={title} loading="lazy" />
+<article class={`dm-card dm-product-card ${!available ? 'is-sold-out' : ''}`} data-product-id={key}>
+  <a href={href} class={`dm-card-media ${image640 ? 'has-real-image' : 'has-placeholder'}`}>
+    {image640 ? (
+      <>
+        <img
+          src={image640}
+          srcset={`${image320} 320w, ${image640} 640w, ${image960} 960w`}
+          sizes="(max-width: 720px) 92vw, (max-width: 1100px) 45vw, 25vw"
+          width={image?.width ?? 640}
+          height={image?.height ?? 640}
+          alt={image?.altText || title}
+          loading="lazy"
+          decoding="async"
+          fetchpriority="low"
+          onerror="this.style.display='none'; this.nextElementSibling.hidden=false;"
+        />
+        <div class="dm-image-fallback" hidden>
+          <PartPlaceholder code={placeholder.code} label={placeholder.label} accent={placeholder.accent} size="lg" />
+        </div>
+      </>
     ) : (
-      <PartPlaceholder code={(sku || 'N/A').slice(0, 3).toUpperCase()} label={(title || 'Producto').slice(0, 20)} size="lg" />
+      <PartPlaceholder code={placeholder.code} label={placeholder.label} accent={placeholder.accent} size="lg" />
     )}
     
     {!available && <span class="dm-badge dm-badge--soldout">Agotado</span>}
     {compareAtPrice && compareAtPrice > price && <span class="dm-badge dm-badge--sale">-{Math.round((1 - price/compareAtPrice) * 100)}%</span>}
     
-    <button class="dm-quickview-btn" data-quickview-trigger={isShopify ? product.id : product.code} type="button" aria-label="Vista rápida">
+    <button class="dm-quickview-btn" data-quickview-trigger={key} type="button" aria-label="Vista rápida">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     </button>
   </a>
@@ -64,15 +86,15 @@ const formattedPrice = isShopify
           Agregar al carrito
         </button>
       ) : (
-        <button class="dm-btn dm-btn-outline dm-btn-full" disabled>
-          Agotado
-        </button>
+        <a class="dm-btn dm-btn-outline dm-btn-full" href={whatsappHref} target="_blank" rel="noopener">
+          Cotizar disponibilidad
+        </a>
       )}
     </div>
   </div>
 </article>
 
-{isShopify && <QuickView product={product} />}
+{isShopify && <QuickView product={product} productKey={key} />}
 
 <style>
   .dm-product-card {
@@ -93,7 +115,7 @@ const formattedPrice = isShopify
   .dm-card-media {
     position: relative;
     aspect-ratio: 1;
-    background: var(--paper, #f5f5f5);
+    background: linear-gradient(180deg, var(--surface-2, #fbf8f1), var(--paper, #f5f5f5));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -104,12 +126,21 @@ const formattedPrice = isShopify
     width: 100%;
     height: 100%;
     object-fit: contain;
-    padding: 16px;
-    transition: transform 0.3s;
+    padding: 14px;
+    transition: transform 0.3s, opacity 0.2s;
   }
   
   .dm-product-card:hover .dm-card-media img {
-    transform: scale(1.05);
+    transform: scale(1.04);
+  }
+
+  .dm-image-fallback {
+    width: 100%;
+    height: 100%;
+  }
+
+  .dm-product-card.is-sold-out {
+    opacity: 0.82;
   }
   
   .dm-badge {
@@ -174,6 +205,11 @@ const formattedPrice = isShopify
     font-weight: 700;
     line-height: 1.3;
     margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 58px;
   }
   
   .dm-card-title a {
@@ -213,6 +249,10 @@ const formattedPrice = isShopify
   .dm-card-actions .dm-btn {
     height: 40px;
     font-size: 13px;
+  }
+
+  @media (hover: none) {
+    .dm-quickview-btn { opacity: 1; }
   }
 </style>
 
