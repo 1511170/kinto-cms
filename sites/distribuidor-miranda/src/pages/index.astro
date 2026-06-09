@@ -5,17 +5,72 @@ import Footer from '../components/Footer.astro';
 import PartPlaceholder from '../components/PartPlaceholder.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { VEHICLE_MAKES, PARTNER_BRANDS } from '../data/catalog';
-import { getStorefrontProducts, getStorefrontCollections, collectionHref, isShopifyCollection } from '../lib/shopify-catalog';
+import {
+  getStorefrontProducts,
+  getStorefrontCollections,
+  collectionHref,
+  isShopifyCollection,
+  isShopifyProduct,
+  productHref,
+  productImage,
+  productImageUrl,
+  productSku,
+  productTitle,
+} from '../lib/shopify-catalog';
 
-const [products, collections] = await Promise.all([
-  getStorefrontProducts({ limit: 48 }),
+const [allProducts, collections] = await Promise.all([
+  getStorefrontProducts(),
   getStorefrontCollections(),
 ]);
 
-// getStorefrontProducts ya prioriza: disponible → con imagen → con precio.
-const featured = products.slice(0, 8);
-const newest = products.slice(8, 16);
-const popular = products.slice(16, 24);
+// En home mostramos primero productos con foto real: los placeholders quedan para catálogo/detalle,
+// no para la primera impresión del sitio.
+const productsWithPhotos = allProducts.filter((product) => productImage(product));
+const homeProducts = productsWithPhotos.length >= 24 ? productsWithPhotos : allProducts;
+const featured = homeProducts.slice(0, 8);
+const newest = homeProducts.slice(8, 16);
+const popular = homeProducts.slice(16, 24);
+
+const findHeroProduct = (pattern: RegExp, offset = 0) =>
+  productsWithPhotos.find((product, index) => index >= offset && pattern.test(productTitle(product).toLowerCase())) ?? productsWithPhotos[offset];
+
+const heroProducts = [
+  findHeroProduct(/silvin|faro|neblin|lamp|luz|guardachoque|parachoque|capot|guardafango/, 0),
+  findHeroProduct(/radiador|refriger|manguera|ventilador|condensador/, 1),
+  findHeroProduct(/zapatas|freno|amort|terminal|bomba|sensor|manilla/, 2),
+].filter(Boolean);
+
+const collectionImageUrl = (collection: (typeof collections)[number], width = 720) => {
+  if (isShopifyCollection(collection) && collection.image?.url) {
+    try {
+      const url = new URL(collection.image.url);
+      url.searchParams.set('width', String(width));
+      return url.toString();
+    } catch {
+      return collection.image.url;
+    }
+  }
+
+  if (isShopifyCollection(collection)) {
+    const match = productsWithPhotos.find((product) => isShopifyProduct(product) && product.collections?.includes(collection.handle));
+    return match ? productImageUrl(match, width) : '';
+  }
+
+  return '';
+};
+
+const categoryBlurb = (collection: (typeof collections)[number]) => {
+  const title = (isShopifyCollection(collection) ? collection.title : collection.label).toLowerCase();
+  if (/espejo/.test(title)) return 'Retrovisores, vidrios, tapas y bases laterales por modelo.';
+  if (/guardachoque|parachoque/.test(title)) return 'Guardachoques delanteros/posteriores, vinchas, absorbedores y soportes.';
+  if (/radiador/.test(title)) return 'Radiadores, electroventiladores, tapas, bases y refrigeración.';
+  if (/silvin|faro|neblin/.test(title)) return 'Silvines, faros, neblineros, focos y accesorios de iluminación.';
+  if (/capot/.test(title)) return 'Capots, bisagras, seguros y componentes frontales de carrocería.';
+  if (/todos/.test(title)) return 'Explora todo el inventario disponible por código, marca o modelo.';
+  return isShopifyCollection(collection)
+    ? (collection.description || 'Repuestos seleccionados para despacho nacional.')
+    : collection.blurb;
+};
 ---
 <Layout title="Distribuidor Miranda" description="Repuestos de colisión, iluminación y refrigeración para talleres, mayoristas y aseguradoras en Ecuador.">
   <Header />
@@ -24,9 +79,9 @@ const popular = products.slice(16, 24);
     <section class="dm-hero">
       <div class="dm-hero-grid">
         <div class="dm-hero-left">
-          <div class="dm-eyebrow"><span class="dm-eyebrow-dot"></span>CATÁLOGO SHOPIFY · 11.000+ referencias</div>
-          <h1 class="dm-hero-title">El repuesto<br/><em>exacto</em> que tu<br/>taller necesita.</h1>
-          <p class="dm-hero-sub">Carrocería, suspensión, motor, iluminación y refrigeración para talleres, mayoristas y aseguradoras en Ecuador. Catálogo conectado a Shopify para precio, stock y checkout.</p>
+          <div class="dm-eyebrow"><span class="dm-eyebrow-dot"></span>CATÁLOGO DE AUTOPARTES · ECUADOR</div>
+          <h1 class="dm-hero-title">Repuestos de<br/><em>colisión</em> listos<br/>para despacho.</h1>
+          <p class="dm-hero-sub">Guardachoques, silvines, radiadores, capots, guardafangos, manillas y piezas de alta rotación para talleres, aseguradoras y mayoristas. Compra por modelo, código o disponibilidad real.</p>
           
           <!-- Buscador por vehículo -->
           <form class="dm-finder" id="vehicle-finder" action="/catalogo/todos/">
@@ -62,29 +117,25 @@ const popular = products.slice(16, 24);
         </div>
         <div class="dm-hero-right">
           <div class="dm-hero-stack">
-            <div class="dm-hero-card dm-hero-card-1">
-              <PartPlaceholder code="FRO" label="ILUMINACIÓN" size="xl" accent="warm" />
-              <div class="dm-hero-card-meta">
-                <span class="mono">SHOPIFY · STOCK REAL</span>
-                <span>Catálogo conectado a Storefront API</span>
-              </div>
-            </div>
-            <div class="dm-hero-card dm-hero-card-2">
-              <PartPlaceholder code="PCH" label="CARROCERÍA" size="lg" accent="steel" />
-              <div class="dm-hero-card-meta">
-                <span class="mono">CHECKOUT</span>
-                <span>Carrito dinámico con Shopify</span>
-              </div>
-            </div>
-            <div class="dm-hero-card dm-hero-card-3">
-              <PartPlaceholder code="RAD" label="REFRIG." size="md" accent="cool" />
-              <div class="dm-hero-card-meta">
-                <span class="mono">WORKER</span>
-                <span>Cloudflare cache + APIs</span>
-              </div>
-            </div>
+            {heroProducts.map((product, i) => (
+              <a class={`dm-hero-card dm-hero-card-${i + 1} dm-hero-product-card`} href={productHref(product)}>
+                <img
+                  class="dm-hero-product-img"
+                  src={productImageUrl(product, i === 0 ? 960 : 640)}
+                  alt={productTitle(product)}
+                  width="640"
+                  height="640"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+                <div class="dm-hero-card-meta">
+                  <span class="mono">{productSku(product)}</span>
+                  <span>{productTitle(product)}</span>
+                </div>
+              </a>
+            ))}
           </div>
-          <div class="dm-hero-blueprint mono">KINTO × SHOPIFY · 2026</div>
+          <div class="dm-hero-blueprint mono">REPUESTOS MIRANDA · STOCK EN LÍNEA</div>
         </div>
       </div>
     </section>
@@ -104,20 +155,32 @@ const popular = products.slice(16, 24);
         {collections.slice(0, 6).map((c, i) => (
           <a class="dm-cat-tile" href={collectionHref(c)}>
             <div class="dm-cat-tile-media">
-              <PartPlaceholder 
-                code={(isShopifyCollection(c) ? c.title : c.code).slice(0, 3).toUpperCase()} 
-                label={(isShopifyCollection(c) ? c.title : c.label).toUpperCase()} 
-                accent={['warm','cool','olive','steel','warm','olive'][i]} 
-                size="lg" 
-              />
+              {collectionImageUrl(c) ? (
+                <img
+                  class="dm-cat-tile-img"
+                  src={collectionImageUrl(c)}
+                  alt={isShopifyCollection(c) ? c.title : c.label}
+                  width="720"
+                  height="520"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <PartPlaceholder
+                  code={(isShopifyCollection(c) ? c.title : c.code).slice(0, 3).toUpperCase()}
+                  label={(isShopifyCollection(c) ? c.title : c.label).toUpperCase()}
+                  accent={['warm','cool','olive','steel','warm','olive'][i]}
+                  size="lg"
+                />
+              )}
             </div>
             <div class="dm-cat-tile-body">
               <div class="dm-cat-tile-count mono">
-                {isShopifyCollection(c) && c.productsCount ? `${c.productsCount} productos` : 'SHOPIFY'}
+                {isShopifyCollection(c) && c.productsCount ? `${c.productsCount} productos` : 'Catálogo'}
               </div>
               <div class="dm-cat-tile-name">{isShopifyCollection(c) ? c.title : c.label}</div>
               <div class="dm-cat-tile-blurb">
-                {isShopifyCollection(c) ? (c.description || 'Colección de repuestos conectada a Shopify.') : c.blurb}
+                {categoryBlurb(c)}
               </div>
               <span class="dm-cat-tile-arrow">→</span>
             </div>
