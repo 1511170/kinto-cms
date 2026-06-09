@@ -38,7 +38,8 @@ export function productSku(product: StorefrontProduct) {
 }
 
 export function productTitle(product: StorefrontProduct) {
-  return isShopifyProduct(product) ? product.title : product.label;
+  if (isShopifyProduct(product)) return product.title || product.handle || 'Producto';
+  return product.label || product.name || product.title || product.id || 'Producto';
 }
 
 export function productAvailable(product: StorefrontProduct) {

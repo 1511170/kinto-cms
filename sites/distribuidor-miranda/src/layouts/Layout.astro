@@ -1,6 +1,7 @@
 ---
 import siteConfig from '../../config/site.config.ts';
 import CartDrawer from '@skills-official/shopify-ecommerce/components/cart/CartDrawer.astro';
+import Analytics from '../components/Analytics.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -72,6 +73,12 @@ const titleFull = title === siteName ? title : `${title} | ${siteName}`;
     <!-- AI Citations -->
     <link rel="alternate" type="text/plain" href="/llms.txt" />
 
+    {siteConfig.site.googleSiteVerification && (
+      <meta name="google-site-verification" content={siteConfig.site.googleSiteVerification} />
+    )}
+
+    <Analytics placement="head" />
+
     <!-- Favicon -->
     {siteConfig.site.favicon && (
       <link rel="icon" type="image/x-icon" href={siteConfig.site.favicon} />
@@ -81,6 +88,7 @@ const titleFull = title === siteName ? title : `${title} | ${siteName}`;
     <slot name="head" />
   </head>
   <body class="antialiased">
+    <Analytics placement="body" />
     <slot />
     <CartDrawer shippingNote="Envío a todo Ecuador · Checkout seguro vía Shopify" whatsappUrl="https://wa.me/593996140000" />
   </body>

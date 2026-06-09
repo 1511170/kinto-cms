@@ -14,6 +14,7 @@ export interface SiteConfig {
     language: string;
     logo?: string;
     favicon?: string;
+    googleSiteVerification?: string;
   };
   cms: {
     enabled: boolean;
@@ -55,7 +56,8 @@ export default {
     description: 'Repuestos de colisión, iluminación y refrigeración para talleres, mayoristas y aseguradoras en Ecuador.',
     language: 'es-EC',
     logo: '/logo.svg',
-    favicon: '/favicon.ico'
+    favicon: '/favicon.ico',
+    googleSiteVerification: process.env.GOOGLE_SITE_VERIFICATION || ''
   },
   cms: {
     enabled: true,
@@ -80,9 +82,9 @@ export default {
       featured: []
     },
     tracking: {
-      littledataTrackerId: '',
-      gaMeasurementId: '',
-      gtmContainerId: ''
+      littledataTrackerId: process.env.LITTLEDATA_TRACKER_ID || '',
+      gaMeasurementId: process.env.GA4_MEASUREMENT_ID || process.env.GOOGLE_ANALYTICS_ID || '',
+      gtmContainerId: process.env.GTM_CONTAINER_ID || ''
     }
   },
   skills: {}
