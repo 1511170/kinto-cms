@@ -78,32 +78,15 @@ const related = products
   </main>
   <Footer />
   <script>
-    document.addEventListener('click', (event) => {
-      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-add-to-cart]');
-      if (!button) return;
-      const variantId = button.dataset.variantId;
-      if (!variantId) {
-        window.location.href = 'mailto:ventas@distribuidormiranda.ec';
-        return;
-      }
-      button.disabled = true;
-      const original = button.textContent;
-      button.textContent = 'Agregando…';
-      document.dispatchEvent(new CustomEvent('cart-add-request', {
-        detail: {
-          variantId,
-          quantity: 1,
-          onSuccess: () => {
-            button.disabled = false;
-            button.textContent = original;
-          },
-          onError: () => {
-            button.disabled = false;
-            button.textContent = 'Error, intentar de nuevo';
-            setTimeout(() => { button.textContent = original; }, 1800);
-          },
-        },
-      }));
+    document.querySelectorAll('.dm-qty').forEach((qty) => {
+      const input = qty.querySelector('input');
+      const [minus, plus] = qty.querySelectorAll('button');
+      minus?.addEventListener('click', () => {
+        input.value = String(Math.max(1, Number(input.value || 1) - 1));
+      });
+      plus?.addEventListener('click', () => {
+        input.value = String(Math.max(1, Number(input.value || 1) + 1));
+      });
     });
   </script>
 </Layout>

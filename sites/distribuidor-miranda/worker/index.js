@@ -9,7 +9,7 @@
  */
 import { handleProducts } from "./routes/products";
 import { handleCollections } from "./routes/collections";
-import { handleCart } from "./routes/cart-simple";
+import { handleCart } from "./routes/cart";
 import { handleWebhook } from "./routes/webhooks";
 import { handleHealth } from "./routes/health";
 import { getRedirect } from "./routes/redirects";

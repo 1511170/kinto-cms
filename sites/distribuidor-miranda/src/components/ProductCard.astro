@@ -268,39 +268,43 @@ const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola
     });
   });
   
-  // Add to cart / checkout
+  // Add to cart: never redirect directly. The CartDrawer owns Shopify cart I/O
+  // and only its checkout button should send the customer to checkout.
   if (!window.__dmAddToCartBound) {
     window.__dmAddToCartBound = true;
-    document.addEventListener('click', async (e) => {
+    document.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-add-to-cart]');
       if (!btn) return;
       e.preventDefault();
-      const merchandiseId = btn.getAttribute('data-variant-id');
-      if (!merchandiseId) {
-        alert('No se encontró la variante del producto.');
+      e.stopPropagation();
+
+      const variantId = btn.getAttribute('data-variant-id');
+      if (!variantId) {
+        window.location.href = 'mailto:ventas@distribuidormiranda.ec';
         return;
       }
+
+      const qtyInput = btn.closest('.dm-buybox')?.querySelector('.dm-qty input');
+      const quantity = Math.max(1, Number(qtyInput?.value || 1));
       const originalText = btn.textContent;
       btn.disabled = true;
       btn.textContent = 'Agregando…';
-      try {
-        const response = await fetch('/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lines: [{ merchandiseId, quantity: 1 }] }),
-        });
-        const data = await response.json();
-        if (!response.ok || !data?.ok || !data?.cart?.checkoutUrl) {
-          throw new Error(data?.error || 'No se pudo crear el carrito');
-        }
-        btn.textContent = 'Ir a checkout…';
-        window.location.href = data.cart.checkoutUrl;
-      } catch (error) {
-        console.error('[cart] add failed', error);
-        alert('No se pudo agregar al carrito. Intenta de nuevo o escríbenos por WhatsApp.');
-        btn.disabled = false;
-        btn.textContent = originalText || 'Agregar al carrito';
-      }
+
+      document.dispatchEvent(new CustomEvent('cart-add-request', {
+        detail: {
+          variantId,
+          quantity,
+          onSuccess: () => {
+            btn.disabled = false;
+            btn.textContent = originalText || 'Agregar al carrito';
+          },
+          onError: () => {
+            btn.disabled = false;
+            btn.textContent = 'Error, intentar de nuevo';
+            setTimeout(() => { btn.textContent = originalText || 'Agregar al carrito'; }, 1800);
+          },
+        },
+      }));
     });
   }
 </script>
