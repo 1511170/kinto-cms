@@ -83,7 +83,7 @@ export default {
     },
     tracking: {
       littledataTrackerId: process.env.LITTLEDATA_TRACKER_ID || '',
-      gaMeasurementId: process.env.GA4_MEASUREMENT_ID || process.env.GOOGLE_ANALYTICS_ID || '',
+      gaMeasurementId: process.env.GA4_MEASUREMENT_ID || process.env.GOOGLE_ANALYTICS_ID || 'G-DQKQK612BV',
       gtmContainerId: process.env.GTM_CONTAINER_ID || ''
     }
   },
