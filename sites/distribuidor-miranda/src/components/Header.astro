@@ -2,7 +2,8 @@
 import { getStorefrontCollections, isShopifyCollection, collectionHref } from '../lib/shopify-catalog';
 const collections = await getStorefrontCollections();
 const current = Astro.props.current || '';
-const navCollections = collections.filter((c) => collectionHref(c) !== '/catalogo/todos-los-productos/').slice(0, 12);
+const menuCollections = collections.filter((c) => collectionHref(c) !== '/catalogo/todos-los-productos/');
+const navCollections = menuCollections.slice(0, 12);
 ---
 <header class="dm-topbar">
   <div class="dm-utility"><div class="dm-utility-inner"><span>Envío a todo Ecuador en 24–48h</span><span>·</span><span>Quito · Guayaquil · Cuenca</span><span class="spacer"></span><span>Mayoristas: <strong>+593 99 614 0000</strong></span></div></div>
@@ -11,7 +12,7 @@ const navCollections = collections.filter((c) => collectionHref(c) !== '/catalog
     <form class="dm-search" action="/catalogo/todos/" data-live-search><span>⌕</span><input name="q" placeholder="Buscar por código, parte, marca o modelo…" autocomplete="off" data-live-search-input /><kbd>⌘K</kbd><div class="dm-search-popover" data-live-search-popover hidden><div class="dm-search-popover-head"><strong>Buscar repuestos</strong><small>Escribe código, pieza, marca o modelo</small></div><div class="dm-search-results" data-live-search-results></div><a class="dm-search-all" href="/catalogo/todos/" data-live-search-all>Ver todos los resultados →</a></div></form>
     <div class="dm-actions"><a class="dm-iconbtn" href="/catalogo/todos/">⇄</a><a class="dm-iconbtn" href="/catalogo/todos/">♡</a><a class="dm-cart" data-cart-trigger href="#">Carrito <span class="dm-cart-pill" data-cart-count hidden>0</span></a></div>
   </div>
-  <nav class="dm-nav"><div class="dm-nav-inner"><a class="dm-nav-cats" href="/catalogo/todos/">☰ Todas las categorías</a>{navCollections.map(c => <a class={current === (isShopifyCollection(c) ? c.handle : c.id) ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}<span class="spacer"></span><a class="dm-nav-promo" href="/catalogo/todos/"><span class="dm-pulse"></span>Ofertas</a><a href="#mayoristas">Mayoristas</a><a href="#">Catálogo PDF</a></div></nav>
+  <nav class="dm-nav"><div class="dm-nav-inner"><details class="dm-mega"><summary class="dm-nav-cats">☰ Todas las categorías</summary><div class="dm-mega-panel"><div class="dm-mega-head"><strong>Familias de repuestos</strong><a href="/catalogo/todos/">Ver los 11.808 productos →</a></div><div class="dm-mega-grid">{menuCollections.map(c => <a class={current === (isShopifyCollection(c) ? c.handle : c.id) ? 'active' : ''} href={collectionHref(c)}><span>{isShopifyCollection(c) ? c.title : c.label}</span><small>{isShopifyCollection(c) ? 'Collection Shopify' : 'Categoría inteligente'}</small></a>)}</div></div></details>{navCollections.map(c => <a class={current === (isShopifyCollection(c) ? c.handle : c.id) ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}<span class="spacer"></span><a class="dm-nav-promo" href="/catalogo/todos/"><span class="dm-pulse"></span>Ofertas</a><a href="#mayoristas">Mayoristas</a><a href="#">Catálogo PDF</a></div></nav>
 </header>
 <script>
   (() => {
@@ -24,6 +25,33 @@ const navCollections = collections.filter((c) => collectionHref(c) !== '/catalog
     let products = [];
     let loaded = false;
     const escapeHtml = (value) => String(value ?? '').replace(/[&<>\"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[char]));
+    const SYNONYMS = {
+      gchoque: ['guardachoque', 'parachoque', 'bumper'],
+      guardachoque: ['gchoque', 'parachoque', 'bumper'],
+      parachoque: ['guardachoque', 'gchoque', 'bumper'],
+      silvin: ['faro', 'luz', 'lampara', 'lámpara'],
+      faro: ['silvin', 'luz', 'lampara', 'lámpara'],
+      neblina: ['neblinero', 'halogeno', 'halógeno'],
+      neblinero: ['neblina', 'halogeno', 'halógeno'],
+      capot: ['cofre'],
+      cofre: ['capot'],
+      guardafango: ['guardalodo', 'lodera'],
+      guardalodo: ['guardafango', 'lodera'],
+      radiador: ['refrigeracion', 'refrigeración', 'condensador'],
+      refrigeracion: ['radiador', 'condensador'],
+      amortiguador: ['amort', 'suspension', 'suspensión'],
+      espejo: ['retrovisor'],
+      retrovisor: ['espejo'],
+      lh: ['izq', 'izquierdo', 'left'],
+      rh: ['der', 'derecho', 'right'],
+      izq: ['lh', 'izquierdo', 'left'],
+      der: ['rh', 'derecho', 'right'],
+    };
+    const normalizeText = (value) => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const expandTerms = (query) => {
+      const base = normalizeText(query).split(/\s+/).filter(Boolean);
+      return base.map((term) => [term, ...(SYNONYMS[term] || []).map(normalizeText)]);
+    };
     async function load() {
       if (loaded) return products;
       loaded = true;
@@ -37,18 +65,18 @@ const navCollections = collections.filter((c) => collectionHref(c) !== '/catalog
       }
       return products;
     }
-    function score(product, terms, query) {
-      const title = String(product.title || '').toLowerCase();
-      const sku = String(product.sku || '').toLowerCase();
-      const type = String(product.productType || '').toLowerCase();
-      const tags = Array.isArray(product.tags) ? product.tags.join(' ').toLowerCase() : '';
+    function score(product, termGroups, query) {
+      const title = normalizeText(product.title || '');
+      const sku = normalizeText(product.sku || '');
+      const type = normalizeText(product.productType || '');
+      const tags = Array.isArray(product.tags) ? normalizeText(product.tags.join(' ')) : '';
       const haystack = `${title} ${sku} ${type} ${tags}`;
-      if (!terms.every((term) => haystack.includes(term))) return 0;
+      if (!termGroups.every((group) => group.some((term) => haystack.includes(term)))) return 0;
       let value = 10;
       if (sku === query) value += 120;
       if (sku.startsWith(query)) value += 90;
       if (title.startsWith(query)) value += 70;
-      for (const term of terms) {
+      for (const group of termGroups) for (const term of group) {
         if (sku.includes(term)) value += 35;
         if (title.includes(term)) value += 20;
         if (type.includes(term)) value += 10;
@@ -82,11 +110,12 @@ const navCollections = collections.filter((c) => collectionHref(c) !== '/catalog
     }
     let timer;
     async function run() {
-      const query = String(input.value || '').trim().toLowerCase();
-      const terms = query.split(/\s+/).filter(Boolean);
+      const rawQuery = String(input.value || '').trim();
+      const query = normalizeText(rawQuery);
+      const termGroups = expandTerms(rawQuery);
       await load();
-      const ranked = query ? products.map((product) => ({ product, score: score(product, terms, query) })).filter((item) => item.score > 0).sort((a, b) => b.score - a.score).map((item) => item.product) : [];
-      render(ranked, query);
+      const ranked = query ? products.map((product) => ({ product, score: score(product, termGroups, query) })).filter((item) => item.score > 0).sort((a, b) => b.score - a.score).map((item) => item.product) : [];
+      render(ranked, rawQuery);
     }
     input.addEventListener('focus', () => run());
     input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 90); });

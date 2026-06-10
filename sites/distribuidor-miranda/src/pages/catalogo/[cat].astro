@@ -365,6 +365,36 @@ const collectionSchemas = [
         <div class="dm-card-body"><div class="dm-card-sku mono">${sku}</div><h3 class="dm-card-title"><a href="${href}">${title}</a></h3><div class="dm-card-meta"><span class="dm-stock ${available ? 'is-in' : 'is-out'}"><span></span>${available ? 'Disponible' : 'Consultar'}</span></div><div class="dm-card-price"><span class="dm-card-price-now">${price > 0 ? `$${price.toFixed(2)}` : 'Consultar'}</span>${compare > price && price > 0 ? `<span class="dm-card-price-compare">$${compare.toFixed(2)}</span>` : ''}</div><div class="dm-card-actions">${available && variantId ? `<button class="dm-btn dm-btn-primary dm-btn-full" data-add-to-cart data-variant-id="${variantId}">Agregar al carrito</button>` : `<a class="dm-btn dm-btn-outline dm-btn-full" href="${whatsapp}" target="_blank" rel="noopener">Cotizar disponibilidad</a>`}</div></div>
       </article>`;
     }
+    const SYNONYMS = {
+      gchoque: ['guardachoque', 'parachoque', 'bumper'],
+      guardachoque: ['gchoque', 'parachoque', 'bumper'],
+      parachoque: ['guardachoque', 'gchoque', 'bumper'],
+      silvin: ['faro', 'luz', 'lampara', 'lámpara'],
+      faro: ['silvin', 'luz', 'lampara', 'lámpara'],
+      neblina: ['neblinero', 'halogeno', 'halógeno'],
+      neblinero: ['neblina', 'halogeno', 'halógeno'],
+      capot: ['cofre'],
+      cofre: ['capot'],
+      guardafango: ['guardalodo', 'lodera'],
+      guardalodo: ['guardafango', 'lodera'],
+      radiador: ['refrigeracion', 'refrigeración', 'condensador'],
+      refrigeracion: ['radiador', 'condensador'],
+      amortiguador: ['amort', 'suspension', 'suspensión'],
+      espejo: ['retrovisor'],
+      retrovisor: ['espejo'],
+      lh: ['izq', 'izquierdo', 'left'],
+      rh: ['der', 'derecho', 'right'],
+      izq: ['lh', 'izquierdo', 'left'],
+      der: ['rh', 'derecho', 'right'],
+    };
+    const normalizeText = (value) => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const expandedGroups = (value) => normalizeText(value).split(/\s+/).filter(Boolean).map((term) => [term, ...(SYNONYMS[term] || []).map(normalizeText)]);
+    const fuzzyIncludes = (text, value) => {
+      if (!value) return true;
+      const normalized = normalizeText(text);
+      return expandedGroups(value).every((group) => group.some((term) => normalized.includes(term)));
+    };
+
     function toClientProduct(product, index) {
       const text = `${product.title || ''} ${product.sku || ''} ${product.vendor || ''} ${product.productType || ''} ${(product.tags || []).join(' ')}`;
       const make = detectMakeClient(text);
@@ -372,8 +402,8 @@ const collectionSchemas = [
         product,
         index,
         title: product.title || '',
-        search: text.toLowerCase(),
-        sku: String(product.sku || '').toLowerCase(),
+        search: normalizeText(text),
+        sku: normalizeText(product.sku || ''),
         brand: slugify(product.vendor || 'Distribuidor Miranda'),
         make: slugify(make),
         part: detectPartClient(text),
@@ -397,8 +427,8 @@ const collectionSchemas = [
 
     function selected(selector) { return Array.from(document.querySelectorAll(selector + ':checked')).map(input => input.value); }
     function syncStateFromDom() {
-      state.q = (search?.value || '').trim().toLowerCase();
-      state.model = (model?.value || '').trim().toLowerCase();
+      state.q = normalizeText((search?.value || '').trim());
+      state.model = normalizeText((model?.value || '').trim());
       state.make = document.querySelector('[data-filter-select="make"]')?.value || '';
       state.year = document.querySelector('[data-filter-select="year"]')?.value || '';
       state.sort = sortSelect?.value || 'relevance';
@@ -416,8 +446,8 @@ const collectionSchemas = [
       const d = item.dataset;
       const text = `${d.search || ''} ${d.sku || ''}`;
       const price = Number(d.price || 0);
-      if (state.q && !text.includes(state.q)) return false;
-      if (state.model && !text.includes(state.model)) return false;
+      if (state.q && !fuzzyIncludes(text, state.q)) return false;
+      if (state.model && !fuzzyIncludes(text, state.model)) return false;
       if (state.year && !text.includes(state.year)) return false;
       if (state.make && d.make !== state.make && !text.includes(state.make.replace(/-/g, ' '))) return false;
       if (state.brands.length && !state.brands.includes(d.brand)) return false;
@@ -447,8 +477,8 @@ const collectionSchemas = [
     function matchesClient(item) {
       const text = `${item.search || ''} ${item.sku || ''}`;
       const price = Number(item.price || 0);
-      if (state.q && !text.includes(state.q)) return false;
-      if (state.model && !text.includes(state.model)) return false;
+      if (state.q && !fuzzyIncludes(text, state.q)) return false;
+      if (state.model && !fuzzyIncludes(text, state.model)) return false;
       if (state.year && !text.includes(state.year)) return false;
       if (state.make && item.make !== state.make && !text.includes(state.make.replace(/-/g, ' '))) return false;
       if (state.brands.length && !state.brands.includes(item.brand)) return false;
