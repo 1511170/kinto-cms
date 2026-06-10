@@ -18,7 +18,53 @@ import {
 } from '../data/catalog';
 
 export type StorefrontProduct = ShopifyProduct | LocalProduct;
-export type StorefrontCollection = ShopifyCollection | typeof LOCAL_CATEGORIES[number];
+export type InferredCollection = { id: string; label: string; description: string; inferred: true; priority: number };
+export type StorefrontCollection = ShopifyCollection | typeof LOCAL_CATEGORIES[number] | InferredCollection;
+
+export const INFERRED_CATEGORIES: InferredCollection[] = [
+  { id: 'silvines-faros-luces', label: 'Silvines, faros y luces', description: 'Iluminación exterior: silvines, faros, neblineros, stops, direccionales y focos.', inferred: true, priority: 10 },
+  { id: 'guardachoques', label: 'Guardachoques', description: 'Parachoques, guardachoques, absorbedores y almas de impacto.', inferred: true, priority: 20 },
+  { id: 'radiadores-refrigeracion', label: 'Radiadores y refrigeración', description: 'Radiadores, condensadores, electroventiladores, bombas de agua y mangueras.', inferred: true, priority: 30 },
+  { id: 'suspension-direccion', label: 'Suspensión y dirección', description: 'Amortiguadores, terminales, rótulas, cremalleras, brazos y componentes de suspensión.', inferred: true, priority: 40 },
+  { id: 'motor-sensores-filtros', label: 'Motor, sensores y filtros', description: 'Sensores, bombas, filtros, aceites, bujías, bandas y componentes de motor.', inferred: true, priority: 50 },
+  { id: 'guardafangos', label: 'Guardafangos', description: 'Guardafangos, guardalodos, loderas y aislantes relacionados.', inferred: true, priority: 60 },
+  { id: 'parrillas-mascarillas', label: 'Parrillas y mascarillas', description: 'Parrillas, mascarillas, rejillas, emblemas y bases frontales.', inferred: true, priority: 70 },
+  { id: 'espejos-retrovisores', label: 'Espejos y retrovisores', description: 'Espejos exteriores, retrovisores, tapas y lunas.', inferred: true, priority: 80 },
+  { id: 'capots-cofres', label: 'Capots y cofres', description: 'Capots, cofres, bisagras, varillas y accesorios relacionados.', inferred: true, priority: 90 },
+  { id: 'frenos', label: 'Frenos', description: 'Pastillas, zapatas, discos, tambores, bombas, cilindros y cables de freno.', inferred: true, priority: 100 },
+  { id: 'puertas-manijas-chapas', label: 'Puertas, manijas y chapas', description: 'Puertas, manijas, cerraduras, chapas, compuertas, bisagras y cauchos.', inferred: true, priority: 110 },
+  { id: 'vidrios-parabrisas', label: 'Vidrios y parabrisas', description: 'Parabrisas, vidrios, lunetas, elevavidrios y componentes relacionados.', inferred: true, priority: 120 },
+  { id: 'interior-accesorios', label: 'Interior y accesorios', description: 'Consolas, palancas, pedales, tableros y accesorios interiores.', inferred: true, priority: 130 },
+  { id: 'carroceria-exteriores', label: 'Carrocería exterior', description: 'Molduras, protectores, estribos, tolvas, spoilers y piezas exteriores.', inferred: true, priority: 140 },
+];
+
+const CATEGORY_PATTERNS: Array<[string, RegExp]> = [
+  ['guardachoques', /guardachoque|gchoque|parachoque|bumper|absorbedor impacto|alma impacto/i],
+  ['silvines-faros-luces', /silvin|faro|neblin|neblinero|stop|calavera|luz |lampara|lámpara|direccional|halogeno|halógeno|foco/i],
+  ['radiadores-refrigeracion', /radiador|condensador|electroventilador|ventilador|refriger|manguera agua|termostato|bomba agua|deposito agua|depósito agua/i],
+  ['espejos-retrovisores', /espejo|retrovisor/i],
+  ['capots-cofres', /capot|cofre/i],
+  ['guardafangos', /guardafango|guardapolvo|guardalodo|lodera/i],
+  ['parrillas-mascarillas', /parrilla|mascarilla|rejilla/i],
+  ['suspension-direccion', /amortiguador|terminal|rotula|rótula|cremallera|brazo |mesa |barra estabilizadora|bieleta|suspension|suspensión|muñon|muñón|muleta/i],
+  ['motor-sensores-filtros', /sensor|bomba gasolina|bomba aceite|bujia|bujía|bobina|inyector|filtro|depurador|aceite|motor|map |maf |valvula|válvula|empaque/i],
+  ['frenos', /pastilla|zapata|disco freno|tambor|bomba freno|mordaza|caliper|freno/i],
+  ['puertas-manijas-chapas', /puerta|manija|chapa|aldaba|cerradura|bisagra puerta|elevaluna|compuerta/i],
+  ['vidrios-parabrisas', /parabrisas|vidrio|luneta|elevavidrio/i],
+  ['carroceria-exteriores', /spoiler|moldura|tolva|protector|faldon|faldón|estribo|cubre|tapabarro|plumilla|brazo limpia|apron/i],
+  ['interior-accesorios', /tablero|consola|manubrio|tapiz|alfombra|cenicero|guantera|palanca|pedal/i],
+];
+
+export function isInferredCollection(collection: StorefrontCollection | undefined | null): collection is InferredCollection {
+  return Boolean(collection && typeof collection === 'object' && 'inferred' in collection);
+}
+
+export function inferProductCategoryId(product: StorefrontProduct) {
+  const text = isShopifyProduct(product)
+    ? `${product.title || ''} ${product.productType || ''} ${product.tags?.join(' ') || ''}`
+    : `${product.name || product.label || ''} ${product.catLabel || ''}`;
+  return CATEGORY_PATTERNS.find(([, pattern]) => pattern.test(text))?.[0] || 'sin-clasificar';
+}
 
 export function isShopifyProduct(product: StorefrontProduct | undefined | null): product is ShopifyProduct {
   return Boolean(product && typeof product === 'object' && 'handle' in product && 'variants' in product);
@@ -137,11 +183,13 @@ async function loadCollections(): Promise<StorefrontCollection[]> {
   try {
     assertShopifyConfig();
     const raw = await fetchAllCollections(shopifyOptions);
-    const mapped = raw.map(mapShopifyCollection).filter((collection) => collection.handle !== 'frontpage');
-    return mapped.length ? mapped : LOCAL_CATEGORIES;
+    const mapped = raw.map(mapShopifyCollection).filter((collection: any) => collection.handle !== 'frontpage');
+    const shopifyHandles = new Set(mapped.map((collection: any) => collection.handle));
+    const inferred = INFERRED_CATEGORIES.filter((category) => !shopifyHandles.has(category.id));
+    return mapped.length ? [...mapped, ...inferred] : [...LOCAL_CATEGORIES, ...INFERRED_CATEGORIES];
   } catch (error) {
     shouldUseFallback(error);
-    return LOCAL_CATEGORIES;
+    return [...LOCAL_CATEGORIES, ...INFERRED_CATEGORIES];
   }
 }
 
@@ -164,6 +212,15 @@ export async function getStorefrontCollection(handleOrId: string): Promise<{
     }
   } catch (error) {
     shouldUseFallback(error);
+  }
+
+  const inferredCollection = INFERRED_CATEGORIES.find((cat) => cat.id === handleOrId);
+  if (inferredCollection) {
+    const products = await getStorefrontProducts();
+    return {
+      collection: inferredCollection,
+      products: sortProductsForMerchandising(products.filter((product) => inferProductCategoryId(product) === inferredCollection.id)),
+    };
   }
 
   const collection = LOCAL_CATEGORIES.find((cat) => cat.id === handleOrId);

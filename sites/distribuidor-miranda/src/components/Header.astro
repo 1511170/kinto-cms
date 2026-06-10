@@ -2,14 +2,109 @@
 import { getStorefrontCollections, isShopifyCollection, collectionHref } from '../lib/shopify-catalog';
 const collections = await getStorefrontCollections();
 const current = Astro.props.current || '';
-const navCollections = collections.filter((c) => collectionHref(c) !== '/catalogo/todos-los-productos/').slice(0, 7);
+const navCollections = collections.filter((c) => collectionHref(c) !== '/catalogo/todos-los-productos/').slice(0, 12);
 ---
 <header class="dm-topbar">
   <div class="dm-utility"><div class="dm-utility-inner"><span>Envío a todo Ecuador en 24–48h</span><span>·</span><span>Quito · Guayaquil · Cuenca</span><span class="spacer"></span><span>Mayoristas: <strong>+593 99 614 0000</strong></span></div></div>
   <div class="dm-mainbar">
     <a href="/" class="dm-logo"><div class="dm-logo-mark"><span>DM</span></div><div><div class="dm-logo-name">Distribuidor Miranda</div><div class="dm-logo-sub">Repuestos de colisión · desde 1996</div></div></a>
-    <form class="dm-search" action="/catalogo/todos/"><span>⌕</span><input name="q" placeholder="Buscar por código, parte, marca o modelo…" /><kbd>⌘K</kbd></form>
+    <form class="dm-search" action="/catalogo/todos/" data-live-search><span>⌕</span><input name="q" placeholder="Buscar por código, parte, marca o modelo…" autocomplete="off" data-live-search-input /><kbd>⌘K</kbd><div class="dm-search-popover" data-live-search-popover hidden><div class="dm-search-popover-head"><strong>Buscar repuestos</strong><small>Escribe código, pieza, marca o modelo</small></div><div class="dm-search-results" data-live-search-results></div><a class="dm-search-all" href="/catalogo/todos/" data-live-search-all>Ver todos los resultados →</a></div></form>
     <div class="dm-actions"><a class="dm-iconbtn" href="/catalogo/todos/">⇄</a><a class="dm-iconbtn" href="/catalogo/todos/">♡</a><a class="dm-cart" data-cart-trigger href="#">Carrito <span class="dm-cart-pill" data-cart-count hidden>0</span></a></div>
   </div>
   <nav class="dm-nav"><div class="dm-nav-inner"><a class="dm-nav-cats" href="/catalogo/todos/">☰ Todas las categorías</a>{navCollections.map(c => <a class={current === (isShopifyCollection(c) ? c.handle : c.id) ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}<span class="spacer"></span><a class="dm-nav-promo" href="/catalogo/todos/"><span class="dm-pulse"></span>Ofertas</a><a href="#mayoristas">Mayoristas</a><a href="#">Catálogo PDF</a></div></nav>
 </header>
+<script>
+  (() => {
+    const form = document.querySelector('[data-live-search]');
+    const input = form?.querySelector('[data-live-search-input]');
+    const popover = form?.querySelector('[data-live-search-popover]');
+    const resultsEl = form?.querySelector('[data-live-search-results]');
+    const allLink = form?.querySelector('[data-live-search-all]');
+    if (!form || !input || !popover || !resultsEl || !allLink) return;
+    let products = [];
+    let loaded = false;
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>\"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[char]));
+    async function load() {
+      if (loaded) return products;
+      loaded = true;
+      try {
+        const response = await fetch('/search-index.json', { headers: { Accept: 'application/json' } });
+        const payload = await response.json();
+        products = Array.isArray(payload.products) ? payload.products : [];
+      } catch (error) {
+        console.error('[live-search] No se pudo cargar search-index', error);
+        products = [];
+      }
+      return products;
+    }
+    function score(product, terms, query) {
+      const title = String(product.title || '').toLowerCase();
+      const sku = String(product.sku || '').toLowerCase();
+      const type = String(product.productType || '').toLowerCase();
+      const tags = Array.isArray(product.tags) ? product.tags.join(' ').toLowerCase() : '';
+      const haystack = `${title} ${sku} ${type} ${tags}`;
+      if (!terms.every((term) => haystack.includes(term))) return 0;
+      let value = 10;
+      if (sku === query) value += 120;
+      if (sku.startsWith(query)) value += 90;
+      if (title.startsWith(query)) value += 70;
+      for (const term of terms) {
+        if (sku.includes(term)) value += 35;
+        if (title.includes(term)) value += 20;
+        if (type.includes(term)) value += 10;
+      }
+      if (product.availableForSale) value += 8;
+      if (product.image) value += 4;
+      return value;
+    }
+    function render(items, query) {
+      allLink.href = `/catalogo/todos/?q=${encodeURIComponent(query)}`;
+      if (!query) {
+        resultsEl.innerHTML = '<div class="dm-search-empty">Empieza a escribir para buscar entre todo el inventario.</div>';
+        popover.hidden = false;
+        return;
+      }
+      if (!items.length) {
+        resultsEl.innerHTML = '<div class="dm-search-empty">Sin resultados rápidos. Prueba con código OEM, modelo o tipo de pieza.</div>';
+        popover.hidden = false;
+        return;
+      }
+      resultsEl.innerHTML = items.slice(0, 8).map((product) => {
+        const img = product.image ? `${product.image}${String(product.image).includes('?') ? '&' : '?'}width=120` : '';
+        const price = Number(product.price || 0);
+        return `<a class="dm-search-result" href="${escapeHtml(product.url || `/producto/${product.handle}/`)}">
+          <span class="dm-search-thumb">${img ? `<img src="${escapeHtml(img)}" alt="" loading="lazy" />` : '<strong>DM</strong>'}</span>
+          <span class="dm-search-copy"><strong>${escapeHtml(product.title || product.handle || 'Producto')}</strong><small>${escapeHtml(product.sku || product.productType || 'Repuesto')} · ${product.availableForSale ? 'Disponible' : 'Consultar'}</small></span>
+          <span class="dm-search-price">${price > 0 ? `$${price.toFixed(2)}` : 'Cotizar'}</span>
+        </a>`;
+      }).join('');
+      popover.hidden = false;
+    }
+    let timer;
+    async function run() {
+      const query = String(input.value || '').trim().toLowerCase();
+      const terms = query.split(/\s+/).filter(Boolean);
+      await load();
+      const ranked = query ? products.map((product) => ({ product, score: score(product, terms, query) })).filter((item) => item.score > 0).sort((a, b) => b.score - a.score).map((item) => item.product) : [];
+      render(ranked, query);
+    }
+    input.addEventListener('focus', () => run());
+    input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 90); });
+    form.addEventListener('submit', (event) => {
+      const query = String(input.value || '').trim();
+      if (!query) return;
+      event.preventDefault();
+      window.location.href = `/catalogo/todos/?q=${encodeURIComponent(query)}`;
+    });
+    document.addEventListener('keydown', (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        input.focus();
+      }
+      if (event.key === 'Escape') popover.hidden = true;
+    });
+    document.addEventListener('click', (event) => {
+      if (!form.contains(event.target)) popover.hidden = true;
+    });
+  })();
+</script>
