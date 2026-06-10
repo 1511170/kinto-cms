@@ -51,7 +51,7 @@ export interface SiteConfig {
 
 export default {
   site: {
-    domain: 'distribuidormiranda.ec',
+    domain: 'distribuidormiranda.com.ec',
     name: 'Distribuidor Miranda',
     description: 'Repuestos de colisión, iluminación y refrigeración para talleres, mayoristas y aseguradoras en Ecuador.',
     language: 'es-EC',

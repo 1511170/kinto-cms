@@ -21,7 +21,7 @@ try {
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://distribuidormiranda.ec',
+  site: 'https://distribuidormiranda.com.ec',
   
   // Integración oficial de Tailwind 3 para Astro
   integrations: [tailwind()],
