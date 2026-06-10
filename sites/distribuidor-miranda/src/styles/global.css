@@ -95,3 +95,34 @@
 .dm-product-grid-coll.is-list-view .dm-card-media{height:100%;aspect-ratio:auto}
 @media(max-width:1100px){.dm-toolbar-advanced{top:96px}.dm-filters-advanced{max-height:none}}
 @media(max-width:720px){.dm-mobile-filter-toggle{display:block}.dm-filters-advanced{display:none;position:fixed;z-index:80;inset:70px 10px 10px;max-height:none;overflow:auto;box-shadow:var(--shadow-lg)}.dm-filters-advanced.is-open{display:block}.dm-toolbar-advanced{position:static}.dm-filter-summary{grid-template-columns:repeat(3,1fr)}.dm-product-grid-coll.is-list-view .dm-filter-item .dm-product-card{grid-template-columns:1fr}.dm-active-filters{margin-top:10px}}
+
+/* Branded cart drawer + header cart button polish */
+.dm-cart{background:var(--accent);color:#fff;border:1px solid color-mix(in oklch,var(--accent),#000 12%);box-shadow:0 10px 22px -16px var(--accent);font-weight:900;letter-spacing:.01em;transition:background .16s,transform .16s,box-shadow .16s}
+.dm-cart:hover{background:var(--accent-2);transform:translateY(-1px);box-shadow:0 16px 28px -18px var(--accent)}
+.dm-cart:focus-visible{outline:3px solid var(--accent-soft);outline-offset:2px}
+.dm-cart-pill{background:#fff;color:var(--accent);font-weight:900;min-width:20px;text-align:center}
+.cart-drawer-root{--bg:var(--surface);--bg-soft:var(--surface-2);--bg-tint:var(--accent-soft);--fg:var(--ink);--fg-muted:var(--ink-3);--fg-faint:var(--ink-4);--line:var(--line-2);--line-strong:var(--line);--warn:var(--danger);--radius-sm:8px;--radius-md:12px;font-family:var(--font-body)}
+.cart-drawer-root .drawer-backdrop{background:rgba(15,18,24,.48);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.cart-drawer-root .drawer{height:100dvh;min-height:100dvh;background:linear-gradient(180deg,var(--surface) 0%,var(--surface-2) 100%);border-left:1px solid var(--line);box-shadow:-28px 0 70px -36px rgba(15,18,24,.55)}
+.cart-drawer-root .drawer-head{padding:30px 30px 20px;background:var(--surface);border-bottom:1px solid var(--line-2)}
+.cart-drawer-root .drawer-eyebrow{color:var(--accent);font-weight:900;letter-spacing:.14em}
+.cart-drawer-root .drawer-title{font-size:34px;font-weight:900;color:var(--ink)}
+.cart-drawer-root .drawer-subtitle{color:var(--ink-3);font-weight:700}
+.cart-drawer-root .drawer-close{width:42px;height:42px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);box-shadow:var(--shadow-sm)}
+.cart-drawer-root .drawer-close:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.cart-drawer-root .drawer-shipping{background:var(--surface);padding:13px 30px 15px;color:var(--ink-3);font-weight:800;border-bottom:1px solid var(--line-2)}
+.cart-drawer-root .drawer-shipping svg{color:var(--accent)}
+.cart-drawer-root .drawer-empty{min-height:calc(100dvh - 190px);padding:64px 34px;justify-content:center}
+.cart-drawer-root .empty-illustration{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in oklch,var(--accent),#fff 72%)}
+.cart-drawer-root .empty-title{font-size:25px;font-weight:900;color:var(--ink)}
+.cart-drawer-root .empty-copy{font-size:14.5px;color:var(--ink-3);max-width:330px}
+.cart-drawer-root .empty-actions{max-width:310px;gap:10px}
+.cart-drawer-root .empty-cta{height:50px;border-radius:8px;font-weight:900;letter-spacing:.04em}
+.cart-drawer-root .empty-cta-primary,.cart-drawer-root .drawer-checkout{background:var(--accent);color:#fff;box-shadow:0 14px 28px -18px var(--accent)}
+.cart-drawer-root .empty-cta-primary:hover,.cart-drawer-root .drawer-checkout:hover{background:var(--accent-2);color:#fff;transform:translateY(-1px)}
+.cart-drawer-root .empty-cta-secondary{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.cart-drawer-root .empty-cta-secondary:hover{background:var(--surface-2);border-color:var(--accent);color:var(--ink)}
+.cart-drawer-root .drawer-foot{background:var(--surface);border-top:1px solid var(--line-2)}
+.cart-drawer-root .cart-item:hover{background:var(--surface-2)}
+.cart-drawer-root .cart-qty button:hover:not(:disabled){background:var(--accent);color:#fff}
+@media(max-width:480px){.cart-drawer-root .drawer{width:100vw}.cart-drawer-root .drawer-head{padding:24px 20px 16px}.cart-drawer-root .drawer-title{font-size:29px}.cart-drawer-root .drawer-empty{min-height:calc(100dvh - 170px)}}
