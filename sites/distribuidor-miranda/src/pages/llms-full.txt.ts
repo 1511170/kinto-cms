@@ -8,6 +8,7 @@ import {
   productSku,
   productTitle,
 } from '../lib/shopify-catalog';
+import { brandCategoryHref, brandHref, buildBrandCategoryRoutes, buildBrandRoutes } from '../lib/seo-landings';
 
 export async function GET() {
   const origin = `https://${siteConfig.site.domain}`;
@@ -17,6 +18,8 @@ export async function GET() {
   ]);
   const sampleProducts = products.slice(0, 30).map((product) => `- ${productTitle(product)} (${productSku(product)}): ${origin}${productHref(product)}`);
   const categories = collections.map((collection) => `- ${isShopifyCollection(collection) ? collection.title : collection.label}: ${origin}${collectionHref(collection)}`);
+  const brandRoutes = buildBrandRoutes(products).slice(0, 10).map(({ brand, products }) => `- Repuestos ${brand.name} (${products.length} referencias): ${origin}${brandHref(brand)}`);
+  const brandCategoryRoutes = buildBrandCategoryRoutes(products).slice(0, 24).map(({ brand, category, products }) => `- ${category.name} ${brand.name} (${products.length} referencias): ${origin}${brandCategoryHref(brand, category)}`);
 
   const body = `# Distribuidor Miranda — Full AI / LLM Reference
 
@@ -80,6 +83,14 @@ Recommended data to provide:
 ## Catalog category URLs
 
 ${categories.join('\n')}
+
+## High-intent brand landing URLs
+
+${brandRoutes.join('\n')}
+
+## High-intent brand + category landing URLs
+
+${brandCategoryRoutes.join('\n')}
 
 ## Sample canonical product URLs
 

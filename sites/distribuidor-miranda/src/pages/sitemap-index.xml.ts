@@ -12,6 +12,7 @@ export async function GET() {
   const sitemapUrls = [
     `${origin}/sitemaps/static.xml`,
     `${origin}/sitemaps/collections.xml`,
+    `${origin}/sitemaps/seo-landings.xml`,
     ...Array.from({ length: productPages }, (_, index) => `${origin}/sitemaps/products/${index + 1}.xml`),
   ];
 

@@ -1,0 +1,147 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getStorefrontProducts } from '../../lib/shopify-catalog';
+import { absoluteUrl, breadcrumbSchema, collectionSchema, faqSchema, jsonLd } from '../../lib/seo';
+import {
+  SEO_PART_CATEGORIES,
+  brandCategoryHref,
+  brandDescription,
+  brandHref,
+  brandTitle,
+  buildBrandRoutes,
+  filterProductsForBrandCategory,
+  landingFaqs,
+  topAvailableProducts,
+} from '../../lib/seo-landings';
+
+export async function getStaticPaths() {
+  const products = await getStorefrontProducts();
+  return buildBrandRoutes(products).map((route) => ({
+    params: { brand: route.brand.slug },
+    props: route,
+  }));
+}
+
+const { brand, products } = Astro.props;
+const visibleProducts = topAvailableProducts(products, 36);
+const relatedCategories = SEO_PART_CATEGORIES
+  .map((category) => ({ category, count: filterProductsForBrandCategory(products, brand, category).length }))
+  .filter((item) => item.count >= 5)
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 8);
+const title = brandTitle(brand);
+const description = brandDescription(brand, products.length);
+const canonical = absoluteUrl(brandHref(brand));
+const faqs = landingFaqs(brand);
+const schemas = [
+  collectionSchema({ name: title, description, url: brandHref(brand), products: visibleProducts }),
+  breadcrumbSchema([
+    { name: 'Inicio', url: '/' },
+    { name: 'Repuestos', url: '/catalogo/todos/' },
+    { name: brand.name, url: brandHref(brand) },
+  ]),
+  faqSchema(faqs),
+];
+---
+
+<Layout title={title} description={description} canonical={canonical}>
+  <Fragment slot="head">
+    {schemas.map((schema) => <script type="application/ld+json" set:html={jsonLd(schema)} />)}
+  </Fragment>
+  <Header />
+  <main class="dm-seo-landing">
+    <section class="dm-landing-hero section">
+      <div class="container">
+        <p class="eyebrow">Catálogo especializado por marca</p>
+        <h1>{title}</h1>
+        <p class="lead">{description}</p>
+        <div class="dm-landing-actions">
+          <a class="dm-btn dm-btn-primary" href={`https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito cotizar repuestos ${brand.name}.`)}`} target="_blank" rel="noopener">Cotizar por WhatsApp</a>
+          <a class="dm-btn dm-btn-outline" href="/catalogo/todos/">Ver catálogo completo</a>
+        </div>
+        <div class="dm-proof-grid">
+          <span>{products.length.toLocaleString('es-EC')} referencias relacionadas</span>
+          <span>Validación por VIN, foto o código</span>
+          <span>Despacho en Ecuador</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2>Categorías de repuestos {brand.name}</h2>
+        <div class="dm-link-grid">
+          {relatedCategories.map(({ category, count }) => (
+            <a href={brandCategoryHref(brand, category)}>
+              <strong>{category.name}</strong>
+              <span>{count.toLocaleString('es-EC')} referencias</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Productos destacados</p>
+            <h2>Repuestos {brand.name} disponibles para consultar</h2>
+          </div>
+          <a href="/catalogo/todos/">Buscar otra referencia →</a>
+        </div>
+        <div class="dm-product-grid">
+          {visibleProducts.map((product) => <ProductCard product={product} />)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container dm-copy-block">
+        <h2>Cómo comprar repuestos {brand.name} sin equivocarte</h2>
+        <p>Para repuestos de carrocería, iluminación, refrigeración y suspensión, una misma marca puede tener variaciones por año, versión, lado y procedencia. Por eso Distribuidor Miranda recomienda confirmar compatibilidad con VIN, foto de la pieza, código OEM/SKU o modelo exacto antes de instalar.</p>
+        <ul>
+          <li>Envía foto frontal y posterior de la pieza si la tienes.</li>
+          <li>Indica año, versión y lado: LH/izquierdo o RH/derecho.</li>
+          <li>Confirma disponibilidad antes de pagar o despachar.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container dm-faq-list">
+        <h2>Preguntas frecuentes sobre repuestos {brand.name}</h2>
+        {faqs.map((item) => (
+          <details>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .dm-seo-landing .dm-landing-hero { background: linear-gradient(135deg, var(--ink, #1f2937), #3d2d16); color: white; }
+  .dm-seo-landing h1 { font-size: clamp(2.2rem, 6vw, 4.8rem); line-height: .95; max-width: 920px; margin: 0 0 1rem; }
+  .dm-seo-landing .lead { max-width: 860px; font-size: 1.15rem; color: rgba(255,255,255,.86); }
+  .dm-landing-actions { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1.5rem 0; }
+  .dm-proof-grid { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
+  .dm-proof-grid span { border: 1px solid rgba(255,255,255,.22); border-radius: 999px; padding: .55rem .85rem; background: rgba(255,255,255,.08); }
+  .dm-link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: .8rem; }
+  .dm-link-grid a { border: 1px solid var(--line,#ddd); border-radius: 14px; padding: 1rem; background: var(--surface,#fff); display: grid; gap: .3rem; }
+  .dm-link-grid span { color: var(--ink-3,#666); font-size: .9rem; }
+  .section-alt { background: var(--surface-2,#fbf8f1); }
+  .section-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+  .dm-product-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+  .dm-copy-block { max-width: 920px; }
+  .dm-copy-block li { margin: .4rem 0; }
+  .dm-faq-list { max-width: 900px; }
+  .dm-faq-list details { border: 1px solid var(--line,#ddd); border-radius: 12px; padding: 1rem; background: var(--surface,#fff); margin: .75rem 0; }
+  .dm-faq-list summary { font-weight: 800; cursor: pointer; }
+</style>
