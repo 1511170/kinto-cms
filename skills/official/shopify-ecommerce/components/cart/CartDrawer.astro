@@ -857,6 +857,44 @@ const { whatsappUrl, shippingNote = 'Envío a toda Colombia · Todos los pedidos
     closeBtn.addEventListener('click', close);
     backdrop.addEventListener('click', close);
 
+    document.addEventListener('click', async (e) => {
+      const cartTrigger = (e.target as HTMLElement | null)?.closest?.('[data-cart-trigger]');
+      if (cartTrigger) {
+        e.preventDefault();
+        open();
+        return;
+      }
+
+      const buyNowButton = (e.target as HTMLElement | null)?.closest?.('[data-buy-now]') as HTMLButtonElement | null;
+      if (!buyNowButton) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const variantId = buyNowButton.getAttribute('data-variant-id');
+      if (!variantId) {
+        window.location.href = buyNowButton.getAttribute('data-fallback-href') || 'mailto:ventas@distribuidormiranda.com.ec';
+        return;
+      }
+
+      const qtyInput = buyNowButton.closest('.dm-buybox')?.querySelector<HTMLInputElement>('.dm-qty input');
+      const quantity = Math.max(1, Number(qtyInput?.value || 1));
+      const originalText = buyNowButton.textContent;
+      buyNowButton.disabled = true;
+      buyNowButton.textContent = 'Abriendo checkout…';
+
+      try {
+        const cart = await addToCart(variantId, quantity);
+        document.dispatchEvent(new CustomEvent('cart-updated'));
+        window.location.href = cart.checkoutUrl;
+      } catch (err) {
+        console.error('[CartDrawer] buy-now failed', err);
+        buyNowButton.disabled = false;
+        buyNowButton.textContent = 'Error, intentar de nuevo';
+        setTimeout(() => { buyNowButton.textContent = originalText || 'Comprar ahora'; }, 1800);
+      }
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) close();
     });

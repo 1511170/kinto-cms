@@ -20,6 +20,26 @@ import {
 } from "../../config/shopify.graphql";
 import type { Env } from "../shopify-client";
 
+function normalizeCheckoutUrl(checkoutUrl: string): string {
+  try {
+    const url = new URL(checkoutUrl);
+    if (url.pathname.startsWith("/cart/c/")) {
+      const token = url.pathname.slice("/cart/c/".length);
+      return `https://checkout.distribuidormiranda.com.ec/checkouts/cn/${token}${url.search}`;
+    }
+    return checkoutUrl;
+  } catch {
+    return checkoutUrl;
+  }
+}
+
+function normalizeCartCheckout(cart: ReturnType<typeof mapShopifyCart>) {
+  return {
+    ...cart,
+    checkoutUrl: normalizeCheckoutUrl(cart.checkoutUrl),
+  };
+}
+
 export async function handleCart(
   request: Request,
   env: Env,
@@ -59,7 +79,7 @@ export async function handleCart(
         );
       }
 
-      const cart = mapShopifyCart(result.data.cartCreate.cart);
+      const cart = normalizeCartCheckout(mapShopifyCart(result.data.cartCreate.cart));
       return apiSuccess({ cart }, 201);
     }
 
@@ -77,7 +97,7 @@ export async function handleCart(
         return apiError("Cart not found", "NOT_FOUND", 404);
       }
 
-      const cart = mapShopifyCart(result.data.cart);
+      const cart = normalizeCartCheckout(mapShopifyCart(result.data.cart));
       return apiSuccess({ cart });
     }
 
@@ -118,7 +138,7 @@ export async function handleCart(
         );
       }
 
-      const cart = mapShopifyCart(result.data.cartLinesAdd.cart);
+      const cart = normalizeCartCheckout(mapShopifyCart(result.data.cartLinesAdd.cart));
       return apiSuccess({ cart });
     }
 
@@ -164,7 +184,7 @@ export async function handleCart(
         );
       }
 
-      const cart = mapShopifyCart(result.data.cartLinesUpdate.cart);
+      const cart = normalizeCartCheckout(mapShopifyCart(result.data.cartLinesUpdate.cart));
       return apiSuccess({ cart });
     }
 
@@ -200,7 +220,7 @@ export async function handleCart(
         );
       }
 
-      const cart = mapShopifyCart(result.data.cartLinesRemove.cart);
+      const cart = normalizeCartCheckout(mapShopifyCart(result.data.cartLinesRemove.cart));
       return apiSuccess({ cart });
     }
 
