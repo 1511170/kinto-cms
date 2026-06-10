@@ -28,9 +28,10 @@ export async function getStaticPaths() {
 
 const handle = Astro.params.cat!;
 const allCollections = await getStorefrontCollections();
+const navCollections = allCollections.filter((collection) => collectionHref(collection) !== '/catalogo/todos-los-productos/');
 const isAll = handle === 'todos';
 const result = isAll
-  ? { collection: undefined, products: await getStorefrontProducts({ limit: 240 }) }
+  ? { collection: undefined, products: await getStorefrontProducts() }
   : await getStorefrontCollection(handle);
 const collection = result.collection;
 const products = result.products;
@@ -120,8 +121,9 @@ const photoCount = enrichedProducts.filter((item) => item.hasImage).length;
 const availableCount = enrichedProducts.filter((item) => item.available).length;
 const collectionUrl = isAll ? '/catalogo/todos/' : `/catalogo/${handle}/`;
 const collectionDescription = `${blurb} Compra repuestos en Distribuidor Miranda con despacho a Quito, Guayaquil, Cuenca y todo Ecuador.`;
+const schemaProducts = isAll ? products.slice(0, 120) : products;
 const collectionSchemas = [
-  collectionSchema({ name: label, description: collectionDescription, url: collectionUrl, products }),
+  collectionSchema({ name: label, description: collectionDescription, url: collectionUrl, products: schemaProducts }),
   breadcrumbSchema([
     { name: 'Inicio', url: '/' },
     { name: 'Catálogo', url: '/catalogo/todos/' },
@@ -142,7 +144,7 @@ const collectionSchemas = [
           <h1 class="dm-coll-title">{label}</h1>
           <p class="dm-coll-sub">{blurb} <strong>{products.length}</strong> referencias cargadas para filtrar al instante.</p>
         </div>
-        <div class="dm-coll-categoryjump"><a class={isAll ? 'active' : ''} href="/catalogo/todos/">Todos</a>{allCollections.slice(0, 10).map(c => <a class={collectionHref(c) === `/catalogo/${handle}/` ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}</div>
+        <div class="dm-coll-categoryjump"><a class={isAll ? 'active' : ''} href="/catalogo/todos/">Todos</a>{navCollections.map(c => <a class={collectionHref(c) === `/catalogo/${handle}/` ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}</div>
       </div>
     </div>
 
@@ -264,8 +266,13 @@ const collectionSchemas = [
         </div>
         <div class="dm-active-filters" data-active-filters><span>{label}</span><span>Garantía 90 días</span><span>Despacho nacional</span></div>
         <div class="dm-empty-results" data-empty-results hidden><strong>No encontramos resultados con esa combinación.</strong><p>Prueba quitando un filtro o escríbenos por WhatsApp con el VIN/código OEM.</p></div>
-        <div class="dm-product-grid dm-product-grid-coll" data-products-grid>
-          {enrichedProducts.map((item, index) => (
+        <div class="dm-product-grid dm-product-grid-coll" data-products-grid data-client-catalog={isAll ? 'all' : undefined}>
+          {isAll ? (
+            <div class="dm-catalog-loading" data-catalog-loading>
+              <strong>Cargando inventario completo…</strong>
+              <span>Preparando {products.length} referencias para búsqueda y filtros.</span>
+            </div>
+          ) : enrichedProducts.map((item, index) => (
             <div
               class="dm-filter-item"
               data-product-item
@@ -293,7 +300,7 @@ const collectionSchemas = [
   <script>
     const catalog = document.querySelector('[data-catalog-root]');
     const panel = document.querySelector('[data-filter-panel]');
-    const items = Array.from(document.querySelectorAll('[data-product-item]'));
+    let items = Array.from(document.querySelectorAll('[data-product-item]'));
     const grid = document.querySelector('[data-products-grid]');
     const resultCopy = document.querySelector('[data-result-copy]');
     const chips = document.querySelector('[data-active-filters]');
@@ -311,6 +318,82 @@ const collectionSchemas = [
       q: '', model: '', make: '', year: '', sort: 'relevance', min: Number(priceMin?.value || 0), max: Number(priceMax?.value || 9999),
       brands: [], makes: [], parts: [], sides: [], available: false, photo: false, quote: false,
     };
+    let clientMode = false;
+    let clientProducts = [];
+    let currentPage = 1;
+    const pageSize = 240;
+
+    const slugify = (value) => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>\"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[char]));
+    const detectMakeClient = (text) => ['Chevrolet','Toyota','Hyundai','Kia','Nissan','Mazda','Ford','Volkswagen','Renault','Suzuki','Peugeot','Citroën','Great Wall','Chery','JAC','Mitsubishi'].find((make) => new RegExp(`\\b${make.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text)) || '';
+    const detectSideClient = (text) => {
+      const value = text.toLowerCase();
+      if (/\b(lh|izq|izquierd[ao]|left)\b/.test(value)) return 'izquierdo';
+      if (/\b(rh|der|derech[ao]|right)\b/.test(value)) return 'derecho';
+      if (/delanter[ao]|\bdel\b|front/.test(value)) return 'delantero';
+      if (/posterior|\bpos\b|traser[ao]|rear/.test(value)) return 'posterior';
+      return 'universal';
+    };
+    const detectPartClient = (text) => {
+      const value = text.toLowerCase();
+      if (/guardachoque|parachoque|gchoque|bumper/.test(value)) return 'guardachoque';
+      if (/silvin|faro|neblin|foco|lamp|luz/.test(value)) return 'iluminacion';
+      if (/radiador|electroventilador|ventilador|refriger|condensador|manguera/.test(value)) return 'refrigeracion';
+      if (/capot|bisagra|compuerta|mascarilla|guardafango|carrocer/.test(value)) return 'carroceria';
+      if (/amortiguador|terminal|cremallera|rotula|suspension/.test(value)) return 'suspension';
+      if (/zapata|pastilla|freno|disco/.test(value)) return 'frenos';
+      if (/sensor|bomba|aceite|filtro|bujia|motor/.test(value)) return 'motor';
+      if (/espejo|retrovisor|vidrio/.test(value)) return 'espejos';
+      return 'otros';
+    };
+    function cardHtml(product) {
+      const title = escapeHtml(product.title || product.handle || 'Producto');
+      const sku = escapeHtml(product.sku || product.handle || 'DM');
+      const href = escapeHtml(product.url || `/producto/${product.handle}/`);
+      const img = product.image ? `${product.image}${product.image.includes('?') ? '&' : '?'}width=640` : '';
+      const price = Number(product.price || 0);
+      const compare = Number(product.compareAtPrice || 0);
+      const available = Boolean(product.availableForSale);
+      const variantId = escapeHtml(product.variantId || '');
+      const whatsapp = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${product.title || product.handle} (${product.sku || product.handle || 'DM'})`)}`;
+      return `<article class="dm-card dm-product-card ${available ? '' : 'is-sold-out'}" data-product-id="${escapeHtml(product.handle || sku)}">
+        <a href="${href}" class="dm-card-media ${img ? 'has-real-image' : 'has-placeholder'}">
+          ${img ? `<img src="${escapeHtml(img)}" srcset="${escapeHtml(img.replace('width=640','width=320'))} 320w, ${escapeHtml(img)} 640w, ${escapeHtml(img.replace('width=640','width=960'))} 960w" sizes="(max-width: 720px) 92vw, (max-width: 1100px) 45vw, 25vw" alt="${title}" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="dm-lite-placeholder"><span>${sku.slice(0,6)}</span><strong>REPUESTO</strong></div>`}
+          ${available ? '' : '<span class="dm-badge dm-badge--soldout">Agotado</span>'}
+          ${compare > price && price > 0 ? `<span class="dm-badge dm-badge--sale">-${Math.round((1 - price / compare) * 100)}%</span>` : ''}
+        </a>
+        <div class="dm-card-body"><div class="dm-card-sku mono">${sku}</div><h3 class="dm-card-title"><a href="${href}">${title}</a></h3><div class="dm-card-meta"><span class="dm-stock ${available ? 'is-in' : 'is-out'}"><span></span>${available ? 'Disponible' : 'Consultar'}</span></div><div class="dm-card-price"><span class="dm-card-price-now">${price > 0 ? `$${price.toFixed(2)}` : 'Consultar'}</span>${compare > price && price > 0 ? `<span class="dm-card-price-compare">$${compare.toFixed(2)}</span>` : ''}</div><div class="dm-card-actions">${available && variantId ? `<button class="dm-btn dm-btn-primary dm-btn-full" data-add-to-cart data-variant-id="${variantId}">Agregar al carrito</button>` : `<a class="dm-btn dm-btn-outline dm-btn-full" href="${whatsapp}" target="_blank" rel="noopener">Cotizar disponibilidad</a>`}</div></div>
+      </article>`;
+    }
+    function toClientProduct(product, index) {
+      const text = `${product.title || ''} ${product.sku || ''} ${product.vendor || ''} ${product.productType || ''} ${(product.tags || []).join(' ')}`;
+      const make = detectMakeClient(text);
+      return {
+        product,
+        index,
+        title: product.title || '',
+        search: text.toLowerCase(),
+        sku: String(product.sku || '').toLowerCase(),
+        brand: slugify(product.vendor || 'Distribuidor Miranda'),
+        make: slugify(make),
+        part: detectPartClient(text),
+        side: detectSideClient(text),
+        price: Number(product.price || 0),
+        available: product.availableForSale ? '1' : '0',
+        photo: product.image ? '1' : '0',
+      };
+    }
+    function clientItemHtml(item) {
+      return `<div class="dm-filter-item" data-product-item data-index="${item.index}" data-title="${escapeHtml(item.title)}" data-search="${escapeHtml(item.search)}" data-sku="${escapeHtml(item.sku)}" data-brand="${escapeHtml(item.brand)}" data-make="${escapeHtml(item.make)}" data-part="${escapeHtml(item.part)}" data-side="${escapeHtml(item.side)}" data-price="${item.price}" data-available="${item.available}" data-photo="${item.photo}">${cardHtml(item.product)}</div>`;
+    }
+    async function loadClientCatalog() {
+      if (!grid || grid.dataset.clientCatalog !== 'all') return;
+      clientMode = true;
+      const response = await fetch('/search-index.json', { headers: { 'Accept': 'application/json' } });
+      const payload = await response.json();
+      clientProducts = (Array.isArray(payload.products) ? payload.products : []).map(toClientProduct);
+      items = [];
+    }
 
     function selected(selector) { return Array.from(document.querySelectorAll(selector + ':checked')).map(input => input.value); }
     function syncStateFromDom() {
@@ -361,7 +444,50 @@ const collectionSchemas = [
       });
       sorted.forEach(item => grid?.appendChild(item));
     }
-    function renderChips(count) {
+    function matchesClient(item) {
+      const text = `${item.search || ''} ${item.sku || ''}`;
+      const price = Number(item.price || 0);
+      if (state.q && !text.includes(state.q)) return false;
+      if (state.model && !text.includes(state.model)) return false;
+      if (state.year && !text.includes(state.year)) return false;
+      if (state.make && item.make !== state.make && !text.includes(state.make.replace(/-/g, ' '))) return false;
+      if (state.brands.length && !state.brands.includes(item.brand)) return false;
+      if (state.makes.length && !state.makes.includes(item.make)) return false;
+      if (state.parts.length && !state.parts.includes(item.part)) return false;
+      if (state.sides.length && !state.sides.includes(item.side)) return false;
+      if (state.available && item.available !== '1') return false;
+      if (state.photo && item.photo !== '1') return false;
+      if (state.quote && !(price <= 0 || item.available !== '1')) return false;
+      if (price > 0 && (price < state.min || price > state.max)) return false;
+      return true;
+    }
+    function sortClient(visible) {
+      return [...visible].sort((a, b) => {
+        const ap = Number(a.price || 0), bp = Number(b.price || 0);
+        if (state.sort === 'photo') return Number(b.photo) - Number(a.photo) || a.index - b.index;
+        if (state.sort === 'price-asc') return (ap || 999999) - (bp || 999999);
+        if (state.sort === 'price-desc') return bp - ap;
+        if (state.sort === 'name-asc') return (a.title || '').localeCompare(b.title || '', 'es');
+        if (state.sort === 'available') return Number(b.available) - Number(a.available) || a.index - b.index;
+        return a.index - b.index;
+      });
+    }
+    function renderClientPage(visible) {
+      const totalPages = Math.max(1, Math.ceil(visible.length / pageSize));
+      currentPage = Math.min(Math.max(1, currentPage), totalPages);
+      const start = (currentPage - 1) * pageSize;
+      const pageItems = visible.slice(start, start + pageSize);
+      const pager = totalPages > 1 ? `<nav class="dm-pagination dm-client-pagination" aria-label="Paginación catálogo completo"><div class="dm-pagination-info">Página ${currentPage} de ${totalPages} · ${visible.length} resultados</div><div class="dm-pagination-buttons"><button class="dm-pagination-btn" data-client-page="prev" ${currentPage === 1 ? 'disabled' : ''}>← Anterior</button><span class="dm-pagination-btn dm-pagination-btn--active">${currentPage}</span><button class="dm-pagination-btn" data-client-page="next" ${currentPage === totalPages ? 'disabled' : ''}>Siguiente →</button></div></nav>` : '';
+      grid.innerHTML = pageItems.map(clientItemHtml).join('') + pager;
+      items = Array.from(document.querySelectorAll('[data-product-item]'));
+      grid.querySelectorAll('[data-client-page]').forEach((btn) => btn.addEventListener('click', () => {
+        currentPage += btn.dataset.clientPage === 'next' ? 1 : -1;
+        renderClientPage(visible);
+        renderChips(visible.length, clientProducts.length);
+        window.scrollTo({ top: grid.getBoundingClientRect().top + window.scrollY - 140, behavior: 'smooth' });
+      }));
+    }
+    function renderChips(count, total = items.length) {
       const entries = [];
       if (state.q) entries.push(`Búsqueda: ${state.q}`);
       if (state.model) entries.push(`Modelo: ${state.model}`);
@@ -375,7 +501,7 @@ const collectionSchemas = [
       if (state.sides.length) entries.push(`${state.sides.length} posiciones`);
       if (state.min || state.max) entries.push(`Precio ${state.min}–${state.max}`);
       chips.innerHTML = entries.length ? entries.map(text => `<button type="button" class="dm-filter-chip">${text}</button>`).join('') : '<span>Sin filtros activos</span><span>Garantía 90 días</span><span>Despacho nacional</span>';
-      resultCopy.innerHTML = `Mostrando <strong>${count}</strong> de <strong>${items.length}</strong> referencias`;
+      resultCopy.innerHTML = `Mostrando <strong>${count}</strong> de <strong>${total}</strong> referencias`;
       empty.hidden = count !== 0;
     }
     function updateUrl() {
@@ -401,6 +527,14 @@ const collectionSchemas = [
       syncStateFromDom();
       if (priceRange) priceRange.value = String(state.max);
       if (priceReadout) priceReadout.textContent = '$' + Number(state.max || 0).toFixed(2);
+      if (clientMode) {
+        currentPage = 1;
+        const visible = sortClient(clientProducts.filter(matchesClient));
+        renderClientPage(visible);
+        renderChips(visible.length, clientProducts.length);
+        updateUrl();
+        return;
+      }
       const visible = items.filter(matches);
       items.forEach(item => item.hidden = !visible.includes(item));
       sortItems(visible);
@@ -453,7 +587,41 @@ const collectionSchemas = [
       button.classList.add('active');
       grid?.classList.toggle('is-list-view', button.dataset.view === 'list');
     }));
-    hydrateFromUrl();
-    apply();
+    if (!window.__dmAddToCartBound) {
+      window.__dmAddToCartBound = true;
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-add-to-cart]');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const variantId = btn.getAttribute('data-variant-id');
+        if (!variantId) {
+          window.location.href = 'mailto:ventas@distribuidormiranda.ec';
+          return;
+        }
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Agregando…';
+        document.dispatchEvent(new CustomEvent('cart-add-request', {
+          detail: {
+            variantId,
+            quantity: 1,
+            onSuccess: () => { btn.disabled = false; btn.textContent = originalText || 'Agregar al carrito'; },
+            onError: () => { btn.disabled = false; btn.textContent = 'Error, intentar de nuevo'; setTimeout(() => { btn.textContent = originalText || 'Agregar al carrito'; }, 1800); },
+          },
+        }));
+      });
+    }
+    async function initCatalog() {
+      try {
+        await loadClientCatalog();
+        hydrateFromUrl();
+        apply();
+      } catch (error) {
+        console.error('[catalog] No se pudo cargar el inventario completo', error);
+        if (grid) grid.innerHTML = '<div class="dm-empty-results"><strong>No se pudo cargar el inventario completo.</strong><p>Recarga la página o escríbenos por WhatsApp para buscar una pieza.</p></div>';
+      }
+    }
+    initCatalog();
   </script>
 </Layout>

@@ -10,12 +10,15 @@ export async function GET() {
         handle: product.handle,
         url: productHref(product),
         sku: variant?.sku ?? '',
+        variantId: variant?.id ?? '',
         vendor: product.vendor,
         productType: product.productType,
         tags: product.tags,
+        collections: product.collections,
         description: product.description,
         image: product.featuredImage?.url ?? null,
         price: variant?.price?.amount ?? null,
+        compareAtPrice: variant?.compareAtPrice?.amount ?? null,
         availableForSale: product.availableForSale,
       };
     }
@@ -25,12 +28,15 @@ export async function GET() {
       handle: product.id,
       url: productHref(product),
       sku: product.sku,
+      variantId: '',
       vendor: product.brand,
       productType: product.catLabel,
-      tags: product.applications.map((app) => `${app.make} ${app.model}`),
+      tags: product.applications.map((app: any) => `${app.make} ${app.model}`),
+      collections: [product.catId],
       description: product.name,
       image: null,
       price: product.price,
+      compareAtPrice: null,
       availableForSale: product.stock > 0,
     };
   });
