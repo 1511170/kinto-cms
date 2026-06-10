@@ -17,6 +17,7 @@ import {
   productSku,
   productTitle,
 } from '../lib/shopify-catalog';
+import { businessSchemas, jsonLd, breadcrumbSchema } from '../lib/seo';
 
 const [allProducts, collections] = await Promise.all([
   getStorefrontProducts(),
@@ -71,8 +72,16 @@ const categoryBlurb = (collection: (typeof collections)[number]) => {
     ? (collection.description || 'Repuestos seleccionados para despacho nacional.')
     : collection.blurb;
 };
+
+const homeSchemas = [
+  ...businessSchemas(),
+  breadcrumbSchema([{ name: 'Inicio', url: '/' }]),
+];
 ---
 <Layout title="Distribuidor Miranda" description="Repuestos de colisión, iluminación y refrigeración para talleres, mayoristas y aseguradoras en Ecuador.">
+  <Fragment slot="head">
+    {homeSchemas.map((schema) => <script type="application/ld+json" set:html={jsonLd(schema)} />)}
+  </Fragment>
   <Header />
   <main class="dm-main dm-home">
     <!-- Hero Section -->

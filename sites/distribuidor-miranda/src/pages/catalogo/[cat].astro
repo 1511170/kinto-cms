@@ -16,6 +16,7 @@ import {
   productSku,
   productTitle,
 } from '../../lib/shopify-catalog';
+import { absoluteUrl, breadcrumbSchema, collectionSchema, jsonLd } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const collections = await getStorefrontCollections();
@@ -117,8 +118,21 @@ const minPrice = prices.length ? Math.floor(Math.min(...prices)) : 0;
 const maxPrice = prices.length ? Math.ceil(Math.max(...prices)) : 500;
 const photoCount = enrichedProducts.filter((item) => item.hasImage).length;
 const availableCount = enrichedProducts.filter((item) => item.available).length;
+const collectionUrl = isAll ? '/catalogo/todos/' : `/catalogo/${handle}/`;
+const collectionDescription = `${blurb} Compra repuestos en Distribuidor Miranda con despacho a Quito, Guayaquil, Cuenca y todo Ecuador.`;
+const collectionSchemas = [
+  collectionSchema({ name: label, description: collectionDescription, url: collectionUrl, products }),
+  breadcrumbSchema([
+    { name: 'Inicio', url: '/' },
+    { name: 'Catálogo', url: '/catalogo/todos/' },
+    { name: label, url: collectionUrl },
+  ]),
+];
 ---
-<Layout title={`${label} — Catálogo`} description={`${blurb} Compra repuestos en Distribuidor Miranda.`}>
+<Layout title={`${label} — Catálogo`} description={collectionDescription} canonical={absoluteUrl(collectionUrl)}>
+  <Fragment slot="head">
+    {collectionSchemas.map((schema) => <script type="application/ld+json" set:html={jsonLd(schema)} />)}
+  </Fragment>
   <Header current={handle} />
   <main class="dm-main dm-collection dm-filterable-catalog" data-catalog-root>
     <div class="dm-coll-head">

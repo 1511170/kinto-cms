@@ -10,7 +10,11 @@ export function GET() {
   const urls = [
     url(`${origin}/`, '1.0', 'daily'),
     url(`${origin}/catalogo/todos/`, '0.9', 'daily'),
+    url(`${origin}/sobre-distribuidor-miranda/`, '0.8', 'monthly'),
+    url(`${origin}/contacto/`, '0.8', 'monthly'),
+    url(`${origin}/preguntas-frecuentes/`, '0.7', 'monthly'),
     url(`${origin}/llms.txt`, '0.4', 'weekly'),
+    url(`${origin}/llms-full.txt`, '0.4', 'weekly'),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
