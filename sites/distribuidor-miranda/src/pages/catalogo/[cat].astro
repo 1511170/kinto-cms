@@ -11,6 +11,8 @@ import {
   isShopifyCollection,
   isShopifyProduct,
   collectionHref,
+  collectionDisplayLabel,
+  collectionShortLabel,
   productAvailable,
   productImage,
   productSku,
@@ -35,7 +37,7 @@ const result = isAll
   : await getStorefrontCollection(handle);
 const collection = result.collection;
 const products = result.products;
-const label = isAll ? 'Todos los repuestos' : collection ? (isShopifyCollection(collection) ? collection.title : collection.label) : 'Catálogo';
+const label = isAll ? 'Todos los repuestos' : collection ? collectionDisplayLabel(collection) : 'Catálogo';
 const blurb = isAll
   ? 'Filtra el inventario por vehículo, código, precio, disponibilidad, lado y tipo de pieza.'
   : collection
@@ -144,7 +146,7 @@ const collectionSchemas = [
           <h1 class="dm-coll-title">{label}</h1>
           <p class="dm-coll-sub">{blurb} <strong>{products.length}</strong> referencias cargadas para filtrar al instante.</p>
         </div>
-        <div class="dm-coll-categoryjump"><a class={isAll ? 'active' : ''} href="/catalogo/todos/">Todos</a>{navCollections.map(c => <a class={collectionHref(c) === `/catalogo/${handle}/` ? 'active' : ''} href={collectionHref(c)}>{isShopifyCollection(c) ? c.title : c.label}</a>)}</div>
+        <div class="dm-coll-categoryjump" aria-label="Categorías principales"><a class={isAll ? 'active' : ''} href="/catalogo/todos/">Todos</a>{navCollections.map(c => <a class={collectionHref(c) === `/catalogo/${handle}/` ? 'active' : ''} href={collectionHref(c)}>{collectionShortLabel(c)}</a>)}</div>
       </div>
     </div>
 

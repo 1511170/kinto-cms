@@ -38,6 +38,29 @@ export const INFERRED_CATEGORIES: InferredCollection[] = [
   { id: 'carroceria-exteriores', label: 'Carrocería exterior', description: 'Molduras, protectores, estribos, tolvas, spoilers y piezas exteriores.', inferred: true, priority: 140 },
 ];
 
+const INFERRED_CATEGORY_SHOPIFY_ALIASES: Record<string, string[]> = {
+  'silvines-faros-luces': ['silvin'],
+  'radiadores-refrigeracion': ['radiadores'],
+  'espejos-retrovisores': ['espejos'],
+  'capots-cofres': ['capot'],
+};
+
+export const COLLECTION_DISPLAY_LABELS: Record<string, string> = {
+  silvin: 'Silvines, faros y luces',
+  radiadores: 'Radiadores y refrigeración',
+  espejos: 'Espejos y retrovisores',
+  capot: 'Capots y cofres',
+};
+
+export const COLLECTION_SHORT_LABELS: Record<string, string> = {
+  silvin: 'Silvines',
+  radiadores: 'Radiadores',
+  espejos: 'Espejos',
+  capot: 'Capots',
+  'motor-sensores-filtros': 'Motor y sensores',
+  'suspension-direccion': 'Suspensión',
+};
+
 const CATEGORY_PATTERNS: Array<[string, RegExp]> = [
   ['guardachoques', /guardachoque|gchoque|parachoque|bumper|absorbedor impacto|alma impacto/i],
   ['silvines-faros-luces', /silvin|faro|neblin|neblinero|stop|calavera|luz |lampara|lámpara|direccional|halogeno|halógeno|foco/i],
@@ -72,6 +95,20 @@ export function isShopifyProduct(product: StorefrontProduct | undefined | null):
 
 export function isShopifyCollection(collection: StorefrontCollection | undefined | null): collection is ShopifyCollection {
   return Boolean(collection && typeof collection === 'object' && 'handle' in collection && 'title' in collection);
+}
+
+export function collectionKey(collection: StorefrontCollection) {
+  return isShopifyCollection(collection) ? collection.handle : ('id' in collection ? collection.id : '');
+}
+
+export function collectionDisplayLabel(collection: StorefrontCollection) {
+  const key = collectionKey(collection);
+  return COLLECTION_DISPLAY_LABELS[key] || (isShopifyCollection(collection) ? collection.title : ('label' in collection ? collection.label : key));
+}
+
+export function collectionShortLabel(collection: StorefrontCollection) {
+  const key = collectionKey(collection);
+  return COLLECTION_SHORT_LABELS[key] || collectionDisplayLabel(collection);
 }
 
 export function productKey(product: StorefrontProduct) {
@@ -185,7 +222,10 @@ async function loadCollections(): Promise<StorefrontCollection[]> {
     const raw = await fetchAllCollections(shopifyOptions);
     const mapped = raw.map(mapShopifyCollection).filter((collection: any) => collection.handle !== 'frontpage');
     const shopifyHandles = new Set(mapped.map((collection: any) => collection.handle));
-    const inferred = INFERRED_CATEGORIES.filter((category) => !shopifyHandles.has(category.id));
+    const inferred = INFERRED_CATEGORIES.filter((category) => {
+      if (shopifyHandles.has(category.id)) return false;
+      return !(INFERRED_CATEGORY_SHOPIFY_ALIASES[category.id] || []).some((handle) => shopifyHandles.has(handle));
+    });
     return mapped.length ? [...mapped, ...inferred] : [...LOCAL_CATEGORIES, ...INFERRED_CATEGORIES];
   } catch (error) {
     shouldUseFallback(error);

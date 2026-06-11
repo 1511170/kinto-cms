@@ -1,0 +1,72 @@
+[
+  {
+    "handle": "capot",
+    "title": "Capot",
+    "rules": "title:contains:Capot|tag:equals:dm-cat-capots-cofres"
+  },
+  {
+    "handle": "carroceria-exteriores",
+    "title": "Carrocería exterior",
+    "rules": "tag:equals:dm-cat-carroceria-exteriores"
+  },
+  {
+    "handle": "espejos",
+    "title": "Espejos",
+    "rules": "title:contains:Espejo|tag:equals:dm-cat-espejos-retrovisores"
+  },
+  {
+    "handle": "frenos",
+    "title": "Frenos",
+    "rules": "tag:equals:dm-cat-frenos"
+  },
+  {
+    "handle": "guardachoques",
+    "title": "Guardachoques",
+    "rules": "title:contains:Guardachoque|tag:equals:dm-cat-guardachoques"
+  },
+  {
+    "handle": "guardafangos",
+    "title": "Guardafangos",
+    "rules": "tag:equals:dm-cat-guardafangos"
+  },
+  {
+    "handle": "interior-accesorios",
+    "title": "Interior y accesorios",
+    "rules": "tag:equals:dm-cat-interior-accesorios"
+  },
+  {
+    "handle": "motor-sensores-filtros",
+    "title": "Motor, sensores y filtros",
+    "rules": "tag:equals:dm-cat-motor-sensores-filtros"
+  },
+  {
+    "handle": "parrillas-mascarillas",
+    "title": "Parrillas y mascarillas",
+    "rules": "tag:equals:dm-cat-parrillas-mascarillas"
+  },
+  {
+    "handle": "puertas-manijas-chapas",
+    "title": "Puertas, manijas y chapas",
+    "rules": "tag:equals:dm-cat-puertas-manijas-chapas"
+  },
+  {
+    "handle": "radiadores",
+    "title": "Radiadores",
+    "rules": "title:contains:Radiador|tag:equals:dm-cat-radiadores-refrigeracion"
+  },
+  {
+    "handle": "silvin",
+    "title": "Silvin",
+    "rules": "title:contains:Silvin|tag:equals:dm-cat-silvines-faros-luces"
+  },
+  {
+    "handle": "suspension-direccion",
+    "title": "Suspensión y dirección",
+    "rules": "tag:equals:dm-cat-suspension-direccion"
+  },
+  {
+    "handle": "vidrios-parabrisas",
+    "title": "Vidrios y parabrisas",
+    "rules": "tag:equals:dm-cat-vidrios-parabrisas"
+  }
+]
