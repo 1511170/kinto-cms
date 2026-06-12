@@ -123,7 +123,7 @@ const photoCount = enrichedProducts.filter((item) => item.hasImage).length;
 const availableCount = enrichedProducts.filter((item) => item.available).length;
 const collectionUrl = isAll ? '/catalogo/todos/' : `/catalogo/${handle}/`;
 const collectionDescription = `${blurb} Compra repuestos en Distribuidor Miranda con despacho a Quito, Guayaquil, Cuenca y todo Ecuador.`;
-const schemaProducts = isAll ? products.slice(0, 120) : products;
+const schemaProducts = products;
 const collectionSchemas = [
   collectionSchema({ name: label, description: collectionDescription, url: collectionUrl, products: schemaProducts }),
   breadcrumbSchema([
@@ -138,7 +138,13 @@ const collectionSchemas = [
     {collectionSchemas.map((schema) => <script type="application/ld+json" set:html={jsonLd(schema)} />)}
   </Fragment>
   <Header current={handle} />
-  <main class="dm-main dm-collection dm-filterable-catalog" data-catalog-root>
+  <main
+    class="dm-main dm-collection dm-filterable-catalog"
+    data-catalog-root
+    data-analytics-list
+    data-analytics-list-id={handle}
+    data-analytics-list-name={label}
+  >
     <div class="dm-coll-head">
       <div class="dm-crumbs mono"><a href="/">INICIO</a><span>/</span><span>CATÁLOGO</span><span>/</span><span class="active">{label.toUpperCase()}</span></div>
       <div class="dm-coll-titlewrap">

@@ -2,6 +2,7 @@
 import siteConfig from '../../config/site.config.ts';
 import CartDrawer from '@skills-official/shopify-ecommerce/components/cart/CartDrawer.astro';
 import Analytics from '../components/Analytics.astro';
+import AnalyticsEvents from '../components/AnalyticsEvents.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -89,6 +90,7 @@ const titleFull = title === siteName ? title : `${title} | ${siteName}`;
   </head>
   <body class="antialiased">
     <Analytics placement="body" />
+    <AnalyticsEvents />
     <slot />
     <CartDrawer
       shippingNote="Envío a todo Ecuador · Checkout seguro vía Shopify"

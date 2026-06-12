@@ -63,7 +63,15 @@ const productSchemas = [
     {productSchemas.map((schema) => <script type="application/ld+json" set:html={jsonLd(schema)} />)}
   </Fragment>
   <Header />
-  <main class="dm-main dm-product">
+  <main
+    class="dm-main dm-product"
+    data-analytics-product
+    data-item-name={title}
+    data-item-id={sku}
+    data-item-brand={brand}
+    data-item-category={category}
+    data-item-price={isShopify && variant?.price?.amount ? variant.price.amount : ''}
+  >
     <div class="dm-crumbs mono dm-product-crumbs"><a href="/">INICIO</a><span>/</span><a href="/catalogo/todos/">CATÁLOGO</a><span>/</span><span class="active">{sku}</span></div>
     <div class="dm-product-top">
       <div class="dm-gallery">

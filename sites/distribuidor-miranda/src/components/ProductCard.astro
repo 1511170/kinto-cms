@@ -23,6 +23,8 @@ const href = isShopify ? productHref(product) : `/producto/${product.code}/`;
 const sku = productSku(product);
 const key = productKey(product);
 const available = productAvailable(product);
+const productBrand = isShopify ? (product.vendor || 'Distribuidor Miranda') : product.brand;
+const productCategory = isShopify ? (product.productType || product.collections?.[0] || 'Repuesto') : product.catLabel;
 const compareAtPrice = isShopify ? Number(variant?.compareAtPrice?.amount ?? 0) || undefined : undefined;
 const formattedPrice = isShopify
   ? (price > 0 ? `$${price.toFixed(2)}` : 'Consultar')
@@ -31,7 +33,15 @@ const placeholder = productPlaceholder(product);
 const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${title} (${sku})`)}`;
 ---
 
-<article class={`dm-card dm-product-card ${!available ? 'is-sold-out' : ''}`} data-product-id={key}>
+<article
+  class={`dm-card dm-product-card ${!available ? 'is-sold-out' : ''}`}
+  data-product-id={key}
+  data-product-name={title}
+  data-product-sku={sku}
+  data-product-brand={productBrand}
+  data-product-category={productCategory}
+  data-product-price={price > 0 ? price.toFixed(2) : ''}
+>
   <a href={href} class={`dm-card-media ${image640 ? 'has-real-image' : 'has-placeholder'}`}>
     {image640 ? (
       <>

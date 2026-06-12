@@ -152,6 +152,12 @@ export function productSchema(product: StorefrontProduct, options: { category?: 
     },
     image: image ? [image] : undefined,
     itemCondition: 'https://schema.org/NewCondition',
+    mainEntityOfPage: url,
+    additionalProperty: [
+      { '@type': 'PropertyValue', name: 'SKU', value: sku },
+      { '@type': 'PropertyValue', name: 'Categoría', value: category },
+      { '@type': 'PropertyValue', name: 'Mercado', value: 'Ecuador' },
+    ],
     offers: {
       '@type': 'Offer',
       url,
@@ -160,7 +166,17 @@ export function productSchema(product: StorefrontProduct, options: { category?: 
       availability: productAvailable(product) ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
       seller: { '@id': `${siteUrl}/#organization` },
       areaServed: { '@type': 'Country', name: 'Ecuador' },
+      availableAtOrFrom: { '@id': `${siteUrl}/#store` },
       availableDeliveryMethod: 'https://schema.org/ParcelService',
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'EC' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
+        },
+      },
     },
   };
 
@@ -181,6 +197,7 @@ export function collectionSchema(options: { name: string; description: string; u
     name: options.name,
     description: stripHtml(options.description),
     url: absoluteUrl(options.url),
+    inLanguage: 'es-EC',
     isPartOf: { '@id': `${siteUrl}/#website` },
     mainEntity: {
       '@type': 'ItemList',

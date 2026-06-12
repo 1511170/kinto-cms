@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Distribuidor Miranda">
+  <rect width="240" height="240" rx="52" fill="#0f172a"/>
+  <path d="M38 150h164l-12 34H50l-12-34Z" fill="#f59e0b"/>
+  <path d="M54 128 78 72h84l24 56H54Z" fill="#f8fafc"/>
+  <path d="M84 88h52l14 34H70l14-34Z" fill="#1d4ed8" opacity=".9"/>
+  <circle cx="78" cy="162" r="16" fill="#0f172a"/>
+  <circle cx="162" cy="162" r="16" fill="#0f172a"/>
+  <text x="120" y="218" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="34" font-weight="900" fill="#f8fafc">DM</text>
+</svg>
