@@ -15,21 +15,49 @@ const megaGroups = [
     title: 'Colisión y carrocería',
     eyebrow: 'Lo más buscado para choque',
     keys: ['guardachoques', 'capot', 'guardafangos', 'parrillas-mascarillas', 'carroceria-exteriores'],
+    shortcuts: [
+      ['Delanteros', '/catalogo/guardachoques/?q=del'],
+      ['Posteriores', '/catalogo/guardachoques/?q=post'],
+      ['Capots / cofres', '/catalogo/capot/'],
+      ['Guardafangos RH/LH', '/catalogo/guardafangos/?q=rh lh'],
+      ['Mascarillas', '/catalogo/parrillas-mascarillas/?q=mascarilla'],
+    ],
   },
   {
     title: 'Iluminación y visibilidad',
     eyebrow: 'Faros, espejos y vidrios',
     keys: ['silvin', 'espejos', 'vidrios-parabrisas'],
+    shortcuts: [
+      ['Silvin LH/RH', '/catalogo/silvin/?q=lh rh'],
+      ['Neblineros', '/catalogo/silvin/?q=neblinero'],
+      ['Stops / faros posteriores', '/catalogo/silvin/?q=posterior stop'],
+      ['Espejos eléctricos', '/catalogo/espejos/?q=electrico'],
+      ['Parabrisas', '/catalogo/vidrios-parabrisas/?q=parabrisas'],
+    ],
   },
   {
     title: 'Motor y refrigeración',
     eyebrow: 'Sistema térmico y sensores',
     keys: ['radiadores', 'motor-sensores-filtros'],
+    shortcuts: [
+      ['Radiadores', '/catalogo/radiadores/'],
+      ['Electroventiladores', '/catalogo/radiadores/?q=electroventilador'],
+      ['Condensadores', '/catalogo/radiadores/?q=condensador'],
+      ['Sensores', '/catalogo/motor-sensores-filtros/?q=sensor'],
+      ['Filtros', '/catalogo/motor-sensores-filtros/?q=filtro'],
+    ],
   },
   {
     title: 'Mecánica e interior',
     eyebrow: 'Dirección, frenos y cabina',
     keys: ['suspension-direccion', 'frenos', 'puertas-manijas-chapas', 'interior-accesorios'],
+    shortcuts: [
+      ['Amortiguadores', '/catalogo/suspension-direccion/?q=amortiguador'],
+      ['Mesas / brazos', '/catalogo/suspension-direccion/?q=mesa brazo'],
+      ['Terminales', '/catalogo/suspension-direccion/?q=terminal'],
+      ['Pastillas y zapatas', '/catalogo/frenos/?q=pastilla zapata'],
+      ['Manijas y chapas', '/catalogo/puertas-manijas-chapas/?q=manija chapa'],
+    ],
   },
 ].map((group) => ({ ...group, collections: pick(group.keys) })).filter((group) => group.collections.length);
 const groupedKeys = new Set(megaGroups.flatMap((group) => group.collections.map((collection: any) => getCollectionKey(collection))));
@@ -42,7 +70,7 @@ const otherCollections = menuCollections.filter((collection: any) => !groupedKey
     <form class="dm-search" action="/catalogo/todos/" data-live-search><span>⌕</span><input name="q" placeholder="Buscar por código, parte, marca o modelo…" autocomplete="off" data-live-search-input /><kbd>⌘K</kbd><div class="dm-search-popover" data-live-search-popover hidden><div class="dm-search-popover-head"><strong>Buscar repuestos</strong><small>Escribe código, pieza, marca o modelo</small></div><div class="dm-search-results" data-live-search-results></div><a class="dm-search-all" href="/catalogo/todos/" data-live-search-all>Ver todos los resultados →</a></div></form>
     <div class="dm-actions"><a class="dm-iconbtn" href="/catalogo/todos/">⇄</a><a class="dm-iconbtn" href="/catalogo/todos/">♡</a><a class="dm-cart" data-cart-trigger href="#">Carrito <span class="dm-cart-pill" data-cart-count hidden>0</span></a></div>
   </div>
-  <nav class="dm-nav"><div class="dm-nav-inner"><details class="dm-mega"><summary class="dm-nav-cats"><span>☰</span><strong>Categorías</strong><small>mega menú</small></summary><div class="dm-mega-panel"><div class="dm-mega-head"><div><strong>Familias de repuestos</strong><small>Navega por sistema y pieza, sin categorías duplicadas</small></div><a href="/catalogo/todos/">Ver catálogo completo →</a></div><div class="dm-mega-feature"><a href="/catalogo/todos/"><span>11.808+</span><strong>Todos los productos</strong><small>Busca por código, pieza, marca o modelo</small></a><a href="/catalogo/todos/?sort=stock-desc"><span>24–48h</span><strong>Disponibles primero</strong><small>Prioriza referencias listas para cotizar</small></a></div><div class="dm-mega-columns">{megaGroups.map(group => <section class="dm-mega-group"><p>{group.eyebrow}</p><h3>{group.title}</h3><div>{group.collections.map((c: any) => <a class={current === getCollectionKey(c) ? 'active' : ''} href={collectionHref(c)}><span>{getCollectionLabel(c)}</span><small>{isShopifyCollection(c) ? 'Collection Shopify' : 'Categoría inteligente'}</small></a>)}</div></section>)}{otherCollections.length > 0 && <section class="dm-mega-group dm-mega-group--other"><p>Extras</p><h3>Otras categorías</h3><div>{otherCollections.map((c: any) => <a class={current === getCollectionKey(c) ? 'active' : ''} href={collectionHref(c)}><span>{getCollectionLabel(c)}</span><small>{isShopifyCollection(c) ? 'Collection Shopify' : 'Categoría inteligente'}</small></a>)}</div></section>}</div></div></details>{mainNavCollections.map((c: any) => <a class={current === getCollectionKey(c) ? 'active' : ''} href={collectionHref(c)}>{getCollectionShortLabel(c)}</a>)}<span class="spacer"></span><a class="dm-nav-promo" href="/catalogo/todos/"><span class="dm-pulse"></span>Ofertas</a><a href="#mayoristas">Mayoristas</a><a href="#">Catálogo PDF</a></div></nav>
+  <nav class="dm-nav"><div class="dm-nav-inner"><details class="dm-mega"><summary class="dm-nav-cats"><span>☰</span><strong>Categorías</strong><small>mega menú</small></summary><div class="dm-mega-panel"><div class="dm-mega-head"><div><strong>Familias de repuestos</strong><small>Navega por sistema y pieza, sin categorías duplicadas</small></div><a href="/catalogo/todos/">Ver catálogo completo →</a></div><div class="dm-mega-feature"><a href="/catalogo/todos/"><span>11.808+</span><strong>Todos los productos</strong><small>Busca por código, pieza, marca o modelo</small></a><a href="/catalogo/todos/?sort=stock-desc"><span>24–48h</span><strong>Disponibles primero</strong><small>Prioriza referencias listas para cotizar</small></a></div><div class="dm-mega-columns">{megaGroups.map(group => <section class="dm-mega-group"><p>{group.eyebrow}</p><h3>{group.title}</h3><div class="dm-mega-primary-links">{group.collections.map((c: any) => <a class={current === getCollectionKey(c) ? 'active' : ''} href={collectionHref(c)}><span>{getCollectionLabel(c)}</span><small>{isShopifyCollection(c) ? 'Collection Shopify' : 'Categoría inteligente'}</small></a>)}</div><div class="dm-mega-shortcuts" aria-label={`Atajos de ${group.title}`}><strong>Atajos rápidos</strong><div>{group.shortcuts.map(([label, href]: [string, string]) => <a href={href}>{label}</a>)}</div></div></section>)}{otherCollections.length > 0 && <section class="dm-mega-group dm-mega-group--other"><p>Extras</p><h3>Otras categorías</h3><div>{otherCollections.map((c: any) => <a class={current === getCollectionKey(c) ? 'active' : ''} href={collectionHref(c)}><span>{getCollectionLabel(c)}</span><small>{isShopifyCollection(c) ? 'Collection Shopify' : 'Categoría inteligente'}</small></a>)}</div></section>}</div></div></details>{mainNavCollections.map((c: any) => <a class={current === getCollectionKey(c) ? 'active' : ''} href={collectionHref(c)}>{getCollectionShortLabel(c)}</a>)}<span class="spacer"></span><a class="dm-nav-promo" href="/catalogo/todos/"><span class="dm-pulse"></span>Ofertas</a><a href="#mayoristas">Mayoristas</a><a href="#">Catálogo PDF</a></div></nav>
 </header>
 <script>
   (() => {

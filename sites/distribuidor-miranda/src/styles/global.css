@@ -480,6 +480,45 @@
   font-size: 10px;
   font-weight: 800;
 }
+.dm-mega-shortcuts {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.dm-mega-shortcuts > strong {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.dm-mega-shortcuts > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dm-mega-shortcuts a {
+  display: inline-flex;
+  min-height: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--surface), var(--accent-soft) 24%);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+.dm-mega-shortcuts a:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
 .dm-mega-group--other { grid-column: span 2; }
 .dm-mega-group--other > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 1100px) {
