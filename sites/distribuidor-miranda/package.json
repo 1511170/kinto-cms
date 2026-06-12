@@ -18,7 +18,8 @@
     "analytics:top-searches": "node scripts/google/analytics-search-console.mjs ga4:top-searches",
     "analytics:top-products": "node scripts/google/analytics-search-console.mjs ga4:top-products",
     "gsc:queries": "node scripts/google/analytics-search-console.mjs gsc:queries",
-    "gsc:pages": "node scripts/google/analytics-search-console.mjs gsc:pages"
+    "gsc:pages": "node scripts/google/analytics-search-console.mjs gsc:pages",
+    "mobile:audit": "node scripts/mobile-audit.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.0",
