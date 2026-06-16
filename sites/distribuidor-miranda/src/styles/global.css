@@ -738,3 +738,104 @@
   .dm-product-grid .dm-card-title{font-size:11px;min-height:41px}
   .dm-product-grid .dm-card-body{padding:8px}
 }
+
+/* Product detail: part brand, quantity and local payment copy polish */
+.dm-part-brand-card{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px;
+  border:1px solid rgba(167,111,47,.28);
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,247,237,.92),rgba(255,255,255,.72));
+  box-shadow:0 12px 32px rgba(91,57,23,.08);
+}
+.dm-part-brand-logo{
+  min-width:54px;
+  height:54px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  padding:0 8px;
+  background:#1f1a15;
+  color:#f8d38b;
+  border:1px solid rgba(248,211,139,.32);
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.dm-part-brand-card>div:last-child{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  min-width:0;
+}
+.dm-part-brand-label{
+  color:var(--muted,#7a6a55);
+  font-size:10px;
+  letter-spacing:.14em;
+}
+.dm-part-brand-card strong{
+  color:var(--ink,#1f1a15);
+  font-size:18px;
+  line-height:1.1;
+}
+.dm-part-brand-card small{
+  color:var(--muted,#7a6a55);
+  font-size:12px;
+  line-height:1.35;
+}
+.dm-card-meta{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.dm-card-brand{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  max-width:100%;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,247,237,.95);
+  border:1px solid rgba(167,111,47,.2);
+  color:#5f4120;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.15;
+}
+.dm-card-brand .mono{
+  color:#9b5f14;
+  letter-spacing:.08em;
+}
+.dm-qty input[type="number"]{
+  appearance:textfield;
+  -moz-appearance:textfield;
+  text-align:center;
+  font-weight:900;
+}
+.dm-qty input[type="number"]::-webkit-outer-spin-button,
+.dm-qty input[type="number"]::-webkit-inner-spin-button{
+  -webkit-appearance:none;
+  margin:0;
+}
+.dm-buybox [data-add-to-cart],
+.dm-buybox [data-buy-now]{
+  cursor:pointer;
+}
+@media(max-width:720px){
+  .dm-part-brand-card{
+    padding:11px;
+    border-radius:15px;
+    gap:10px;
+  }
+  .dm-part-brand-logo{
+    min-width:46px;
+    height:46px;
+    border-radius:13px;
+    font-size:12px;
+  }
+  .dm-part-brand-card strong{font-size:16px}
+  .dm-part-brand-card small{font-size:11px}
+  .dm-card-brand{font-size:10px;padding:3px 6px}
+}

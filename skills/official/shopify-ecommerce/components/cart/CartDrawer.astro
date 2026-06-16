@@ -2,12 +2,14 @@
 interface Props {
   whatsappUrl?: string;
   shippingNote?: string;
+  checkoutTrustNote?: string;
   catalogHref?: string;
   emptyCopy?: string;
 }
 const {
   whatsappUrl,
   shippingNote = 'Envío a toda Colombia · Todos los pedidos por WhatsApp',
+  checkoutTrustNote = 'Checkout seguro · Pago via Shopify',
   catalogHref = '/store',
   emptyCopy = 'Explorá nuestro catálogo o escribinos por WhatsApp para cotizar. Todos los pedidos se gestionan por WhatsApp.',
 } = Astro.props;
@@ -107,7 +109,7 @@ const {
       </a>
       <div class="drawer-trust">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        <span>Checkout seguro · Pago via Shopify</span>
+        <span>{checkoutTrustNote}</span>
       </div>
     </footer>
   </aside>
@@ -873,7 +875,43 @@ const {
       }
 
       const buyNowButton = (e.target as HTMLElement | null)?.closest?.('[data-buy-now]') as HTMLButtonElement | null;
-      if (!buyNowButton) return;
+      if (!buyNowButton) {
+        const addButton = (e.target as HTMLElement | null)?.closest?.('[data-add-to-cart]') as HTMLButtonElement | null;
+        if (!addButton) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const variantId = addButton.getAttribute('data-variant-id');
+        if (!variantId) {
+          const fallback = addButton.getAttribute('data-fallback-href') || 'https://wa.me/593996140000';
+          window.location.href = fallback;
+          return;
+        }
+
+        const qtyInput = addButton.closest('.dm-buybox')?.querySelector<HTMLInputElement>('.dm-qty input');
+        const quantity = Math.max(1, Math.floor(Number(qtyInput?.value || 1)));
+        const originalText = addButton.textContent;
+        addButton.disabled = true;
+        addButton.textContent = 'Agregando…';
+
+        document.dispatchEvent(new CustomEvent('cart-add-request', {
+          detail: {
+            variantId,
+            quantity,
+            onSuccess: () => {
+              addButton.disabled = false;
+              addButton.textContent = originalText || 'Agregar al carrito';
+            },
+            onError: () => {
+              addButton.disabled = false;
+              addButton.textContent = 'Error, intentar de nuevo';
+              setTimeout(() => { addButton.textContent = originalText || 'Agregar al carrito'; }, 1800);
+            },
+          },
+        }));
+        return;
+      }
 
       e.preventDefault();
       e.stopPropagation();

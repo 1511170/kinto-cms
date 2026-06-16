@@ -3,7 +3,7 @@ import PartPlaceholder from './PartPlaceholder.astro';
 import StockBadge from './StockBadge.astro';
 import QuickView from './QuickView.astro';
 import { formatPrice as formatLocalPrice, type Product as LocalProduct } from '../data/catalog';
-import { isShopifyProduct, productHref, productAvailable, productImage, productImageUrl, productKey, productPlaceholder, productSku, productTitle, type Product as ShopifyProduct } from '../lib/shopify-catalog';
+import { isShopifyProduct, productHref, productAvailable, productImage, productImageUrl, productKey, productPlaceholder, productSku, productTitle, productPartBrand, type Product as ShopifyProduct } from '../lib/shopify-catalog';
 
 export type ProductCardProps = {
   product: ShopifyProduct | LocalProduct;
@@ -23,7 +23,8 @@ const href = isShopify ? productHref(product) : `/producto/${product.code}/`;
 const sku = productSku(product);
 const key = productKey(product);
 const available = productAvailable(product);
-const productBrand = isShopify ? (product.vendor || 'Distribuidor Miranda') : product.brand;
+const partBrand = productPartBrand(product);
+const productBrand = partBrand.name;
 const productCategory = isShopify ? (product.productType || product.collections?.[0] || 'Repuesto') : product.catLabel;
 const compareAtPrice = isShopify ? Number(variant?.compareAtPrice?.amount ?? 0) || undefined : undefined;
 const formattedPrice = isShopify
@@ -80,6 +81,7 @@ const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola
     </h3>
     
     <div class="dm-card-meta">
+      <span class="dm-card-brand"><span class="mono">{partBrand.code}</span> {productBrand}</span>
       <StockBadge available={available} />
     </div>
     
@@ -277,44 +279,7 @@ const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola
       if (modal) modal.hidden = false;
     });
   });
-  
-  // Add to cart: never redirect directly. The CartDrawer owns Shopify cart I/O
-  // and only its checkout button should send the customer to checkout.
-  if (!window.__dmAddToCartBound) {
-    window.__dmAddToCartBound = true;
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-add-to-cart]');
-      if (!btn) return;
-      e.preventDefault();
-      e.stopPropagation();
 
-      const variantId = btn.getAttribute('data-variant-id');
-      if (!variantId) {
-        window.location.href = 'mailto:ventas@distribuidormiranda.ec';
-        return;
-      }
-
-      const qtyInput = btn.closest('.dm-buybox')?.querySelector('.dm-qty input');
-      const quantity = Math.max(1, Number(qtyInput?.value || 1));
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Agregando…';
-
-      document.dispatchEvent(new CustomEvent('cart-add-request', {
-        detail: {
-          variantId,
-          quantity,
-          onSuccess: () => {
-            btn.disabled = false;
-            btn.textContent = originalText || 'Agregar al carrito';
-          },
-          onError: () => {
-            btn.disabled = false;
-            btn.textContent = 'Error, intentar de nuevo';
-            setTimeout(() => { btn.textContent = originalText || 'Agregar al carrito'; }, 1800);
-          },
-        },
-      }));
-    });
-  }
+  // Add-to-cart is owned globally by CartDrawer. Product cards only expose
+  // data-add-to-cart/data-variant-id so product pages and listings behave alike.
 </script>

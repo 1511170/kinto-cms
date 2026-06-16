@@ -4,6 +4,7 @@ import {
   productAvailable,
   productHref,
   productImageUrl,
+  productPartBrand,
   productSku,
   productTitle,
   type StorefrontProduct,
@@ -86,7 +87,7 @@ export function businessSchemas() {
       parentOrganization: { '@id': orgId },
       priceRange: '$$ ',
       currenciesAccepted: 'USD',
-      paymentAccepted: 'Cash, Credit Card, Bank Transfer, Shopify Checkout',
+      paymentAccepted: 'Cash on delivery, Credit Card, Debit Card, Bank Transfer',
       openingHoursSpecification: [{
         '@type': 'OpeningHoursSpecification',
         dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -135,6 +136,7 @@ export function productSchema(product: StorefrontProduct, options: { category?: 
   const description = stripHtml(options.description || (isShopify ? product.descriptionHtml || product.description : `${title} disponible en Distribuidor Miranda Ecuador.`));
   const url = absoluteUrl(productHref(product));
   const category = options.category || (isShopify ? product.productType || product.collections?.[0] : product.catLabel) || 'Repuestos automotrices';
+  const partBrand = productPartBrand(product);
 
   const schema: Record<string, any> = {
     '@context': 'https://schema.org',
@@ -148,13 +150,14 @@ export function productSchema(product: StorefrontProduct, options: { category?: 
     url,
     brand: {
       '@type': 'Brand',
-      name: isShopify ? (product.vendor || 'Distribuidor Miranda') : product.brand,
+      name: partBrand.name,
     },
     image: image ? [image] : undefined,
     itemCondition: 'https://schema.org/NewCondition',
     mainEntityOfPage: url,
     additionalProperty: [
       { '@type': 'PropertyValue', name: 'SKU', value: sku },
+      { '@type': 'PropertyValue', name: 'Marca del repuesto', value: partBrand.name },
       { '@type': 'PropertyValue', name: 'Categoría', value: category },
       { '@type': 'PropertyValue', name: 'Mercado', value: 'Ecuador' },
     ],

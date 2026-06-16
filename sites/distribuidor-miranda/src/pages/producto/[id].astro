@@ -6,7 +6,7 @@ import PartPlaceholder from '../../components/PartPlaceholder.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { formatPrice as formatLocalPrice } from '../../data/catalog';
 import { formatPrice as formatShopifyPrice } from '@skills-official/shopify-ecommerce/lib/format-price';
-import { getStorefrontProducts, getStorefrontProduct, isShopifyProduct, productHref, productImageUrl, productPlaceholder, productAvailable } from '../../lib/shopify-catalog';
+import { getStorefrontProducts, getStorefrontProduct, isShopifyProduct, productHref, productImageUrl, productPlaceholder, productAvailable, productPartBrand } from '../../lib/shopify-catalog';
 import { absoluteUrl, breadcrumbSchema, jsonLd, productSchema } from '../../lib/seo';
 
 export async function getStaticPaths() {
@@ -24,7 +24,8 @@ const title = isShopify ? p.title : p.name;
 const description = isShopify ? (p.seo.description || p.description || `${title} en Distribuidor Miranda Ecuador.`) : `${p.name} ${p.brand}, SKU ${p.sku}.`;
 const variant = isShopify ? p.variants[0] : null;
 const sku = isShopify ? (variant?.sku || p.handle) : p.sku;
-const brand = isShopify ? (p.vendor || 'Distribuidor Miranda') : p.brand;
+const partBrand = productPartBrand(p);
+const brand = partBrand.name;
 const category = isShopify ? (p.productType || p.collections[0] || 'Repuesto') : p.catLabel;
 const price = isShopify
   ? (variant?.price && Number(variant.price.amount) > 0 ? formatShopifyPrice(variant.price.amount, variant.price.currencyCode, 'es-EC') : 'Cotizar')
@@ -36,6 +37,7 @@ const image = isShopify ? p.featuredImage : null;
 const mainImageUrl = productImageUrl(p, 1200);
 const placeholder = productPlaceholder(p);
 const available = productAvailable(p);
+const canCart = Boolean(available && variant?.id);
 const applications = isShopify ? (p.metafields.application ?? p.tags).slice(0, 8) : p.applications.map((app) => `${app.make} ${app.model} · ${app.years}`);
 const specs = isShopify ? (p.metafields.specs ?? []) : [
   { label: 'SKU', value: p.sku },
@@ -81,17 +83,25 @@ const productSchemas = [
         </div>
         <div class="dm-gallery-main">
           {mainImageUrl ? <img class="dm-product-main-img" src={mainImageUrl} width={image?.width ?? 1200} height={image?.height ?? 1200} alt={image?.altText ?? title} decoding="async" /> : <PartPlaceholder code={placeholder.code} label={placeholder.label} accent={placeholder.accent} size="xl" />}
-          <div class="dm-gallery-counter mono">SHOPIFY</div>
+          <div class="dm-gallery-counter mono">{sku}</div>
         </div>
       </div>
       <section class="dm-pinfo">
         <div class="dm-pinfo-eyebrow"><span class="mono">{brand}</span><span>·</span><span class="mono">{sku}</span><span>·</span><span>{category}</span></div>
         <h1 class="dm-pinfo-title">{title}</h1>
         <div class="dm-pinfo-rating"><div class="dm-stars">★★★★★</div><span>{available ? 'Disponible' : 'Consultar disponibilidad'}</span><span>·</span><a>Asesoría técnica</a></div>
-        <div class="dm-pinfo-price"><div class="dm-pinfo-price-main"><span class="dm-price-now">{price}</span>{compareAt && <span class="dm-price-old">{compareAt}</span>}</div><div class="dm-pinfo-price-meta mono">IVA incluido · checkout Shopify</div></div>
+        <div class="dm-pinfo-price"><div class="dm-pinfo-price-main"><span class="dm-price-now">{price}</span>{compareAt && <span class="dm-price-old">{compareAt}</span>}</div><div class="dm-pinfo-price-meta mono">IVA incluido · múltiples medios de pago</div></div>
+        <div class="dm-part-brand-card" data-part-brand={brand}>
+          <div class="dm-part-brand-logo mono">{partBrand.code}</div>
+          <div>
+            <span class="dm-part-brand-label mono">MARCA DEL REPUESTO</span>
+            <strong>{brand}</strong>
+            {partBrand.inferred && <small>Detectada desde título/SKU; se confirma antes de despacho.</small>}
+          </div>
+        </div>
         <div class="dm-stockline"><span class="dm-stock-dot"></span><strong>{isShopify ? (available ? 'Disponible para compra' : 'Consultar precio y stock') : `${p.stock} unidades en stock`}</strong><span>·</span><span>Bodega Quito / Guayaquil</span></div>
         <div class="dm-vcheck"><div class="dm-vcheck-head">▰ ¿Calza en tu vehículo?</div><div class="dm-vcheck-row"><select><option>Aplicación</option>{applications.map(a => <option>{a}</option>)}</select><button class="dm-btn dm-btn-outline">Verificar</button></div></div>
-        <div class="dm-buybox"><div class="dm-buybox-row"><div class="dm-qty"><button>−</button><input value="1" readonly /><button>+</button></div><button class="dm-btn dm-btn-primary dm-btn-lg" data-add-to-cart data-variant-id={available ? (variant?.id ?? '') : ''}>{available ? `Agregar al carrito · ${price}` : 'Cotizar disponibilidad'}</button></div><button class="dm-btn dm-btn-dark dm-btn-lg dm-btn-full" type="button" data-buy-now data-variant-id={available ? (variant?.id ?? '') : ''} data-fallback-href="mailto:ventas@distribuidormiranda.com.ec">{available ? 'Comprar ahora' : 'Cotizar ahora'}</button><div class="dm-buybox-extras"><button>♡ Guardar</button><button>⇄ Comparar</button><button>↗ Compartir</button></div></div>
+        <div class="dm-buybox"><div class="dm-buybox-row"><div class="dm-qty"><button type="button" aria-label="Restar unidad">−</button><input type="number" min="1" step="1" value="1" inputmode="numeric" aria-label="Unidades" /><button type="button" aria-label="Sumar unidad">+</button></div><button class="dm-btn dm-btn-primary dm-btn-lg" type="button" data-add-to-cart data-variant-id={canCart ? variant?.id : ''} data-fallback-href={`https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${title} (${sku})`)}`}>{canCart ? `Agregar al carrito · ${price}` : 'Cotizar disponibilidad'}</button></div><button class="dm-btn dm-btn-dark dm-btn-lg dm-btn-full" type="button" data-buy-now data-variant-id={canCart ? variant?.id : ''} data-fallback-href={`https://wa.me/593996140000?text=${encodeURIComponent(`Hola, quiero comprar/cotizar ${title} (${sku})`)}`}>{canCart ? 'Comprar ahora' : 'Cotizar ahora'}</button><div class="dm-buybox-extras"><button type="button">♡ Guardar</button><button type="button">⇄ Comparar</button><button type="button">↗ Compartir</button></div></div>
         <ul class="dm-trust-list"><li>Garantía de 90 días</li><li>Verificación por VIN/foto antes de despacho</li><li>Envíos nacionales 24–48h</li></ul>
       </section>
     </div>

@@ -125,14 +125,59 @@ export function productTitle(product: StorefrontProduct) {
   return product.label || product.name || product.title || product.id || 'Producto';
 }
 
+const GENERIC_VENDOR_NAMES = new Set(['distribuidor miranda', 'miranda', 'dm']);
+
+const PART_BRAND_PATTERNS: Array<{ name: string; code: string; pattern: RegExp }> = [
+  { name: 'TYC', code: 'TYC', pattern: /\bTYC\b/i },
+  { name: 'DEPO', code: 'DEPO', pattern: /\bDEPO\b/i },
+  { name: 'Mobis', code: 'MOBIS', pattern: /\bMOBIS\b/i },
+  { name: 'GM Genuine', code: 'GM', pattern: /\b(GM|GENUINO|GENUINE)\b/i },
+  { name: 'KRC', code: 'KRC', pattern: /\bKRC\b/i },
+  { name: 'Maxfit', code: 'MAX', pattern: /\bMAXFIT\b/i },
+  { name: 'Allparts', code: 'ALL', pattern: /\bALLPARTS\b/i },
+  { name: 'BM', code: 'BM', pattern: /\bBM\b/i },
+  { name: 'TYG', code: 'TYG', pattern: /\bTYG\b/i },
+  { name: 'TFP', code: 'TFP', pattern: /\bTFP\b/i },
+  { name: 'LiYa', code: 'LIYA', pattern: /\bLIYA\b/i },
+  { name: 'Best Parts', code: 'BEST', pattern: /\bBEST\s*PARTS\b/i },
+  { name: 'Diforza', code: 'DIF', pattern: /\bDIFORZA\b/i },
+  { name: 'Deifo', code: 'DEI', pattern: /\bDEIFO\b/i },
+  { name: 'Vichura', code: 'VIC', pattern: /\bVICHURA\b/i },
+  { name: 'Yosai', code: 'YOS', pattern: /\bYOSAI\b/i },
+  { name: 'Kashima', code: 'KAS', pattern: /\bKASHIMA\b/i },
+  { name: 'Hi-Q', code: 'HIQ', pattern: /\bHI[- ]?Q\b/i },
+  { name: 'Sokita', code: 'SOK', pattern: /\bSOKITA\b/i },
+  { name: 'Durako', code: 'DUR', pattern: /\bDURAKO\b/i },
+  { name: 'Record', code: 'REC', pattern: /\bRECORD\b/i },
+  { name: 'Besuto', code: 'BES', pattern: /\bBESUTO\b/i },
+  { name: 'HK', code: 'HK', pattern: /\bHK\b/i },
+  { name: 'Simyi', code: 'SIM', pattern: /\bSIMYI\b/i },
+  { name: 'YCK', code: 'YCK', pattern: /\bYCK\b/i },
+  { name: 'JLY', code: 'JLY', pattern: /\bJLY\b/i },
+];
+
+export function productPartBrand(product: StorefrontProduct) {
+  const vendor = isShopifyProduct(product) ? (product.vendor || '').trim() : (product.brand || '').trim();
+  if (vendor && !GENERIC_VENDOR_NAMES.has(vendor.toLowerCase())) {
+    return { name: vendor, code: vendor.replace(/[^a-z0-9]/gi, '').slice(0, 5).toUpperCase() || 'BR', inferred: false };
+  }
+
+  const text = isShopifyProduct(product)
+    ? `${product.title || ''} ${product.productType || ''} ${product.tags?.join(' ') || ''} ${product.variants?.[0]?.sku || ''}`
+    : `${product.name || product.label || ''} ${product.brand || ''} ${product.sku || ''}`;
+  const match = PART_BRAND_PATTERNS.find((brand) => brand.pattern.test(text));
+  if (match) return { name: match.name, code: match.code, inferred: true };
+  return { name: 'Marca por confirmar', code: 'OEM', inferred: true };
+}
+
 export function productAvailable(product: StorefrontProduct) {
   if (!isShopifyProduct(product)) return true;
-  return Boolean(product.availableForSale || product.variants?.some((variant) => variant.availableForSale));
+  return Boolean(product.availableForSale || product.variants?.some((variant: any) => variant.availableForSale));
 }
 
 export function productImage(product: StorefrontProduct) {
   if (!isShopifyProduct(product)) return null;
-  return product.featuredImage ?? product.variants?.find((variant) => variant.image)?.image ?? product.images?.[0] ?? null;
+  return product.featuredImage ?? product.variants?.find((variant: any) => variant.image)?.image ?? product.images?.[0] ?? null;
 }
 
 export function productImageUrl(product: StorefrontProduct, width = 640) {
