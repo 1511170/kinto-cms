@@ -19,12 +19,14 @@ Run these in order inside the site directory:
 6. **SEO**: Check that schema.org JSON-LD is present where expected
 
 ## Rules
+
 - A site is NOT done until build passes
 - If build fails, fix the errors and re-run
 - Report all warnings even if build passes
 - Check that `dist/` output contains expected files
 
 ## Output Format
+
 ```
 ✅ Build: PASS / FAIL
 ✅ Preview: VERIFIED / NOT CHECKED

@@ -36,12 +36,15 @@ For each page in `src/pages/`:
    - Mobile-friendly (Tailwind responsive classes)
 
 ## Rules
+
 - Check the `config/site.config.ts` for site URL and metadata
 - Verify schema.org matches the actual content
 - Report missing or incorrect markup with specific file paths
 
 ## Output
+
 List each issue with:
+
 - File path
 - Issue description
 - Recommended fix

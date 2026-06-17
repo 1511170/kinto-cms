@@ -33,18 +33,23 @@ npm install gsap --legacy-peer-deps
 ## Componentes incluidos
 
 ### `<AnimatedHero />`
+
 Hero con texto animado, gradientes dinámicos, parallax.
 
 ### `<PremiumCard />`
+
 Cards con hover 3D, glassmorphism, glow effects.
 
 ### `<StaggerGrid />`
+
 Grids donde los items aparecen con stagger animation.
 
 ### `<ParallaxSection />`
+
 Secciones con movimiento parallax en scroll.
 
 ### `<MagneticButton />`
+
 Botones que siguen el cursor (magnetic effect).
 
 ## Uso
@@ -54,7 +59,7 @@ Botones que siguen el cursor (magnetic effect).
 import AnimatedHero from '../../../skills/community/webflow-effects/components/AnimatedHero.astro';
 ---
 
-<AnimatedHero 
+<AnimatedHero
   title="Conectamos tu negocio"
   highlight="con el mundo"
   subtitle="Soluciones logísticas globales"
@@ -64,6 +69,7 @@ import AnimatedHero from '../../../skills/community/webflow-effects/components/A
 ## Scripts automáticos
 
 La skill inyecta automáticamente:
+
 - `gsap.min.js` - Animaciones
 - `scroll-trigger.js` - Scroll animations
 - `custom-animations.js` - Configuración del sitio

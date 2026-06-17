@@ -55,8 +55,8 @@ El cliente puede agregar testimonios via CMS:
 {
   "@context": "https://schema.org",
   "@type": "Review",
-  "author": {"@type": "Person", "name": "Juan Pérez"},
-  "reviewRating": {"@type": "Rating", "ratingValue": "5"},
+  "author": { "@type": "Person", "name": "Juan Pérez" },
+  "reviewRating": { "@type": "Rating", "ratingValue": "5" },
   "reviewBody": "Excelente servicio..."
 }
 ```

@@ -3,9 +3,9 @@
 
 backend:
   name: github
-  repo: {GITHUB_REPO}
+  repo: { GITHUB_REPO }
   branch: main
-  base_url: {AUTH_URL}
+  base_url: { AUTH_URL }
   auth_endpoint: auth
 
 media_folder: "public/uploads"
@@ -17,7 +17,7 @@ public_folder: "/uploads"
 collections: []
   # Skills añaden sus collections aquí vía:
   # kinto skill add cms-sveltia
-  # 
+  #
   # Ejemplo skill "pages":
   # - name: "pages"
   #   label: "Páginas"

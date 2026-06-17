@@ -42,7 +42,7 @@ export type Locale<T extends Record<string, unknown>> = keyof T & string;
  * export type SiteLocale = ReturnType<typeof getLocales>[number];
  */
 export function createI18n<T extends Record<string, Record<string, unknown>>>(
-  config: I18nConfig<T>
+  config: I18nConfig<T>,
 ) {
   const { translations, defaultLocale } = config;
   const locales = Object.keys(translations) as (keyof T & string)[];
@@ -60,7 +60,7 @@ export function createI18n<T extends Record<string, Record<string, unknown>>>(
    * La URL /es/... retorna 'es'. Cualquier otra URL retorna el locale por defecto.
    */
   function getLocaleFromUrl(url: URL): keyof T & string {
-    const [, first] = url.pathname.split('/');
+    const [, first] = url.pathname.split("/");
     if (first && locales.includes(first as keyof T & string) && first !== def) {
       return first as keyof T & string;
     }
@@ -78,7 +78,7 @@ export function createI18n<T extends Record<string, Record<string, unknown>>>(
   function getLocalizedPath(path: string, locale: keyof T & string): string {
     const clean = getPathWithoutLocale(path);
     if (locale === def) return clean;
-    return `/${locale}${clean === '/' ? '' : clean}`;
+    return `/${locale}${clean === "/" ? "" : clean}`;
   }
 
   /**
@@ -91,10 +91,13 @@ export function createI18n<T extends Record<string, Record<string, unknown>>>(
   function getPathWithoutLocale(pathname: string): string {
     for (const locale of locales) {
       if (locale === def) continue;
-      const stripped = pathname.replace(new RegExp(`^\\/${locale}(\\/|$)`), '/');
-      if (stripped !== pathname) return stripped || '/';
+      const stripped = pathname.replace(
+        new RegExp(`^\\/${locale}(\\/|$)`),
+        "/",
+      );
+      if (stripped !== pathname) return stripped || "/";
     }
-    return pathname || '/';
+    return pathname || "/";
   }
 
   /**

@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-50: #f7f3ea;
+  --brand-100: #ebe5d6;
+  --brand-200: #d8d1bf;
+  --brand-300: #c3bba4;
+  --brand-500: #6b7368;
+  --brand-600: #4a5248;
+  --brand-700: #2b3a32;
+  --brand-800: #1d2e25;
+  --brand-900: #14201a;
+
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "Anton", "Archivo Black", Impact, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-sans);
+  color: var(--brand-900);
+  background: #f3efe6;
+  line-height: 1.6;
+}
+
+.container-site {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.section-py {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+@media (max-width: 768px) {
+  .section-py {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}

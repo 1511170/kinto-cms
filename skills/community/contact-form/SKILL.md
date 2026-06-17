@@ -43,7 +43,7 @@ import { ContactForm } from '@skills/community/contact-form';
 ### Formulario personalizado
 
 ```astro
-<ContactForm 
+<ContactForm
   title="Solicita una cotización"
   subtitle="Te responderemos en menos de 24 horas"
   submitLabel="Enviar solicitud"
@@ -55,15 +55,15 @@ import { ContactForm } from '@skills/community/contact-form';
 
 ### Props
 
-| Prop | Tipo | Default | Descripción |
-|------|------|---------|-------------|
-| title | string | "Contáctanos" | Título del formulario |
-| subtitle | string | "" | Subtítulo descriptivo |
-| submitLabel | string | "Enviar mensaje" | Texto del botón |
-| showPhone | boolean | true | Mostrar campo teléfono |
-| showCompany | boolean | true | Mostrar campo empresa |
-| serviceSelect | boolean | false | Selector de servicio |
-| action | string | "/api/contact" | URL del endpoint |
+| Prop          | Tipo    | Default          | Descripción            |
+| ------------- | ------- | ---------------- | ---------------------- |
+| title         | string  | "Contáctanos"    | Título del formulario  |
+| subtitle      | string  | ""               | Subtítulo descriptivo  |
+| submitLabel   | string  | "Enviar mensaje" | Texto del botón        |
+| showPhone     | boolean | true             | Mostrar campo teléfono |
+| showCompany   | boolean | true             | Mostrar campo empresa  |
+| serviceSelect | boolean | false            | Selector de servicio   |
+| action        | string  | "/api/contact"   | URL del endpoint       |
 
 ## Backend
 

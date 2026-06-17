@@ -3,7 +3,7 @@
 > **Cliente:** {CLIENT_NAME}  
 > **Industria:** {INDUSTRY}  
 > **Sitio:** {DOMAIN}  
-> **CMS:** {CMS_SUBDOMAIN} (oculto)  
+> **CMS:** {CMS_SUBDOMAIN} (oculto)
 
 ---
 
@@ -37,6 +37,7 @@ npm run build
 **{CLIENT_NAME}** es una empresa de {INDUSTRY} que necesita:
 
 ### Páginas Requeridas
+
 - [ ] **Home** - Hero, servicios/productos, CTA
 - [ ] **Servicios/Productos** - Detalle de ofertas
 - [ ] **Nosotros** - Historia, equipo, valores
@@ -44,11 +45,13 @@ npm run build
 - [ ] **Contacto** - Formulario + info
 
 ### Funcionalidades
+
 - [ ] CMS para edición sin código
 - [ ] SEO optimizado
 - [ ] {FEATURES_CUSTOM}
 
 ### Identidad Visual
+
 - **Colores:** {PRIMARY_COLOR}, {SECONDARY_COLOR}
 - **Estilo:** {STYLE_DESCRIPTION}
 - **Imágenes:** {IMAGE_GUIDELINES}
@@ -76,6 +79,7 @@ sites/{SITE_NAME}/
 ## 🔧 Configuración
 
 ### Site Config
+
 ```typescript
 {
   site: {
@@ -96,13 +100,14 @@ sites/{SITE_NAME}/
 
 ## 🧩 Skills Recomendadas
 
-| Skill | Propósito | Estado |
-|-------|-----------|--------|
-| `cms-sveltia` | Panel admin | ⬜ Pendiente |
-| `testimonials` | Testimonios | ⬜ Pendiente |
-| `{CUSTOM_SKILL}` | {PURPOSE} | ⬜ Crear |
+| Skill            | Propósito   | Estado       |
+| ---------------- | ----------- | ------------ |
+| `cms-sveltia`    | Panel admin | ⬜ Pendiente |
+| `testimonials`   | Testimonios | ⬜ Pendiente |
+| `{CUSTOM_SKILL}` | {PURPOSE}   | ⬜ Crear     |
 
 **Instalar:**
+
 ```bash
 node scripts/skill-add.js cms-sveltia
 ```

@@ -46,7 +46,7 @@ const posts = await getCollection('blog');
 ```astro
 import { BlogCard } from '@skills/community/blog';
 
-<BlogCard 
+<BlogCard
   title="Título del post"
   excerpt="Resumen del contenido..."
   date="2024-01-15"
