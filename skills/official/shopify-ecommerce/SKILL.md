@@ -149,6 +149,31 @@ node skills/official/shopify-ecommerce/scripts/reset-zero-prices.mjs \
 
 The enrichment flow writes titles and `kinto.*` metafields only for confident matches; ambiguous and missing matches stay in the report for manual review. Benchmark text should be rewritten for your brand and verified against official manufacturer specs before any description overwrite is enabled.
 
+## Google Merchant Center Feed
+
+The skill includes a reusable RSS 2.0 feed generator for Google Merchant Center, Meta Commerce, and similar catalog systems:
+
+```ts
+import { generateMerchantFeed } from "../lib/merchant-feed";
+
+const xml = generateMerchantFeed(products, {
+  siteUrl: "https://www.example.com",
+  title: "Example Store catalog",
+  description: "Product catalog for free listings and shopping feeds.",
+  countryCode: "CO",
+  contentLanguage: "es",
+  defaultShipping: { country: "CO", service: "Ground", price: "0 COP" },
+});
+```
+
+Copy `example/pages/merchant-feed.xml.ts` into a site to expose `/merchant-feed.xml` and submit that URL in Merchant Center as a scheduled feed. Products with `price <= 0` are intentionally omitted so catalog/quote-mode stores do not publish invalid Merchant Center items until real prices are available.
+
+For stronger product eligibility and rich results, the Storefront API query now supports these optional metafields in the configured namespace:
+
+- `gtin`
+- `mpn`
+- `google_product_category`
+
 ## Components
 
 | Component            | Description                                     | Props                                           |
@@ -159,7 +184,7 @@ The enrichment flow writes titles and `kinto.*` metafields only for confident ma
 | `ProductInfo`        | PDP right column (price, variants, add-to-cart) | `product: Product, selectedVariant?: number`    |
 | `ProductSpecs`       | Specs table                                     | `specs: Record<string, string>`                 |
 | `ProductReviews`     | Review summary + list                           | `reviews: Review[]`                             |
-| `ProductSchema`      | Product JSON-LD (schema.org)                    | `product: Product, url: string`                 |
+| `ProductSchema`      | Product JSON-LD with rich-result fields         | `product: Product, url: string, sellerName?`    |
 | `CollectionHero`     | Collection header with description              | `title: string, description?: string`           |
 | `CollectionGrid`     | Products within a collection                    | `products: Product[], collectionHandle: string` |
 | `CartDrawer`         | Slide-out cart drawer                           | _(reads from localStorage + Worker)_            |
