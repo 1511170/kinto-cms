@@ -5,6 +5,7 @@ import {
   STORE_LOCATIONS,
   googleMapsUrl,
 } from '../../lib/categories';
+import { GUIDES } from '../../data/guides';
 
 interface Props {
   collections: Collection[];
@@ -51,9 +52,21 @@ const currentYear = new Date().getFullYear();
     ))}
 
     <div class="ftr-el-col">
+      <h4>Guías</h4>
+      <ul>
+        <li><a href="/guias/">Todas las guías</a></li>
+        {GUIDES.map((guide) => (
+          <li><a href={`/guias/${guide.slug}/`}>{guide.title}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="ftr-el-col">
       <h4>Soporte</h4>
       <ul>
         <li><a href="/contacto">Contáctanos</a></li>
+        <li><a href="/envios">Envíos</a></li>
+        <li><a href="/devoluciones">Devoluciones y reembolsos</a></li>
         <li><a href="/store">Catálogo</a></li>
         <li>
           <a
@@ -106,6 +119,10 @@ const currentYear = new Date().getFullYear();
     <span>© {currentYear} {brandName} · Todos los derechos reservados</span>
     <div>
       <a href="/contacto">Contacto</a>
+      <a href="/envios">Envíos</a>
+      <a href="/devoluciones">Devoluciones y reembolsos</a>
+      <a href="/privacidad">Privacidad</a>
+      <a href="/terminos">Términos</a>
       <a href="/sitemap.xml">Sitemap</a>
     </div>
   </div>

@@ -11,6 +11,7 @@
 
 ```bash
 # Estás en: kinto-cms/sites/{SITE_NAME}/
+# Mantén .env y .secrets/ sólo en local; nunca los commitees.
 
 # Ver skills instaladas
 cat skills-active.json
