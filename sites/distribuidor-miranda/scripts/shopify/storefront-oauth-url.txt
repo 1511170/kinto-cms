@@ -1,1 +1,0 @@
-https://distribuidor-miranda.myshopify.com/admin/oauth/authorize?client_id=5a2a84919a3ad7b33c5a2d6c230e9777&scope=read_products%2Cread_product_listings%2Cwrite_storefront_access_tokens&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Fcallback&state=da5f6ebdfa2b80a4ddc1afde3b59f3d2

@@ -307,23 +307,18 @@ kinto skill validate
 
 Detalle completo del flujo de PR: `CONTRIBUTING.md`.
 
-### Shopify Headless — Lecciones del Deploy (El Norteño)
+### Shopify Headless — Gotchas comunes
 
-| Problema                                               | Causa raíz                                                                                  | Solución                                                                             |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Productos publicados pero invisibles en Storefront API | Faltaba publicación en el canal ligado al token (Admin App)                                 | `bulk-publish-admin-app.mjs` publica masivamente a ambos canales                     |
-| Productos con stock=0 no aparecen                      | Shopify Storefront API oculta automáticamente items sin inventario                          | Cambiar `inventory_policy` a `continue` en Shopify, o mantener stock                 |
-| Subcolecciones vacías (camping, outdoor)               | Inferencia dinámica desde productos fallaba cuando colecciones no tenían productos visibles | `CATEGORY_HIERARCHY` estático en `src/config/categories.ts`                          |
-| Footer transparente                                    | Variable CSS `--ink` no estaba definida en `shopify-tokens.css`                             | Definir todos los tokens que consumen los componentes                                |
-| PDP con imágenes pixeladas                             | Sin transformaciones de Shopify CDN (`width`, `height`, `crop`)                             | Usar `shopifyImageUrl()` de `skills/official/shopify-ecommerce/lib/shopify-image.ts` |
+Lecciones genéricas detectadas en deploys de tiendas Shopify headless con esta
+skill (`shopify-ecommerce`):
 
-**Scripts de operación reutilizables** (ver `sites/elnorteno/scripts/`):
-
-- `bulk-publish-products.mjs` — publica a "Online Store"
-- `bulk-publish-admin-app.mjs` — publica a "Admin App" (Storefront visibility)
-- `check-storefront-publication.mjs` — diagnóstico de visibilidad dual
-- `check-inventory.mjs` — auditoría de stock vs visibilidad
-- `create-missing-collections.mjs` — crea colecciones faltantes desde CSV
+| Problema                                               | Causa raíz                                                                                | Solución                                                                             |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Productos publicados pero invisibles en Storefront API | Faltaba publicación en el canal ligado al token (Admin App)                               | Publicar masivamente a ambos canales (Online Store + Admin App)                      |
+| Productos con stock=0 no aparecen                      | Shopify Storefront API oculta automáticamente items sin inventario                        | Cambiar `inventory_policy` a `continue` en Shopify, o mantener stock                 |
+| Subcolecciones vacías                                  | Inferencia dinámica desde productos falla cuando colecciones no tienen productos visibles | Mantener una jerarquía estática (`CATEGORY_HIERARCHY` en `src/config/categories.ts`) |
+| Footer transparente / variables CSS                    | Variables CSS no definidas en `shopify-tokens.css`                                        | Definir todos los tokens que consumen los componentes                                |
+| PDP con imágenes pixeladas                             | Sin transformaciones de Shopify CDN (`width`, `height`, `crop`)                           | Usar `shopifyImageUrl()` de `skills/official/shopify-ecommerce/lib/shopify-image.ts` |
 
 ### Actualizar el motor KINTO en un proyecto existente
 

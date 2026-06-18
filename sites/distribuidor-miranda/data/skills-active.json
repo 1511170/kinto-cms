@@ -1,7 +1,0 @@
-{
-  "site": "distribuidor-miranda",
-  "skills": [
-    "shopify-ecommerce"
-  ],
-  "_comment": "Skills se añaden con: kinto skill add <nombre> --site=<sitio>"
-}
