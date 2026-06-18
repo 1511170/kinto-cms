@@ -1,39 +1,188 @@
 ---
+/**
+ * ProductSchema.astro — schema.org/Product for e-commerce PDPs.
+ *
+ * Includes optional AggregateRating, Review[], additionalProperty values from
+ * metafields/specs, GTIN/MPN/category signals, and an Offer only when the
+ * variant has a valid price. Catalog/quote-mode stores can keep price=0
+ * without emitting invalid Offer markup.
+ */
+
 import type { Product } from '../../lib/product-mapper';
 
 interface Props {
   product: Product;
   url: string;
+  /** Site origin, for example https://www.example.com. Used for absolute @id values. */
+  siteUrl?: string;
+  /** Seller/organization name. Defaults to product.vendor when available. */
+  sellerName?: string;
+  /** Merchant country, ISO 3166-1 alpha-2. */
+  countryCode?: string;
+  /** Fallback currency when a variant has no currency. */
+  defaultCurrency?: string;
+  /** Optional shipping service name for OfferShippingDetails. */
+  shippingService?: string;
+  /** Optional shipping price string value. Defaults to 0 when an offer is emitted. */
+  shippingPrice?: string;
+  /** Return window in days for MerchantReturnPolicy rich results. */
+  merchantReturnDays?: number;
 }
 
-const { product, url } = Astro.props;
+const {
+  product,
+  url,
+  siteUrl = '',
+  sellerName = product.vendor || 'Store',
+  countryCode = 'US',
+  defaultCurrency = 'USD',
+  shippingService = 'Ground',
+  shippingPrice = '0',
+  merchantReturnDays = 30,
+} = Astro.props;
 
 const variant = product.variants[0];
-const price = variant?.price;
+const priceAmount = variant?.price ? parseFloat(variant.price.amount) : 0;
+const currency = variant?.price?.currencyCode || defaultCurrency;
+const hasValidPrice = Number.isFinite(priceAmount) && priceAmount > 0;
+
 const availability = product.availableForSale
   ? 'https://schema.org/InStock'
   : 'https://schema.org/OutOfStock';
 
-const schema = {
+const meta = product.metafields ?? {};
+const clampRating = (value: unknown): number | undefined => {
+  const ratingValue = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(ratingValue)) return undefined;
+  return Math.min(5, Math.max(1, ratingValue));
+};
+
+const rating = clampRating(meta.rating);
+const reviewCount =
+  typeof meta.reviewCount === 'number' && meta.reviewCount > 0
+    ? meta.reviewCount
+    : meta.reviews?.length || undefined;
+
+const aggregateRating = rating && reviewCount
+  ? {
+      '@type': 'AggregateRating',
+      ratingValue: rating.toFixed(1),
+      reviewCount,
+      bestRating: '5',
+      worstRating: '1',
+    }
+  : undefined;
+
+const reviews = (meta.reviews ?? []).slice(0, 25).map((r) => ({
+  '@type': 'Review',
+  author: { '@type': 'Person', name: r.author || 'Customer' },
+  reviewRating: {
+    '@type': 'Rating',
+    ratingValue: String(clampRating(r.rating) ?? 5),
+    bestRating: '5',
+    worstRating: '1',
+  },
+  ...(r.date && { datePublished: r.date }),
+  reviewBody: r.text,
+}));
+
+const additionalProperty: Array<{ '@type': 'PropertyValue'; name: string; value: string }> = [];
+const pushProp = (name: string, value: unknown) => {
+  if (value === undefined || value === null || value === '') return;
+  const v = Array.isArray(value) ? value.filter(Boolean).join(', ') : String(value);
+  if (v) additionalProperty.push({ '@type': 'PropertyValue', name, value: v });
+};
+
+for (const spec of meta.specs ?? []) pushProp(spec.label, spec.value);
+pushProp('Application', meta.application);
+pushProp('Environment', meta.environment);
+pushProp('Band', meta.band);
+pushProp('WiFi standard', meta.wifiStandard);
+pushProp('PoE', meta.poe);
+pushProp('Topology', meta.topology);
+pushProp('Radio type', meta.radioType);
+pushProp('MIMO', meta.mimo);
+pushProp('Switch layer', meta.switchLayer);
+pushProp('Throughput', meta.throughput);
+pushProp('Mounting', meta.mounting);
+if (typeof meta.ethernetPorts === 'number') pushProp('Ethernet ports', meta.ethernetPorts);
+if (typeof meta.sfpPorts === 'number') pushProp('SFP ports', meta.sfpPorts);
+
+const validUntil = new Date();
+validUntil.setFullYear(validUntil.getFullYear() + 1);
+const priceValidUntil = validUntil.toISOString().slice(0, 10);
+
+const offer = hasValidPrice
+  ? {
+      '@type': 'Offer',
+      url,
+      price: variant!.price.amount,
+      priceCurrency: currency,
+      priceValidUntil,
+      availability,
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: {
+        '@type': 'Organization',
+        name: sellerName,
+        ...(siteUrl && { '@id': `${siteUrl}/#organization` }),
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: countryCode,
+        },
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: shippingPrice,
+          currency,
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 5, unitCode: 'DAY' },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: countryCode,
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/ReturnShippingFees',
+      },
+    }
+  : undefined;
+
+const productSchema: Record<string, any> = {
   '@context': 'https://schema.org',
   '@type': 'Product',
+  '@id': `${url}#product`,
   name: product.title,
   description: product.description,
-  image: product.images.map((img) => img.url),
-  sku: variant?.sku || undefined,
-  brand: product.vendor
-    ? { '@type': 'Brand', name: product.vendor }
-    : undefined,
   url,
-  offers: {
-    '@type': 'Offer',
-    price: price?.amount,
-    priceCurrency: price?.currencyCode,
-    availability,
-    seller: { '@type': 'Organization', name: product.vendor || undefined },
-    url,
-  },
+  sku: variant?.sku || product.handle,
+  image: product.images.map((img) => img.url),
 };
+
+if (product.vendor) {
+  productSchema.brand = { '@type': 'Brand', name: product.vendor };
+  productSchema.manufacturer = { '@type': 'Organization', name: product.vendor };
+}
+if (product.productType) productSchema.category = product.productType;
+if (meta.gtin) productSchema.gtin = meta.gtin;
+if (meta.mpn) productSchema.mpn = meta.mpn;
+if (aggregateRating) productSchema.aggregateRating = aggregateRating;
+if (reviews.length) productSchema.review = reviews;
+if (additionalProperty.length) productSchema.additionalProperty = additionalProperty;
+if (offer) productSchema.offers = offer;
+
+const jsonLd = JSON.stringify(productSchema)
+  .replace(/</g, '\\u003c')
+  .replace(/>/g, '\\u003e')
+  .replace(/&/g, '\\u0026')
+  .replace(/\u2028/g, '\\u2028')
+  .replace(/\u2029/g, '\\u2029');
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(schema)} />
+<script type="application/ld+json" set:html={jsonLd} />

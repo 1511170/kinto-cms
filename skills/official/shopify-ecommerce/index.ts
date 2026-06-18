@@ -47,6 +47,7 @@ export {
   matchCatalogProduct,
   normalizeReference,
 } from "./lib/catalog-enrichment";
+export { generateMerchantFeed } from "./lib/merchant-feed";
 
 export type {
   Product,

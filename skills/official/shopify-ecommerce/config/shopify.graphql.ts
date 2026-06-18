@@ -29,6 +29,9 @@ export const METAFIELD_KEYS = [
   "switch_layer",
   "throughput",
   "mounting",
+  "gtin",
+  "mpn",
+  "google_product_category",
 ];
 
 const METAFIELD_IDENTIFIERS = METAFIELD_KEYS.map(
