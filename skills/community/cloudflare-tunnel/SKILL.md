@@ -96,11 +96,13 @@ echo "Tunnel configurado: https://${TUNNEL_NAME}.${DOMAIN} → localhost:${PORT}
 ## Flujo de Trabajo Dev/Prod
 
 ### Desarrollo (Dev)
+
 - **URL:** `*.1511170.xyz` (tunnel)
 - **Servidor:** Localhost con hot reload
 - **Uso:** Testing, previews, desarrollo activo
 
 ### Producción (Prod)
+
 - **URL:** `*.kinto.info` (Cloudflare Pages)
 - **Servidor:** CDN global
 - **Uso:** Sitio público final

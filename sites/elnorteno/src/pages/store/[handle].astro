@@ -1,0 +1,650 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCachedCollections, getCachedProducts } from '../../lib/build-data';
+import { CATEGORY_HIERARCHY, CATEGORY_LABELS } from '../../config/categories';
+
+export async function getStaticPaths() {
+  const collections = await getCachedCollections();
+  const allProducts = await getCachedProducts();
+
+  return (collections as any[]).map((c) => {
+    const products = (allProducts as any[]).filter((p) =>
+      Array.isArray(p.collections) && p.collections.includes(c.handle)
+    );
+    return {
+      params: { handle: c.handle },
+      props: { collection: c, products },
+    };
+  });
+}
+
+const { collection, products } = Astro.props;
+const allCollections = await getCachedCollections();
+const allProductsForCounts = await getCachedProducts();
+const INTERNAL = new Set(['frontpage', 'home-page', 'home', 'all']);
+const navCollections = (allCollections as any[]).filter(c => !INTERNAL.has(c.handle.toLowerCase()));
+const totalProductsCount = (allProductsForCounts as any[]).length;
+const collectionCounts: Record<string, number> = {};
+for (const col of navCollections) {
+  collectionCounts[col.handle] = (allProductsForCounts as any[]).filter(
+    (p: any) => Array.isArray(p.collections) && p.collections.includes(col.handle)
+  ).length;
+}
+
+const notFound = !collection;
+
+function fmtPrice(n: number) {
+  return '$' + Math.round(n).toLocaleString('es-CO');
+}
+
+// Imágenes locales para categorías principales
+const CAT_IMAGES: Record<string, string> = {
+  pesca:            '/images/categories/pesca.jpeg',
+  camping:          '/images/categories/camping.jpeg',
+  'tiro-deportivo': '/images/categories/tiro-deportivo.jpeg',
+  tiro:             '/images/categories/tiro-deportivo.jpeg',
+  outdoor:          '/images/categories/outdoor.jpeg',
+  caza:             '/images/categories/caza.jpeg',
+};
+
+// Sub-colecciones definidas estáticamente para cada categoría principal
+const subCollections: { handle: string; title: string; count: number }[] = [];
+if (collection) {
+  const subHandles = CATEGORY_HIERARCHY[collection.handle] ?? [];
+  for (const h of subHandles) {
+    const meta = navCollections.find((c: any) => c.handle === h);
+    if (!meta) continue;
+    const count = (allProductsForCounts as any[]).filter(
+      (p: any) => Array.isArray(p.collections) && p.collections.includes(h)
+    ).length;
+    if (count > 0) {
+      subCollections.push({
+        handle: h,
+        title: CATEGORY_LABELS[h] || meta.title,
+        count,
+      });
+    }
+  }
+}
+
+const hasAvailability = (products as any[]).some((p: any) => p.availableForSale !== undefined);
+---
+
+{notFound && (
+  <Layout title="Colección no encontrada" whatsappContext={{ type: 'general' }}>
+    <div style="text-align:center;padding:120px 24px;">
+      <h1 style="font-family:var(--font-display);font-size:48px;color:var(--pine);text-transform:uppercase;margin:0 0 16px;">Colección no encontrada</h1>
+      <p style="color:var(--slate);margin:0 0 24px;">La colección que buscas no existe.</p>
+      <a href="/store" class="btn btn-primary">Ver catálogo</a>
+    </div>
+  </Layout>
+)}
+
+{!notFound && collection && (
+  <Layout
+    title={collection.title}
+    description={collection.description}
+    image={collection.image?.url}
+    whatsappContext={{
+      type: 'collection',
+      name: collection.title,
+      url: `${Astro.site?.origin ?? 'https://elnorteno.com'}/store/${collection.handle}`,
+    }}
+  >
+    <!-- Breadcrumb -->
+    <nav class="crumb" aria-label="Breadcrumb">
+      <a href="/">Inicio</a>
+      <span>/</span>
+      <a href="/store">Tienda</a>
+      <span>/</span>
+      <span style="color:var(--ink)">{collection.title}</span>
+    </nav>
+
+    <!-- Collection hero -->
+    <div class={`coll-hero${CAT_IMAGES[collection.handle.toLowerCase()] ? ' coll-hero-has-image' : ''}`}>
+      {CAT_IMAGES[collection.handle.toLowerCase()] && (
+        <div class="coll-hero-bg" style={`background-image: url(${CAT_IMAGES[collection.handle.toLowerCase()]})`}></div>
+      )}
+      <div>
+        <div class="coll-hero-eyebrow">Colección · {collection.title}</div>
+        <h1>{collection.title}</h1>
+      </div>
+      <div class="coll-hero-meta">
+        {collection.description && <p>{collection.description}</p>}
+        <div class="coll-hero-meta-row">
+          <span>Referencias</span>
+          <strong>{products.length}</strong>
+        </div>
+        <div class="coll-hero-meta-row">
+          <span>Subcategorías</span>
+          <strong>{subCollections.length || '—'}</strong>
+        </div>
+        <div class="coll-hero-meta-row">
+          <span>Actualizado</span>
+          <strong>MAY · 26</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main layout: sidebar + products -->
+    <div class="coll-layout">
+
+      <!-- Filter sidebar (también se mueve al sheet en mobile via JS) -->
+      <aside class="filters" id="filters-sidebar" data-filters-aside>
+
+        <!-- Búsqueda inline -->
+        <div class="filter-section">
+          <div class="filter-head">Búsqueda</div>
+          <input
+            type="text"
+            id="filter-search-input"
+            class="filter-search"
+            placeholder="Filtrar por nombre…"
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- Categorías (links a otras colecciones) -->
+        <div class="filter-section">
+          <div class="filter-head">Categoría</div>
+          <div class="filter-list">
+            <a href="/store" class="filter-link">
+              <span class="cb"></span>
+              Toda la tienda
+              <span class="n">{totalProductsCount}</span>
+            </a>
+            {navCollections.map((col: any) => (
+              <a
+                href={`/store/${col.handle}`}
+                class={`filter-link${col.handle === collection.handle ? ' on' : ''}`}
+              >
+                <span class="cb"></span>
+                {col.title}
+                <span class="n">{collectionCounts[col.handle] ?? 0}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Subcolecciones (productos también están en estas) -->
+        {subCollections.length > 0 && (
+          <div class="filter-section">
+            <div class="filter-head">Subcolecciones</div>
+            <div class="filter-list" id="filter-subcols">
+              {subCollections.map((sub) => (
+                <label class="filter-item" data-filter-subcol={sub.handle}>
+                  <input type="checkbox" class="subcol-cb" value={sub.handle} />
+                  <span class="cb"></span>
+                  {sub.title}
+                  <span class="n">{sub.count}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Precio -->
+        <div class="filter-section">
+          <div class="filter-head">Precio</div>
+          <div class="price-range">
+            <input type="text" class="price-input" id="price-min" placeholder="Mín" inputmode="numeric" />
+            <input type="text" class="price-input" id="price-max" placeholder="Máx" inputmode="numeric" />
+          </div>
+          <div class="price-chips">
+            <button type="button" class="price-chip" data-min="" data-max="200000">&lt; $200k</button>
+            <button type="button" class="price-chip" data-min="200000" data-max="500000">$200-500k</button>
+            <button type="button" class="price-chip" data-min="500000" data-max="1000000">$500k-1M</button>
+            <button type="button" class="price-chip" data-min="1000000" data-max="">$1M +</button>
+          </div>
+        </div>
+
+        <!-- Otros -->
+        <div class="filter-section">
+          <div class="filter-head">Otros</div>
+          <div class="filter-list">
+            {hasAvailability && (
+              <label class="filter-item" id="avail-label">
+                <input type="checkbox" id="only-available" />
+                <span class="cb"></span>
+                Solo disponibles
+              </label>
+            )}
+            <label class="filter-item" id="deals-label">
+              <input type="checkbox" id="only-deals" />
+              <span class="cb"></span>
+              En oferta
+            </label>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Products area -->
+      <div class="products-area">
+
+        <!-- Toolbar -->
+        <div class="coll-toolbar">
+          <div class="coll-toolbar-left">
+            <span class="coll-toolbar-count" data-count>{products.length} productos</span>
+            <div id="active-chips" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"></div>
+          </div>
+          <div class="coll-toolbar-right">
+            <button
+              type="button"
+              class="filter-sheet-toggle"
+              data-filter-sheet-open
+              aria-label="Abrir filtros"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="7" y1="12" x2="20" y2="12"/>
+                <line x1="10" y1="18" x2="20" y2="18"/>
+                <circle cx="6" cy="6" r="2" fill="currentColor"/>
+                <circle cx="11" cy="12" r="2" fill="currentColor"/>
+                <circle cx="14" cy="18" r="2" fill="currentColor"/>
+              </svg>
+              Filtros
+              <span class="filter-sheet-count" data-filter-count></span>
+            </button>
+            <select class="sort-select" id="sort-select">
+              <option value="relevant">Más relevante</option>
+              <option value="price-asc">Precio: menor</option>
+              <option value="price-desc">Precio: mayor</option>
+              <option value="name-asc">Nombre A-Z</option>
+            </select>
+            <div class="view-toggle" id="view-toggle">
+              <button type="button" class="view-btn on" data-view="grid" aria-label="Vista cuadrícula">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </button>
+              <button type="button" class="view-btn" data-view="list" aria-label="Vista lista">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid view -->
+        <div class="products-grid" id="products-grid">
+          {products.map((p: any) => (
+            <a
+              href={`/products/${p.handle}`}
+              class="pcard"
+              data-product
+              data-handle={p.handle}
+              data-cols={(p.collections ?? []).join(',')}
+              data-available={p.availableForSale === false ? 'false' : 'true'}
+              data-price={p.price || 0}
+              data-sale={p.compareAtPrice && p.compareAtPrice > p.price ? 'true' : 'false'}
+              data-title={p.title.toLowerCase()}
+            >
+              <div class="pcard-img">
+                {p.featuredImage?.url
+                  ? <img src={p.featuredImage.url} alt={p.featuredImage.altText ?? p.title} loading="lazy" />
+                  : <div class="pcard-img-bg"></div>
+                }
+                {p.compareAtPrice && p.compareAtPrice > p.price && (
+                  <span class="pcard-tag sale">
+                    -{Math.round((1 - p.price / p.compareAtPrice) * 100)}%
+                  </span>
+                )}
+              </div>
+              <div class="pcard-brand">{p.vendor || ''}</div>
+              <div class="pcard-name">{p.title}</div>
+              <div class="pcard-price">
+                {p.compareAtPrice && p.compareAtPrice > p.price && (
+                  <span class="pcard-price-old">{fmtPrice(p.compareAtPrice)}</span>
+                )}
+                <span class="pcard-price-now">{p.price ? fmtPrice(p.price) : ''}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <!-- List view -->
+        <div class="products-list hidden" id="products-list">
+          {products.map((p: any) => (
+            <a
+              href={`/products/${p.handle}`}
+              class="pcard-list"
+              data-product-list
+              data-handle={p.handle}
+              data-cols={(p.collections ?? []).join(',')}
+              data-available={p.availableForSale === false ? 'false' : 'true'}
+              data-price={p.price || 0}
+              data-sale={p.compareAtPrice && p.compareAtPrice > p.price ? 'true' : 'false'}
+              data-title={p.title.toLowerCase()}
+            >
+              <div class="pcard-img">
+                {p.featuredImage?.url
+                  ? <img src={p.featuredImage.url} alt={p.featuredImage.altText ?? p.title} loading="lazy" />
+                  : <div class="pcard-img-bg"></div>
+                }
+              </div>
+              <div class="pcard-list-info">
+                <div class="pcard-brand">{p.vendor || ''}</div>
+                <div class="pcard-name" style="font-size:18px;">{p.title}</div>
+                <div class="pcard-list-meta">
+                  {p.compareAtPrice && p.compareAtPrice > p.price && (
+                    <span style="color:var(--terra);font-weight:600;">-{Math.round((1 - p.price / p.compareAtPrice) * 100)}% oferta</span>
+                  )}
+                </div>
+              </div>
+              <div class="pcard-list-price">
+                {p.compareAtPrice && p.compareAtPrice > p.price && (
+                  <div class="pcard-price-old">{fmtPrice(p.compareAtPrice)}</div>
+                )}
+                <div class="pcard-price-now">{p.price ? fmtPrice(p.price) : ''}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <!-- Empty state -->
+        <div class="filter-empty" id="filter-empty" style="display:none">
+          <div class="eyebrow" style="color:var(--terra)">Sin coincidencias</div>
+          <h3>Nada por aquí.</h3>
+          <p>Prueba quitando algún filtro.</p>
+          <button type="button" class="btn btn-outline" id="clear-all-btn" style="margin-top:16px;">Limpiar filtros</button>
+        </div>
+
+        <!-- Pagination info -->
+        <div class="pag-bar" id="pag-bar">
+          <div class="pag-info">Mostrando <span id="vis-count">{products.length}</span> de {products.length}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile filter bottom-sheet -->
+    <dialog class="filter-sheet" data-filter-sheet aria-label="Filtros">
+      <div class="filter-sheet-inner">
+        <div class="filter-sheet-head">
+          <h3>Filtros</h3>
+          <button type="button" class="filter-sheet-close" data-filter-sheet-close aria-label="Cerrar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M6 6l12 12M6 18L18 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="filter-sheet-body" data-filter-sheet-body>
+          <!-- El sidebar se mueve acá en mobile vía JS -->
+        </div>
+        <div class="filter-sheet-foot">
+          <button type="button" class="filter-sheet-clear" data-filter-sheet-clear>Limpiar todo</button>
+          <button type="button" class="filter-sheet-apply" data-filter-sheet-apply>
+            Ver <span data-sheet-apply-count>{products.length}</span> productos
+          </button>
+        </div>
+      </div>
+    </dialog>
+  </Layout>
+)}
+
+<script>
+  // ── Filter state ──────────────────────────────────────────────
+  const state = {
+    cols: new Set<string>(),
+    minPrice: 0,
+    maxPrice: Infinity,
+    onlyAvailable: false,
+    onlyDeals: false,
+    query: '',
+    sort: 'relevant',
+    view: 'grid',
+  };
+
+  // ── DOM refs ──────────────────────────────────────────────────
+  const gridEl = document.getElementById('products-grid')!;
+  const listEl = document.getElementById('products-list')!;
+  const countEl = document.querySelector('[data-count]')!;
+  const visCountEl = document.getElementById('vis-count');
+  const sheetApplyCount = document.querySelector('[data-sheet-apply-count]');
+  const filterCountEl = document.querySelector('[data-filter-count]');
+  const chipsEl = document.getElementById('active-chips')!;
+  const emptyEl = document.getElementById('filter-empty') as HTMLElement;
+  const pagBar = document.getElementById('pag-bar') as HTMLElement;
+  const sortSel = document.getElementById('sort-select') as HTMLSelectElement;
+  const priceMin = document.getElementById('price-min') as HTMLInputElement;
+  const priceMax = document.getElementById('price-max') as HTMLInputElement;
+  const dealsCheck = document.getElementById('only-deals') as HTMLInputElement;
+  const availCheck = document.getElementById('only-available') as HTMLInputElement | null;
+  const searchInput = document.getElementById('filter-search-input') as HTMLInputElement;
+  const clearAllBtn = document.getElementById('clear-all-btn');
+
+  const gridCards = Array.from(gridEl?.querySelectorAll<HTMLElement>('[data-product]') ?? []);
+  const listCards = Array.from(listEl?.querySelectorAll<HTMLElement>('[data-product-list]') ?? []);
+
+  // ── Mobile sheet: mover el aside al sheet ────────────────────
+  const aside = document.querySelector<HTMLElement>('[data-filters-aside]');
+  const sheet = document.querySelector<HTMLDialogElement>('[data-filter-sheet]');
+  const sheetBody = document.querySelector<HTMLElement>('[data-filter-sheet-body]');
+  const sheetOpen = document.querySelector<HTMLButtonElement>('[data-filter-sheet-open]');
+  const sheetClose = document.querySelector<HTMLButtonElement>('[data-filter-sheet-close]');
+  const sheetApply = document.querySelector<HTMLButtonElement>('[data-filter-sheet-apply]');
+  const sheetClear = document.querySelector<HTMLButtonElement>('[data-filter-sheet-clear]');
+
+  // marcador para devolver el aside a su posición original
+  const asideOriginalParent = aside?.parentNode;
+  const asideOriginalNext = aside?.nextSibling;
+
+  function openSheet() {
+    if (!sheet || !aside || !sheetBody) return;
+    sheetBody.appendChild(aside); // mueve el aside dentro del sheet
+    if (typeof (sheet as any).showModal === 'function') {
+      (sheet as any).showModal();
+    } else {
+      sheet.setAttribute('open', '');
+    }
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSheet() {
+    if (!sheet) return;
+    if (typeof (sheet as any).close === 'function' && sheet.hasAttribute('open')) {
+      (sheet as any).close();
+    } else {
+      sheet.removeAttribute('open');
+    }
+    document.body.style.overflow = '';
+    // devolver aside a su posición original
+    if (aside && asideOriginalParent) {
+      if (asideOriginalNext && asideOriginalParent.contains(asideOriginalNext)) {
+        asideOriginalParent.insertBefore(aside, asideOriginalNext);
+      } else {
+        asideOriginalParent.appendChild(aside);
+      }
+    }
+  }
+
+  sheetOpen?.addEventListener('click', openSheet);
+  sheetClose?.addEventListener('click', closeSheet);
+  sheetApply?.addEventListener('click', closeSheet);
+  sheet?.addEventListener('click', (e) => {
+    // click en backdrop (dialog tiene el evento click sobre sí mismo)
+    if (e.target === sheet) closeSheet();
+  });
+
+  // ── Filter logic ──────────────────────────────────────────────
+  function matchesFilter(card: HTMLElement): boolean {
+    const cols = (card.dataset.cols ?? '').split(',');
+    const price = parseFloat(card.dataset.price ?? '0');
+    const sale = card.dataset.sale === 'true';
+    const available = card.dataset.available !== 'false';
+    const title = card.dataset.title ?? '';
+
+    if (state.cols.size) {
+      // requiere TODAS las cols seleccionadas
+      for (const c of state.cols) if (!cols.includes(c)) return false;
+    }
+    if (state.minPrice > 0 && price < state.minPrice) return false;
+    if (state.maxPrice < Infinity && price > state.maxPrice) return false;
+    if (state.onlyDeals && !sale) return false;
+    if (state.onlyAvailable && !available) return false;
+    if (state.query && !title.includes(state.query)) return false;
+    return true;
+  }
+
+  function getSortFn(sort: string) {
+    return (a: HTMLElement, b: HTMLElement) => {
+      if (sort === 'price-asc') return parseFloat(a.dataset.price ?? '0') - parseFloat(b.dataset.price ?? '0');
+      if (sort === 'price-desc') return parseFloat(b.dataset.price ?? '0') - parseFloat(a.dataset.price ?? '0');
+      if (sort === 'name-asc') return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
+      return 0;
+    };
+  }
+
+  function activeFilterCount(): number {
+    return state.cols.size
+      + (state.minPrice > 0 ? 1 : 0)
+      + (state.maxPrice < Infinity ? 1 : 0)
+      + (state.onlyDeals ? 1 : 0)
+      + (state.onlyAvailable ? 1 : 0)
+      + (state.query ? 1 : 0);
+  }
+
+  function filterAndSort() {
+    let visible = 0;
+    gridCards.forEach(card => {
+      const show = matchesFilter(card);
+      card.hidden = !show;
+      if (show) visible++;
+    });
+    listCards.forEach(card => {
+      card.hidden = !matchesFilter(card);
+    });
+
+    if (state.sort !== 'relevant') {
+      const sortFn = getSortFn(state.sort);
+      gridCards.filter(c => !c.hidden).sort(sortFn).forEach(c => gridEl.appendChild(c));
+      listCards.filter(c => !c.hidden).sort(sortFn).forEach(c => listEl.appendChild(c));
+    }
+
+    if (countEl) countEl.textContent = `${visible} productos`;
+    if (visCountEl) visCountEl.textContent = String(visible);
+    if (sheetApplyCount) sheetApplyCount.textContent = String(visible);
+    const fcount = activeFilterCount();
+    if (filterCountEl) filterCountEl.textContent = fcount > 0 ? String(fcount) : '';
+    emptyEl.style.display = visible === 0 ? 'block' : 'none';
+    pagBar.style.display = visible === 0 ? 'none' : 'flex';
+    renderChips();
+
+    document.querySelectorAll<HTMLElement>('.filter-item').forEach(item => {
+      const cb = item.querySelector<HTMLInputElement>('input[type="checkbox"]');
+      item.classList.toggle('on', cb?.checked ?? false);
+    });
+  }
+
+  function renderChips() {
+    const chips: Array<{ label: string; clear: () => void }> = [];
+    state.cols.forEach(c => chips.push({
+      label: c,
+      clear: () => {
+        state.cols.delete(c);
+        const cb = document.querySelector<HTMLInputElement>(`.subcol-cb[value="${CSS.escape(c)}"]`);
+        if (cb) cb.checked = false;
+        filterAndSort();
+      },
+    }));
+    if (state.minPrice > 0) chips.push({ label: `Desde $${Math.round(state.minPrice/1000)}k`, clear: () => { state.minPrice = 0; priceMin.value = ''; filterAndSort(); } });
+    if (state.maxPrice < Infinity) chips.push({ label: `Hasta $${Math.round(state.maxPrice/1000)}k`, clear: () => { state.maxPrice = Infinity; priceMax.value = ''; filterAndSort(); } });
+    if (state.onlyDeals) chips.push({ label: 'En oferta', clear: () => { state.onlyDeals = false; if (dealsCheck) dealsCheck.checked = false; filterAndSort(); } });
+    if (state.onlyAvailable) chips.push({ label: 'Disponibles', clear: () => { state.onlyAvailable = false; if (availCheck) availCheck.checked = false; filterAndSort(); } });
+    if (state.query) chips.push({ label: `“${state.query}”`, clear: () => { state.query = ''; if (searchInput) searchInput.value = ''; filterAndSort(); } });
+
+    chipsEl.innerHTML = '';
+    chips.forEach(c => {
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.innerHTML = `${c.label}<button type="button" class="chip-x" aria-label="Quitar filtro">×</button>`;
+      span.querySelector('.chip-x')!.addEventListener('click', (e) => { e.preventDefault(); c.clear(); });
+      chipsEl.appendChild(span);
+    });
+    if (chips.length > 1) {
+      const clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
+      clearBtn.className = 'chip-clear';
+      clearBtn.textContent = 'Limpiar todo';
+      clearBtn.addEventListener('click', clearAll);
+      chipsEl.appendChild(clearBtn);
+    }
+  }
+
+  function clearAll() {
+    state.cols.clear();
+    state.minPrice = 0;
+    state.maxPrice = Infinity;
+    state.onlyDeals = false;
+    state.onlyAvailable = false;
+    state.query = '';
+    document.querySelectorAll<HTMLInputElement>('.subcol-cb, #only-deals, #only-available').forEach(cb => cb.checked = false);
+    if (priceMin) priceMin.value = '';
+    if (priceMax) priceMax.value = '';
+    if (searchInput) searchInput.value = '';
+    document.querySelectorAll('.price-chip').forEach(c => c.classList.remove('on'));
+    filterAndSort();
+  }
+
+  // ── Event bindings (delegated por si el aside se mueve al sheet) ──
+  document.addEventListener('change', (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.classList.contains('subcol-cb')) {
+      if (t.checked) state.cols.add(t.value);
+      else state.cols.delete(t.value);
+      filterAndSort();
+    } else if (t.id === 'only-deals') {
+      state.onlyDeals = t.checked;
+      filterAndSort();
+    } else if (t.id === 'only-available') {
+      state.onlyAvailable = t.checked;
+      filterAndSort();
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.id === 'filter-search-input') {
+      state.query = t.value.trim().toLowerCase();
+      filterAndSort();
+    } else if (t.id === 'price-min') {
+      const v = parseInt(t.value.replace(/\D/g, ''));
+      state.minPrice = isNaN(v) ? 0 : v;
+      document.querySelectorAll('.price-chip').forEach(c => c.classList.remove('on'));
+      filterAndSort();
+    } else if (t.id === 'price-max') {
+      const v = parseInt(t.value.replace(/\D/g, ''));
+      state.maxPrice = isNaN(v) ? Infinity : v;
+      document.querySelectorAll('.price-chip').forEach(c => c.classList.remove('on'));
+      filterAndSort();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.classList.contains('price-chip')) {
+      const mn = t.dataset.min ?? '';
+      const mx = t.dataset.max ?? '';
+      state.minPrice = mn ? parseInt(mn) : 0;
+      state.maxPrice = mx ? parseInt(mx) : Infinity;
+      if (priceMin) priceMin.value = mn;
+      if (priceMax) priceMax.value = mx;
+      document.querySelectorAll('.price-chip').forEach(c => c.classList.toggle('on', c === t));
+      filterAndSort();
+    }
+  });
+
+  sortSel?.addEventListener('change', () => {
+    state.sort = sortSel.value;
+    filterAndSort();
+  });
+
+  document.querySelectorAll<HTMLElement>('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.view = btn.dataset.view ?? 'grid';
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('on', b === btn));
+      gridEl.classList.toggle('hidden', state.view !== 'grid');
+      listEl.classList.toggle('hidden', state.view !== 'list');
+    });
+  });
+
+  clearAllBtn?.addEventListener('click', clearAll);
+  sheetClear?.addEventListener('click', clearAll);
+</script>

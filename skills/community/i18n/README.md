@@ -17,14 +17,19 @@ Internacionalización para sitios Astro con KINTO CMS. Soporta múltiples idioma
 
 ```ts
 // src/i18n/index.ts
-import { createI18n } from '@skills/community/i18n';
-import en from './en.json';
-import es from './es.json';
+import { createI18n } from "@skills/community/i18n";
+import en from "./en.json";
+import es from "./es.json";
 
-export const { t, getLocaleFromUrl, getLocalizedPath, getPathWithoutLocale, getLocales } =
-  createI18n({ translations: { en, es }, defaultLocale: 'en' });
+export const {
+  t,
+  getLocaleFromUrl,
+  getLocalizedPath,
+  getPathWithoutLocale,
+  getLocales,
+} = createI18n({ translations: { en, es }, defaultLocale: "en" });
 
-export type SiteLocale = 'en' | 'es';
+export type SiteLocale = "en" | "es";
 ```
 
 ```astro
@@ -63,21 +68,21 @@ src/pages/
 
 ### `createI18n(config)`
 
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `translations` | `Record<string, Record<string, unknown>>` | Objeto con todos los idiomas |
-| `defaultLocale` | `string` | Idioma por defecto (sin prefijo en URL) |
+| Parámetro       | Tipo                                      | Descripción                             |
+| --------------- | ----------------------------------------- | --------------------------------------- |
+| `translations`  | `Record<string, Record<string, unknown>>` | Objeto con todos los idiomas            |
+| `defaultLocale` | `string`                                  | Idioma por defecto (sin prefijo en URL) |
 
 Retorna: `{ t, getLocaleFromUrl, getLocalizedPath, getPathWithoutLocale, getLocales, getDefaultLocale }`
 
 ### `LanguageToggle.astro`
 
-| Prop | Tipo | Descripción |
-|------|------|-------------|
-| `currentLocale` | `string` | Locale activo |
-| `currentPath` | `string` | `Astro.url.pathname` |
-| `alternates` | `Array<{ code, label, href, flagSrc? }>` | Idiomas alternativos con sus rutas |
-| `sticky` | `boolean` | Muestra como botón flotante (solo móvil) |
+| Prop            | Tipo                                     | Descripción                              |
+| --------------- | ---------------------------------------- | ---------------------------------------- |
+| `currentLocale` | `string`                                 | Locale activo                            |
+| `currentPath`   | `string`                                 | `Astro.url.pathname`                     |
+| `alternates`    | `Array<{ code, label, href, flagSrc? }>` | Idiomas alternativos con sus rutas       |
+| `sticky`        | `boolean`                                | Muestra como botón flotante (solo móvil) |
 
 ## Estructura de archivos
 

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/wrangler.json",
+  "name": "elnorteno",
+  "account_id": "aeb04d8109ff71ca50a06c7cded5d764",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "elnorteno.com", "custom_domain": true },
+    { "pattern": "www.elnorteno.com", "custom_domain": true },
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SHOPIFY_REBUILD_COORDINATOR",
+        "class_name": "ShopifyRebuildCoordinator",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1_shopify_rebuild_coordinator",
+      "new_sqlite_classes": ["ShopifyRebuildCoordinator"],
+    },
+  ],
+  "vars": {
+    "SHOPIFY_STORE_DOMAIN": "elnorteno.myshopify.com",
+    "SHOPIFY_API_VERSION": "2025-10",
+    "SHOPIFY_REBUILD_DEBOUNCE_SECONDS": "90",
+    "SHOPIFY_STOREFRONT_ACCESS_TOKEN": "981a16aa242efd0855ad16f0d47e20dd",
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SHOPIFY_CACHE",
+      "id": "bfe27ab27f3044f79a557d3b00734092",
+    },
+  ],
+  "observability": { "enabled": true },
+}

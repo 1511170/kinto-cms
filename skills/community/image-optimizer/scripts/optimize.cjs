@@ -5,26 +5,26 @@
  * Convierte JPG/PNG a WebP usando Sharp (rápido, mantenido, ya incluido en Astro)
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // --- Parse CLI args ---
 const args = process.argv.slice(2);
 const getArg = (name) => {
-  const arg = args.find(a => a.startsWith(`--${name}=`));
-  return arg ? arg.split('=')[1] : null;
+  const arg = args.find((a) => a.startsWith(`--${name}=`));
+  return arg ? arg.split("=")[1] : null;
 };
 const hasFlag = (name) => args.includes(`--${name}`);
 
-const DRY_RUN = hasFlag('dry-run');
-const UPDATE_REFS = hasFlag('update-refs');
-const CLEAN = hasFlag('clean');
+const DRY_RUN = hasFlag("dry-run");
+const UPDATE_REFS = hasFlag("update-refs");
+const CLEAN = hasFlag("clean");
 
 // --- Load config ---
-const configPath = path.join(__dirname, '..', 'config', 'defaults.json');
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+const configPath = path.join(__dirname, "..", "config", "defaults.json");
+const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
 
-const QUALITY = parseInt(getArg('quality') || config.quality, 10);
+const QUALITY = parseInt(getArg("quality") || config.quality, 10);
 const EXTENSIONS = config.extensions;
 const SCAN_DIR = config.scanDir;
 const REF_DIRS = config.refDirs;
@@ -32,10 +32,12 @@ const REF_EXTENSIONS = config.refExtensions;
 
 // --- Find site root (walk up until we find package.json with "astro" dep) ---
 let siteRoot = process.cwd();
-while (!fs.existsSync(path.join(siteRoot, 'package.json'))) {
+while (!fs.existsSync(path.join(siteRoot, "package.json"))) {
   const parent = path.dirname(siteRoot);
   if (parent === siteRoot) {
-    console.error('❌ No se encontró package.json. Ejecuta desde el directorio del sitio.');
+    console.error(
+      "❌ No se encontró package.json. Ejecuta desde el directorio del sitio.",
+    );
     process.exit(1);
   }
   siteRoot = parent;
@@ -79,7 +81,7 @@ function scanRefDir(dir, results) {
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === '.git') continue;
+      if (entry.name === "node_modules" || entry.name === ".git") continue;
       scanRefDir(fullPath, results);
     } else {
       const ext = path.extname(entry.name).toLowerCase();
@@ -100,26 +102,28 @@ function formatBytes(bytes) {
 // --- Main ---
 async function main() {
   // Resolve sharp from site's node_modules using require
-  const Module = require('module');
-  const requireFromSite = Module.createRequire(path.join(siteRoot, 'package.json'));
-  const sharp = requireFromSite('sharp');
+  const Module = require("module");
+  const requireFromSite = Module.createRequire(
+    path.join(siteRoot, "package.json"),
+  );
+  const sharp = requireFromSite("sharp");
 
-  console.log('');
-  console.log('🖼️  Image Optimizer - KINTO CMS (Sharp)');
-  console.log('─'.repeat(45));
+  console.log("");
+  console.log("🖼️  Image Optimizer - KINTO CMS (Sharp)");
+  console.log("─".repeat(45));
   console.log(`   Calidad WebP: ${QUALITY}`);
   console.log(`   Directorio: ${SCAN_DIR}/`);
-  if (DRY_RUN) console.log('   ⚡ Modo dry-run (no se ejecutarán cambios)');
-  if (UPDATE_REFS) console.log('   📝 Actualizar referencias en archivos');
-  if (CLEAN) console.log('   🧹 Eliminar originales después de convertir');
-  console.log('─'.repeat(45));
-  console.log('');
+  if (DRY_RUN) console.log("   ⚡ Modo dry-run (no se ejecutarán cambios)");
+  if (UPDATE_REFS) console.log("   📝 Actualizar referencias en archivos");
+  if (CLEAN) console.log("   🧹 Eliminar originales después de convertir");
+  console.log("─".repeat(45));
+  console.log("");
 
   // Find images
   const images = findImages(publicDir);
 
   if (images.length === 0) {
-    console.log('No se encontraron imágenes JPG/PNG en ' + SCAN_DIR + '/');
+    console.log("No se encontraron imágenes JPG/PNG en " + SCAN_DIR + "/");
     return;
   }
 
@@ -130,27 +134,29 @@ async function main() {
   const conversions = [];
 
   for (const imgPath of images) {
-    const relPath = '/' + path.relative(publicDir, imgPath);
-    const webpPath = imgPath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
-    const relWebp = '/' + path.relative(publicDir, webpPath);
+    const relPath = "/" + path.relative(publicDir, imgPath);
+    const webpPath = imgPath.replace(/\.(jpg|jpeg|png)$/i, ".webp");
+    const relWebp = "/" + path.relative(publicDir, webpPath);
     const originalSize = fs.statSync(imgPath).size;
     totalOriginal += originalSize;
 
     if (DRY_RUN) {
-      console.log(`   📋 ${relPath} (${formatBytes(originalSize)}) → ${path.basename(webpPath)}`);
+      console.log(
+        `   📋 ${relPath} (${formatBytes(originalSize)}) → ${path.basename(webpPath)}`,
+      );
       conversions.push({ original: imgPath, webp: webpPath, relPath, relWebp });
       continue;
     }
 
     try {
-      await sharp(imgPath)
-        .webp({ quality: QUALITY })
-        .toFile(webpPath);
+      await sharp(imgPath).webp({ quality: QUALITY }).toFile(webpPath);
 
       const webpSize = fs.statSync(webpPath).size;
       totalOptimized += webpSize;
       const savings = ((1 - webpSize / originalSize) * 100).toFixed(0);
-      console.log(`   ✅ ${relPath} → ${path.basename(webpPath)} (${formatBytes(originalSize)} → ${formatBytes(webpSize)}, -${savings}%)`);
+      console.log(
+        `   ✅ ${relPath} → ${path.basename(webpPath)} (${formatBytes(originalSize)} → ${formatBytes(webpSize)}, -${savings}%)`,
+      );
       conversions.push({ original: imgPath, webp: webpPath, relPath, relWebp });
     } catch (err) {
       console.log(`   ❌ ${relPath} — error: ${err.message}`);
@@ -158,26 +164,32 @@ async function main() {
     }
   }
 
-  console.log('');
-  console.log('─'.repeat(45));
+  console.log("");
+  console.log("─".repeat(45));
 
   if (DRY_RUN) {
-    console.log(`📊 ${images.length} imágenes serían convertidas | Total: ${formatBytes(totalOriginal)}`);
-    console.log('   (ejecuta sin --dry-run para convertir)');
+    console.log(
+      `📊 ${images.length} imágenes serían convertidas | Total: ${formatBytes(totalOriginal)}`,
+    );
+    console.log("   (ejecuta sin --dry-run para convertir)");
   } else {
-    const totalSavings = ((1 - totalOptimized / totalOriginal) * 100).toFixed(0);
-    console.log(`📊 ${conversions.length} imágenes | ${formatBytes(totalOriginal)} → ${formatBytes(totalOptimized)} | Ahorro: ${totalSavings}%`);
+    const totalSavings = ((1 - totalOptimized / totalOriginal) * 100).toFixed(
+      0,
+    );
+    console.log(
+      `📊 ${conversions.length} imágenes | ${formatBytes(totalOriginal)} → ${formatBytes(totalOptimized)} | Ahorro: ${totalSavings}%`,
+    );
   }
 
   // Update references
   if (UPDATE_REFS && !DRY_RUN && conversions.length > 0) {
-    console.log('');
-    console.log('📝 Actualizando referencias...');
+    console.log("");
+    console.log("📝 Actualizando referencias...");
     const refFiles = findRefFiles(REF_DIRS);
     let updatedFiles = 0;
 
     for (const refFile of refFiles) {
-      let content = fs.readFileSync(refFile, 'utf8');
+      let content = fs.readFileSync(refFile, "utf8");
       let modified = false;
 
       for (const conv of conversions) {
@@ -200,8 +212,8 @@ async function main() {
 
   // Clean originals
   if (CLEAN && UPDATE_REFS && !DRY_RUN && conversions.length > 0) {
-    console.log('');
-    console.log('🧹 Eliminando originales...');
+    console.log("");
+    console.log("🧹 Eliminando originales...");
     let cleaned = 0;
     for (const conv of conversions) {
       if (fs.existsSync(conv.original) && fs.existsSync(conv.webp)) {
@@ -212,10 +224,10 @@ async function main() {
     console.log(`   ${cleaned} archivo(s) eliminado(s)`);
   }
 
-  console.log('');
+  console.log("");
 }
 
-main().catch(err => {
-  console.error('❌ Error:', err.message);
+main().catch((err) => {
+  console.error("❌ Error:", err.message);
   process.exit(1);
 });

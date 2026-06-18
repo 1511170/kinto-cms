@@ -31,16 +31,19 @@ npm install puppeteer cheerio --legacy-peer-deps
 ## Uso
 
 ### Scrapear sitio completo
+
 ```bash
 node skills/community/web-scraper/scripts/scrape.js --url=https://ejemplo.com --output=./scraped-content
 ```
 
 ### Scrapear solo una página
+
 ```bash
 node skills/community/web-scraper/scripts/scrape-page.js --url=https://ejemplo.com/pagina
 ```
 
 ### Extraer solo imágenes
+
 ```bash
 node skills/community/web-scraper/scripts/download-images.js --url=https://ejemplo.com --output=./images
 ```

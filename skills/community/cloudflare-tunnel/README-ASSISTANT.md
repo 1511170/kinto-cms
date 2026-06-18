@@ -5,6 +5,7 @@ Instructions for AI assistants (Claude Code, Cursor, Copilot, etc.) to configure
 ## When to use this skill
 
 User requests related to:
+
 - Setting up a Cloudflare tunnel
 - Connecting a local site to a custom domain
 - Exposing a local server to the internet
@@ -55,6 +56,7 @@ node skills/community/cloudflare-tunnel/setup-tunnel.js \
 ```
 
 For separate prod/dev tunnels:
+
 ```bash
 node skills/community/cloudflare-tunnel/setup-tunnel.js \
   --token="PROD_TOKEN" \
@@ -78,6 +80,7 @@ which cloudflared 2>/dev/null || ls ./cloudflared 2>/dev/null
 **B.2 Decode the JWT token**
 
 The token is base64-encoded JSON with these fields:
+
 - `a`: AccountTag
 - `t`: TunnelID
 - `s`: TunnelSecret
@@ -105,6 +108,7 @@ chmod 600 ~/.cloudflared/TUNNEL_ID.json
 **B.4 Create configuration files**
 
 Production (`~/.cloudflared/config-prod.yml`):
+
 ```yaml
 # Production tunnel - example.com
 tunnel: TUNNEL_ID
@@ -119,6 +123,7 @@ ingress:
 ```
 
 Development (`~/.cloudflared/config-dev.yml`) - optional:
+
 ```yaml
 # Development tunnel - dev.example.com
 tunnel: TUNNEL_ID
@@ -195,20 +200,24 @@ Commands:
 ## Common errors
 
 ### "Provided Tunnel token is not valid"
+
 - Credentials JSON file missing or malformed
 - Verify token was decoded correctly
 - Recreate the JSON file from the token
 
 ### HTTP 502 Bad Gateway
+
 - Config has `https://localhost` but server uses plain HTTP
 - Fix: change service to `http://localhost:PORT` in the config
 - Or update in Cloudflare Dashboard: Zero Trust > Tunnels > edit hostname
 
 ### "cannot find tunnel"
+
 - Credentials file not in `~/.cloudflared/`
 - Filename must match the TunnelID exactly: `TUNNEL_ID.json`
 
 ### "Failed to create QUIC connection"
+
 - Network/firewall blocking UDP port 7844
 - cloudflared will fall back to HTTP/2 automatically
 
@@ -224,6 +233,7 @@ Commands:
 For tunnels that survive reboots:
 
 **systemd** (recommended for Linux):
+
 ```bash
 sudo cp skills/community/cloudflare-tunnel/cloudflared@.service /etc/systemd/system/
 sudo systemctl daemon-reload
@@ -231,6 +241,7 @@ sudo systemctl enable --now cloudflared@prod
 ```
 
 **Background process** (simpler, doesn't survive reboot):
+
 ```bash
 ./start-tunnels.sh
 ```

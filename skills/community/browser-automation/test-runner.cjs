@@ -1,96 +1,102 @@
 #!/usr/bin/env node
 /**
  * Browser Automation Test Runner
- * 
+ *
  * Uso:
  *   node test-runner.js --url=https://tusitio.com --action=screenshot
  *   node test-runner.js --url=http://localhost:3000 --action=full-test
  *   node test-runner.js --config=../../../config/site.config.ts
  */
 
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-const path = require('path');
+const puppeteer = require("puppeteer");
+const fs = require("fs");
+const path = require("path");
 
 // Parsear argumentos
 const args = process.argv.slice(2).reduce((acc, arg) => {
-  const [key, value] = arg.split('=');
-  if (key && value) acc[key.replace('--', '')] = value;
+  const [key, value] = arg.split("=");
+  if (key && value) acc[key.replace("--", "")] = value;
   return acc;
 }, {});
 
 // Configuración por defecto
 const config = {
-  baseUrl: args.url || 'http://localhost:3000',
-  action: args.action || 'full-test',
-  outputDir: path.join(__dirname, '../../../test-results'),
+  baseUrl: args.url || "http://localhost:3000",
+  action: args.action || "full-test",
+  outputDir: path.join(__dirname, "../../../test-results"),
   viewports: [
-    { name: 'mobile', width: 375, height: 667 },
-    { name: 'tablet', width: 768, height: 1024 },
-    { name: 'desktop', width: 1920, height: 1080 }
+    { name: "mobile", width: 375, height: 667 },
+    { name: "tablet", width: 768, height: 1024 },
+    { name: "desktop", width: 1920, height: 1080 },
   ],
-  pagesToTest: ['/', '/servicios', '/nosotros', '/contacto', '/blog'],
-  waitTime: 2000 // ms para esperar carga completa
+  pagesToTest: ["/", "/servicios", "/nosotros", "/contacto", "/blog"],
+  waitTime: 2000, // ms para esperar carga completa
 };
 
 // Crear directorio de salida
 if (!fs.existsSync(config.outputDir)) {
   fs.mkdirSync(config.outputDir, { recursive: true });
 }
-if (!fs.existsSync(path.join(config.outputDir, 'screenshots'))) {
-  fs.mkdirSync(path.join(config.outputDir, 'screenshots'), { recursive: true });
+if (!fs.existsSync(path.join(config.outputDir, "screenshots"))) {
+  fs.mkdirSync(path.join(config.outputDir, "screenshots"), { recursive: true });
 }
 
 // Resultados
 const results = {
   timestamp: new Date().toISOString(),
   baseUrl: config.baseUrl,
-  tests: []
+  tests: [],
 };
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function captureScreenshot(page, pagePath, viewportName) {
-  const filename = `${pagePath.replace(/\//g, '_') || 'home'}_${viewportName}.png`;
-  const filepath = path.join(config.outputDir, 'screenshots', filename);
-  
-  await page.screenshot({ 
+  const filename = `${pagePath.replace(/\//g, "_") || "home"}_${viewportName}.png`;
+  const filepath = path.join(config.outputDir, "screenshots", filename);
+
+  await page.screenshot({
     path: filepath,
-    fullPage: true 
+    fullPage: true,
   });
-  
+
   return filepath;
 }
 
 async function testNavigation(page, url) {
   const errors = [];
-  
+
   // Test: Links del menú principal
-  const menuLinks = await page.$$eval('header nav a', links => 
-    links.map(l => ({ text: l.textContent.trim(), href: l.href, exists: true }))
+  const menuLinks = await page.$$eval("header nav a", (links) =>
+    links.map((l) => ({
+      text: l.textContent.trim(),
+      href: l.href,
+      exists: true,
+    })),
   );
-  
+
   // Test: Botón CTA
-  const ctaButtons = await page.$$eval('a[href*="contacto"], button', buttons =>
-    buttons.map(b => ({ 
-      text: b.textContent.trim(), 
-      tag: b.tagName,
-      visible: b.offsetParent !== null 
-    }))
+  const ctaButtons = await page.$$eval(
+    'a[href*="contacto"], button',
+    (buttons) =>
+      buttons.map((b) => ({
+        text: b.textContent.trim(),
+        tag: b.tagName,
+        visible: b.offsetParent !== null,
+      })),
   );
-  
+
   // Test: Imágenes cargadas
-  const images = await page.$$eval('img', imgs =>
-    imgs.map(img => ({
+  const images = await page.$$eval("img", (imgs) =>
+    imgs.map((img) => ({
       src: img.src,
       alt: img.alt,
       complete: img.complete,
-      naturalWidth: img.naturalWidth
-    }))
+      naturalWidth: img.naturalWidth,
+    })),
   );
-  
+
   // Test: Verificar CSS aplicado (colores de fondo, fuentes)
   const bodyStyles = await page.evaluate(() => {
     const body = document.body;
@@ -98,150 +104,173 @@ async function testNavigation(page, url) {
     return {
       fontFamily: styles.fontFamily,
       backgroundColor: styles.backgroundColor,
-      color: styles.color
+      color: styles.color,
     };
   });
-  
+
   // Test: Menú móvil (si existe)
-  const mobileMenu = await page.$('#mobile-menu-btn');
+  const mobileMenu = await page.$("#mobile-menu-btn");
   let mobileMenuWorks = false;
   if (mobileMenu) {
     await mobileMenu.click();
     await sleep(500);
-    const mobileNav = await page.$('#mobile-menu');
+    const mobileNav = await page.$("#mobile-menu");
     if (mobileNav) {
-      const isVisible = await mobileNav.evaluate(el => 
-        el.classList.contains('hidden') === false || el.style.display !== 'none'
+      const isVisible = await mobileNav.evaluate(
+        (el) =>
+          el.classList.contains("hidden") === false ||
+          el.style.display !== "none",
       );
       mobileMenuWorks = isVisible;
     }
   }
-  
+
   // Test: Scroll suave
   const hasSmoothScroll = await page.evaluate(() => {
-    return document.documentElement.style.scrollBehavior === 'smooth' ||
-           getComputedStyle(document.documentElement).scrollBehavior === 'smooth';
+    return (
+      document.documentElement.style.scrollBehavior === "smooth" ||
+      getComputedStyle(document.documentElement).scrollBehavior === "smooth"
+    );
   });
-  
+
   return {
     url,
     menuLinks,
     ctaButtons,
-    images: images.filter(img => img.src && !img.src.includes('data:image')),
-    brokenImages: images.filter(img => !img.complete || img.naturalWidth === 0),
+    images: images.filter((img) => img.src && !img.src.includes("data:image")),
+    brokenImages: images.filter(
+      (img) => !img.complete || img.naturalWidth === 0,
+    ),
     bodyStyles,
     mobileMenuWorks,
     hasSmoothScroll,
-    errors
+    errors,
   };
 }
 
 async function testForms(page) {
-  const forms = await page.$$eval('form', forms => 
-    forms.map(f => ({
+  const forms = await page.$$eval("form", (forms) =>
+    forms.map((f) => ({
       action: f.action,
       method: f.method,
-      inputs: Array.from(f.querySelectorAll('input, textarea, select')).map(i => ({
-        type: i.type || i.tagName.toLowerCase(),
-        name: i.name,
-        required: i.required,
-        placeholder: i.placeholder
-      }))
-    }))
+      inputs: Array.from(f.querySelectorAll("input, textarea, select")).map(
+        (i) => ({
+          type: i.type || i.tagName.toLowerCase(),
+          name: i.name,
+          required: i.required,
+          placeholder: i.placeholder,
+        }),
+      ),
+    })),
   );
-  
+
   return forms;
 }
 
 async function runTests() {
-  console.log('🚀 Iniciando Browser Automation...\n');
-  
+  console.log("🚀 Iniciando Browser Automation...\n");
+
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
     });
-    
+
     for (const pagePath of config.pagesToTest) {
       const url = `${config.baseUrl}${pagePath}`;
       console.log(`📄 Testing: ${url}`);
-      
+
       const pageResults = {
-        page: pagePath || 'home',
+        page: pagePath || "home",
         url,
-        viewports: []
+        viewports: [],
       };
-      
+
       for (const viewport of config.viewports) {
-        console.log(`  📱 Viewport: ${viewport.name} (${viewport.width}x${viewport.height})`);
-        
+        console.log(
+          `  📱 Viewport: ${viewport.name} (${viewport.width}x${viewport.height})`,
+        );
+
         const page = await browser.newPage();
-        await page.setViewport({ width: viewport.width, height: viewport.height });
-        
+        await page.setViewport({
+          width: viewport.width,
+          height: viewport.height,
+        });
+
         // Navegar a la página
         try {
-          await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+          await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 });
           await sleep(config.waitTime);
-          
+
           // Capturar screenshot
-          const screenshotPath = await captureScreenshot(page, pagePath, viewport.name);
+          const screenshotPath = await captureScreenshot(
+            page,
+            pagePath,
+            viewport.name,
+          );
           console.log(`     📸 Screenshot: ${path.basename(screenshotPath)}`);
-          
+
           // Tests de navegación (solo en desktop para optimizar)
           let navTest = null;
-          if (viewport.name === 'desktop') {
+          if (viewport.name === "desktop") {
             navTest = await testNavigation(page, url);
             console.log(`     ✅ Links: ${navTest.menuLinks.length}`);
             console.log(`     ✅ Botones: ${navTest.ctaButtons.length}`);
             console.log(`     ✅ Imágenes: ${navTest.images.length}`);
             if (navTest.brokenImages.length > 0) {
-              console.log(`     ⚠️  Imágenes rotas: ${navTest.brokenImages.length}`);
+              console.log(
+                `     ⚠️  Imágenes rotas: ${navTest.brokenImages.length}`,
+              );
             }
           }
-          
+
           // Test forms (solo en contacto)
           let formTest = null;
-          if (pagePath === '/contacto' && viewport.name === 'desktop') {
+          if (pagePath === "/contacto" && viewport.name === "desktop") {
             formTest = await testForms(page);
             console.log(`     📝 Forms: ${formTest.length}`);
           }
-          
+
           pageResults.viewports.push({
             name: viewport.name,
             screenshot: screenshotPath,
             navigation: navTest,
-            forms: formTest
+            forms: formTest,
           });
-          
         } catch (error) {
           console.error(`     ❌ Error: ${error.message}`);
           pageResults.viewports.push({
             name: viewport.name,
-            error: error.message
+            error: error.message,
           });
         }
-        
+
         await page.close();
       }
-      
+
       results.tests.push(pageResults);
-      console.log('');
+      console.log("");
     }
-    
+
     // Guardar resultados
-    const resultsPath = path.join(config.outputDir, 'results.json');
+    const resultsPath = path.join(config.outputDir, "results.json");
     fs.writeFileSync(resultsPath, JSON.stringify(results, null, 2));
-    
+
     // Generar reporte HTML
     await generateHTMLReport(results);
-    
-    console.log('\n✅ Tests completados!');
-    console.log(`📊 Reporte: ${path.join(config.outputDir, 'report.html')}`);
-    console.log(`📁 Screenshots: ${path.join(config.outputDir, 'screenshots')}`);
-    
+
+    console.log("\n✅ Tests completados!");
+    console.log(`📊 Reporte: ${path.join(config.outputDir, "report.html")}`);
+    console.log(
+      `📁 Screenshots: ${path.join(config.outputDir, "screenshots")}`,
+    );
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    console.error("❌ Error:", error.message);
     process.exit(1);
   } finally {
     if (browser) await browser.close();
@@ -279,15 +308,21 @@ async function generateHTMLReport(results) {
     <p><strong>Fecha:</strong> ${new Date(results.timestamp).toLocaleString()}</p>
   </div>
   
-  ${results.tests.map(test => `
+  ${results.tests
+    .map(
+      (test) => `
     <div class="page">
-      <h2>📄 ${test.page === 'home' ? 'Home' : test.page}</h2>
-      ${test.viewports.map(vp => `
+      <h2>📄 ${test.page === "home" ? "Home" : test.page}</h2>
+      ${test.viewports
+        .map(
+          (vp) => `
         <div class="viewport">
           <h3>📱 ${vp.name}</h3>
-          ${vp.error ? `<div class="error">❌ ${vp.error}</div>` : ''}
-          ${vp.screenshot ? `<img class="screenshot" src="./screenshots/${path.basename(vp.screenshot)}" alt="Screenshot ${vp.name}">` : ''}
-          ${vp.navigation ? `
+          ${vp.error ? `<div class="error">❌ ${vp.error}</div>` : ""}
+          ${vp.screenshot ? `<img class="screenshot" src="./screenshots/${path.basename(vp.screenshot)}" alt="Screenshot ${vp.name}">` : ""}
+          ${
+            vp.navigation
+              ? `
             <div class="stats">
               <div class="stat">
                 <div class="stat-value">${vp.navigation.menuLinks.length}</div>
@@ -301,22 +336,32 @@ async function generateHTMLReport(results) {
                 <div class="stat-value">${vp.navigation.images.length}</div>
                 <div class="stat-label">Imágenes</div>
               </div>
-              ${vp.forms ? `
+              ${
+                vp.forms
+                  ? `
                 <div class="stat">
                   <div class="stat-value">${vp.forms.length}</div>
                   <div class="stat-label">Formularios</div>
                 </div>
-              ` : ''}
+              `
+                  : ""
+              }
             </div>
-          ` : ''}
+          `
+              : ""
+          }
         </div>
-      `).join('')}
+      `,
+        )
+        .join("")}
     </div>
-  `).join('')}
+  `,
+    )
+    .join("")}
 </body>
 </html>`;
-  
-  fs.writeFileSync(path.join(config.outputDir, 'report.html'), html);
+
+  fs.writeFileSync(path.join(config.outputDir, "report.html"), html);
 }
 
 // Ejecutar

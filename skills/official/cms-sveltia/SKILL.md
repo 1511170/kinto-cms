@@ -49,6 +49,7 @@ cms: {
 ## Collections disponibles
 
 Esta skill es el framework. Otras skills añaden sus collections:
+
 - `skill:pages` → Añade colección de páginas
 - `skill:blog` → Añade colección de blog
 - `skill:team` → Añade colección de equipo

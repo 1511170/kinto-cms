@@ -190,11 +190,13 @@ echo "Migración completada para: $SITE_NAME"
 ## Ejemplo: EduPayments
 
 **Antes (Webflow):**
+
 - 245KB CSS minificado
 - HTML estático
 - Sin componentes
 
 **Después (Astro):**
+
 - Mismo CSS (245KB)
 - Componentes reutilizables
 - SEO dinámico

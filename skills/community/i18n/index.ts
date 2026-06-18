@@ -7,5 +7,5 @@
  *   import LanguageToggle from '@skills/community/i18n/LanguageToggle.astro';
  */
 
-export { createI18n } from './utils/utils';
-export type { I18nConfig, Locale } from './utils/utils';
+export { createI18n } from "./utils/utils";
+export type { I18nConfig, Locale } from "./utils/utils";

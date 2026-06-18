@@ -69,13 +69,13 @@ Escaneando public/ ...
 
 Editar `config/defaults.json`:
 
-| Campo | Tipo | Default | Descripción |
-|-------|------|---------|-------------|
-| quality | number | 82 | Calidad WebP (1-100) |
-| extensions | string[] | [".jpg", ".jpeg", ".png"] | Extensiones a convertir |
-| scanDir | string | "public" | Directorio a escanear |
-| refDirs | string[] | ["src"] | Directorios donde buscar refs |
-| refExtensions | string[] | [".astro", ".html", ...] | Tipos de archivo con refs |
+| Campo         | Tipo     | Default                   | Descripción                   |
+| ------------- | -------- | ------------------------- | ----------------------------- |
+| quality       | number   | 82                        | Calidad WebP (1-100)          |
+| extensions    | string[] | [".jpg", ".jpeg", ".png"] | Extensiones a convertir       |
+| scanDir       | string   | "public"                  | Directorio a escanear         |
+| refDirs       | string[] | ["src"]                   | Directorios donde buscar refs |
+| refExtensions | string[] | [".astro", ".html", ...]  | Tipos de archivo con refs     |
 
 ## Metadata
 

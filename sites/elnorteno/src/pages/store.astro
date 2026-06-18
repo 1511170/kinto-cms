@@ -1,0 +1,281 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCachedCollections, getCachedProducts } from '../lib/build-data';
+
+const allCollections = await getCachedCollections();
+const allProducts = await getCachedProducts();
+const INTERNAL = new Set(['frontpage', 'home-page', 'home', 'all']);
+const MAIN_CATEGORIES = ['pesca', 'camping', 'tiro-deportivo', 'outdoor', 'caza'];
+
+const navCollections = [
+  ...MAIN_CATEGORIES.map(handle =>
+    (allCollections as any[]).find((c: any) => c.handle.toLowerCase() === handle)
+  ).filter(Boolean),
+  ...(allCollections as any[]).filter(c =>
+    !INTERNAL.has(c.handle.toLowerCase()) &&
+    !MAIN_CATEGORIES.includes(c.handle.toLowerCase())
+  ),
+].slice(0, 5);
+
+const vendors = [...new Set((allProducts as any[]).map(p => p.vendor).filter(Boolean))].sort() as string[];
+
+function fmtPrice(n: number) {
+  return '$' + Math.round(n).toLocaleString('es-CO');
+}
+
+// Imágenes locales para las categorías principales
+const CAT_IMAGES: Record<string, string> = {
+  pesca:            '/images/categories/pesca.jpeg',
+  camping:          '/images/categories/camping.jpeg',
+  'tiro-deportivo': '/images/categories/tiro-deportivo.jpeg',
+  tiro:             '/images/categories/tiro-deportivo.jpeg',
+  outdoor:          '/images/categories/outdoor.jpeg',
+  caza:             '/images/categories/caza.jpeg',
+};
+
+const catGradients = [
+  'linear-gradient(135deg, #1d2e25 0%, #28412f 50%, #2b3a32 100%)',
+  'linear-gradient(135deg, #2b3a32 0%, #1d2e25 60%, #14201a 100%)',
+  'linear-gradient(135deg, #b85a2a 0%, #8a3f1e 50%, #5b2a12 100%)',
+  'linear-gradient(135deg, #4a5248 0%, #2b3a32 60%, #1d2e25 100%)',
+  'linear-gradient(135deg, #14201a 0%, #2b3a3e 50%, #1d2e25 100%)',
+];
+---
+
+<Layout title="Tienda" description="Catálogo completo de productos El Norteño — equipo outdoor para campo y aventura." whatsappContext={{ type: 'general' }}>
+  <!-- Breadcrumb -->
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="/">Inicio</a>
+    <span>/</span>
+    <span style="color:var(--ink)">Tienda</span>
+  </nav>
+
+  <!-- Hero -->
+  <div class="store-hero">
+    <div class="eyebrow">Toda la tienda</div>
+    <h1>Toda la <em>tienda</em></h1>
+    <p>{allProducts.length} referencias · {navCollections.length} categorías</p>
+  </div>
+
+  <!-- Collection cards grid -->
+  {navCollections.length > 0 && (
+    <section style="padding:48px 36px;max-width:1480px;margin:0 auto;">
+      <div class="cat-grid">
+        <!-- Large card (first collection) -->
+        <a href={`/store/${navCollections[0].handle}`} class="cat-card">
+          <div class="cat-card-bg" style={CAT_IMAGES[navCollections[0].handle.toLowerCase()] || navCollections[0].image?.url ? '' : `background:${catGradients[0]}`}>
+            {(CAT_IMAGES[navCollections[0].handle.toLowerCase()] || navCollections[0].image?.url) && (
+              <img src={CAT_IMAGES[navCollections[0].handle.toLowerCase()] || navCollections[0].image.url} alt={navCollections[0].title} />
+            )}
+          </div>
+          <div class="cat-card-overlay"></div>
+          <span class="cat-card-tag">Colección</span>
+          <div class="cat-card-content">
+            <div>
+              <h3>{navCollections[0].title}</h3>
+              <div class="cat-card-sub">{(allProducts as any[]).filter(p => Array.isArray(p.collections) && p.collections.includes(navCollections[0].handle)).length} productos</div>
+            </div>
+            <div class="cat-card-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+        </a>
+
+        <!-- Right column -->
+        <div class="cat-grid-right">
+          {navCollections[1] && (
+            <a href={`/store/${navCollections[1].handle}`} class="cat-card">
+              <div class="cat-card-bg" style={CAT_IMAGES[navCollections[1].handle.toLowerCase()] || navCollections[1].image?.url ? '' : `background:${catGradients[1]}`}>
+                {(CAT_IMAGES[navCollections[1].handle.toLowerCase()] || navCollections[1].image?.url) && (
+                  <img src={CAT_IMAGES[navCollections[1].handle.toLowerCase()] || navCollections[1].image.url} alt={navCollections[1].title} />
+                )}
+              </div>
+              <div class="cat-card-overlay"></div>
+              <span class="cat-card-tag">Colección</span>
+              <div class="cat-card-content">
+                <div>
+                  <h3>{navCollections[1].title}</h3>
+                  <div class="cat-card-sub">{(allProducts as any[]).filter(p => Array.isArray(p.collections) && p.collections.includes(navCollections[1].handle)).length} productos</div>
+                </div>
+                <div class="cat-card-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+                </div>
+              </div>
+            </a>
+          )}
+          <div class="cat-grid-right-bottom">
+            {navCollections.slice(2, 4).map((col: any, idx: number) => (
+              <a href={`/store/${col.handle}`} class="cat-card cat-card-small">
+                <div class="cat-card-bg" style={CAT_IMAGES[col.handle.toLowerCase()] || col.image?.url ? '' : `background:${catGradients[idx + 2]}`}>
+                  {(CAT_IMAGES[col.handle.toLowerCase()] || col.image?.url) && (
+                    <img src={CAT_IMAGES[col.handle.toLowerCase()] || col.image.url} alt={col.title} />
+                  )}
+                </div>
+                <div class="cat-card-overlay"></div>
+                <div class="cat-card-content">
+                  <div>
+                    <h3>{col.title}</h3>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Third column (5th collection) -->
+        {navCollections[4] && (
+          <a href={`/store/${navCollections[4].handle}`} class="cat-card">
+            <div class="cat-card-bg" style={CAT_IMAGES[navCollections[4].handle.toLowerCase()] || navCollections[4].image?.url ? '' : `background:${catGradients[4]}`}>
+              {(CAT_IMAGES[navCollections[4].handle.toLowerCase()] || navCollections[4].image?.url) && (
+                <img src={CAT_IMAGES[navCollections[4].handle.toLowerCase()] || navCollections[4].image.url} alt={navCollections[4].title} />
+              )}
+            </div>
+            <div class="cat-card-overlay"></div>
+            <span class="cat-card-tag">Colección</span>
+            <div class="cat-card-content">
+              <div>
+                <h3>{navCollections[4].title}</h3>
+                <div class="cat-card-sub">{(allProducts as any[]).filter(p => Array.isArray(p.collections) && p.collections.includes(navCollections[4].handle)).length} productos</div>
+              </div>
+              <div class="cat-card-arrow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>
+              </div>
+            </div>
+          </a>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- All products section -->
+  <section style="padding:48px 36px 96px;max-width:1480px;margin:0 auto;">
+    <div class="section-head" style="margin-bottom:32px;">
+      <div>
+        <div class="h-meta"><span class="line-el"></span><span>Todos los productos</span></div>
+        <h2 style="font-family:var(--font-display);font-size:clamp(40px,5vw,72px);margin:12px 0 0;line-height:0.92;text-transform:uppercase;color:var(--pine);">Catálogo<br />completo.</h2>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="coll-toolbar">
+      <div class="coll-toolbar-left">
+        <span class="coll-toolbar-count">{allProducts.length} productos</span>
+      </div>
+      <div class="coll-toolbar-right">
+        <select class="sort-select" id="store-sort">
+          <option value="relevant">Más relevante</option>
+          <option value="price-asc">Precio: menor</option>
+          <option value="price-desc">Precio: mayor</option>
+          <option value="name-asc">Nombre A-Z</option>
+        </select>
+        <div class="view-toggle" id="store-view-toggle">
+          <button class="view-btn on" data-view="grid" aria-label="Vista cuadrícula">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="view-btn" data-view="list" aria-label="Vista lista">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid view -->
+    <div class="products-grid" id="store-grid">
+      {(allProducts as any[]).map((p) => (
+        <a
+          href={`/products/${p.handle}`}
+          class="pcard"
+          data-product
+          data-price={p.price || 0}
+          data-title={p.title}
+          data-sale={p.compareAtPrice && p.compareAtPrice > p.price ? 'true' : 'false'}
+        >
+          <div class="pcard-img">
+            {p.featuredImage?.url
+              ? <img src={p.featuredImage.url} alt={p.featuredImage.altText ?? p.title} loading="lazy" />
+              : <div class="pcard-img-bg"></div>
+            }
+            {p.compareAtPrice && p.compareAtPrice > p.price && (
+              <span class="pcard-tag sale">
+                -{Math.round((1 - p.price / p.compareAtPrice) * 100)}%
+              </span>
+            )}
+          </div>
+          <div class="pcard-brand">{p.vendor || ''}</div>
+          <div class="pcard-name">{p.title}</div>
+          <div class="pcard-price">
+            {p.compareAtPrice && p.compareAtPrice > p.price && (
+              <span class="pcard-price-old">{fmtPrice(p.compareAtPrice)}</span>
+            )}
+            <span class="pcard-price-now">{p.price ? fmtPrice(p.price) : ''}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <!-- List view -->
+    <div class="products-list hidden" id="store-list">
+      {(allProducts as any[]).map((p) => (
+        <a
+          href={`/products/${p.handle}`}
+          class="pcard-list"
+          data-product-list
+          data-price={p.price || 0}
+          data-title={p.title}
+        >
+          <div class="pcard-img">
+            {p.featuredImage?.url
+              ? <img src={p.featuredImage.url} alt={p.featuredImage.altText ?? p.title} loading="lazy" />
+              : <div class="pcard-img-bg"></div>
+            }
+          </div>
+          <div class="pcard-list-info">
+            <div class="pcard-brand">{p.vendor || ''}</div>
+            <div class="pcard-name" style="font-size:18px;">{p.title}</div>
+            <div class="pcard-list-meta">
+              {p.productType && <span>{p.productType}</span>}
+            </div>
+          </div>
+          <div class="pcard-list-price">
+            {p.compareAtPrice && p.compareAtPrice > p.price && (
+              <div class="pcard-price-old">{fmtPrice(p.compareAtPrice)}</div>
+            )}
+            <div class="pcard-price-now">{p.price ? fmtPrice(p.price) : ''}</div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const gridEl = document.getElementById('store-grid')!;
+  const listEl = document.getElementById('store-list')!;
+  const sortSel = document.getElementById('store-sort') as HTMLSelectElement;
+
+  const gridCards = Array.from(gridEl.querySelectorAll<HTMLElement>('[data-product]'));
+  const listCards = Array.from(listEl.querySelectorAll<HTMLElement>('[data-product-list]'));
+
+  // Sort
+  sortSel?.addEventListener('change', () => {
+    const sort = sortSel.value;
+    const fn = (a: HTMLElement, b: HTMLElement) => {
+      if (sort === 'price-asc') return parseFloat(a.dataset.price ?? '0') - parseFloat(b.dataset.price ?? '0');
+      if (sort === 'price-desc') return parseFloat(b.dataset.price ?? '0') - parseFloat(a.dataset.price ?? '0');
+      if (sort === 'name-asc') return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
+      return 0;
+    };
+    gridCards.sort(fn).forEach(c => gridEl.appendChild(c));
+    listCards.sort(fn).forEach(c => listEl.appendChild(c));
+  });
+
+  // View toggle
+  document.querySelectorAll<HTMLElement>('#store-view-toggle .view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = btn.dataset.view ?? 'grid';
+      document.querySelectorAll('#store-view-toggle .view-btn').forEach(b => b.classList.toggle('on', b === btn));
+      gridEl.classList.toggle('hidden', view !== 'grid');
+      listEl.classList.toggle('hidden', view !== 'list');
+    });
+  });
+</script>

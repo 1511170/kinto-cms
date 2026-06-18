@@ -1,4 +1,4 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, z } from "astro:content";
 
 /**
  * Configuración de colecciones de contenido
@@ -7,7 +7,7 @@ import { defineCollection, z } from 'astro:content';
 
 // Colección: Blog
 const blog = defineCollection({
-  type: 'content',
+  type: "content",
   schema: z.object({
     title: z.string(),
     excerpt: z.string(),
@@ -22,7 +22,7 @@ const blog = defineCollection({
 
 // Colección: Testimonios (se activa con skill testimonials)
 const testimonials = defineCollection({
-  type: 'data',
+  type: "data",
   schema: z.object({
     author: z.string(),
     company: z.string().optional(),
@@ -36,7 +36,7 @@ const testimonials = defineCollection({
 
 // Colección: Páginas (para contenido editable vía CMS)
 const pages = defineCollection({
-  type: 'content',
+  type: "content",
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -47,7 +47,7 @@ const pages = defineCollection({
 
 // Colección: Servicios
 const services = defineCollection({
-  type: 'content',
+  type: "content",
   schema: z.object({
     title: z.string(),
     shortDescription: z.string(),
@@ -59,7 +59,7 @@ const services = defineCollection({
 
 // Colección: Equipo
 const team = defineCollection({
-  type: 'data',
+  type: "data",
   schema: z.object({
     name: z.string(),
     position: z.string(),

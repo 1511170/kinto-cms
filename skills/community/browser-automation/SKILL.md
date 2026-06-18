@@ -29,6 +29,7 @@ kinto skill add browser-automation --site=<sitio>
 ```
 
 Instala dependencias:
+
 ```bash
 npm install puppeteer --legacy-peer-deps
 ```
@@ -36,16 +37,19 @@ npm install puppeteer --legacy-peer-deps
 ## Uso
 
 ### 1. Screenshots de todo el sitio
+
 ```bash
 npm run test:visual
 ```
 
 ### 2. Testing de navegación
+
 ```bash
 npm run test:e2e
 ```
 
 ### 3. Validar página específica
+
 ```bash
 node skills/community/browser-automation/test-runner.js --url=https://tusitio.com --action=screenshot
 ```
@@ -62,6 +66,7 @@ node skills/community/browser-automation/test-runner.js --url=https://tusitio.co
 ## Reportes
 
 Generados en `test-results/`:
+
 - `screenshots/` - Capturas de pantalla
 - `report.html` - Reporte visual interactivo
 - `errors.json` - Errores encontrados
