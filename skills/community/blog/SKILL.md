@@ -25,7 +25,7 @@ Sistema de blog completo con listado, posts individuales y componentes reutiliza
 ## Instalación
 
 ```bash
-node scripts/skill-add.js blog
+kinto skill add blog --site=<sitio>
 ```
 
 ## Uso

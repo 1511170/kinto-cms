@@ -19,6 +19,7 @@ const COMMANDS = {
   update: () => import("./commands/update.js"),
   doctor: () => import("./commands/doctor.js"),
   marketplace: () => import("./commands/marketplace.js"),
+  verify: () => import("./commands/verify.js"),
 };
 
 const HELP = `
@@ -37,6 +38,7 @@ Sitios
   dev --site=<nombre>            Servidor de desarrollo
   build --site=<nombre>          Build estático
   deploy --site=<nombre>         Deploy a Cloudflare
+  verify --site=<nombre>         Composite: skill validate + build + checks
   sites list                     Lista los sitios del repo
   sites clone <origen> <destino> Clona un sitio existente
 

@@ -23,7 +23,7 @@ Optimización automática de imágenes para sitios KINTO. Convierte JPG/PNG a We
 ## Instalación
 
 ```bash
-node scripts/skill-add.js image-optimizer
+kinto skill add image-optimizer --site=<sitio>
 ```
 
 ## Uso

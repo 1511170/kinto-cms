@@ -23,7 +23,7 @@ Formularios de contacto funcionales sin backend propio, usando Web3Forms.
 ## Instalación
 
 ```bash
-node scripts/skill-add.js forms-web3forms
+kinto skill add forms-web3forms --site=<sitio>
 ```
 
 ## Configuración

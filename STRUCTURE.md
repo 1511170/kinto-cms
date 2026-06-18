@@ -38,7 +38,7 @@ kinto-cms/
 │               └── cms-fields.yml     # Config CMS
 │
 ├── sites/                             # 🌐 SITIOS DE CLIENTES (vacío en repo)
-│   └── [nombre-cliente]/              # Creado con ./kinto create-site
+│   └── [nombre-cliente]/              # Creado con kinto create-site
 │       ├── package.json
 │       ├── astro.config.mjs
 │       ├── tailwind.config.mjs
@@ -119,17 +119,17 @@ cms: {
 
 ```bash
 # 1. Crear nuevo sitio
-./kinto create-site nombre-cliente
+kinto create-site nombre-cliente
 
 # 2. IA revisa skills disponibles
-node scripts/skill-list.js
+kinto marketplace
 
 # 3. IA instala skills necesarias
-node scripts/skill-add.js cms-sveltia
-node scripts/skill-add.js testimonials
+kinto skill add cms-sveltia --site=<sitio>
+kinto skill add testimonials --site=<sitio>
 
 # 4. IA crea skills que faltan
-node scripts/skill-create.js fleet-tracker
+kinto skill create fleet-tracker
 # → Crea en skills/community/fleet-tracker/
 # → Disponible para todos los sitios
 
@@ -177,7 +177,7 @@ Cada uno: core + skills específicas
 
 ```
 Estás usando KINTO CMS.
-1. Crea sitio con: ./kinto create-site [nombre]
+1. Crea sitio con: kinto create-site [nombre]
 2. Revisa skills/ antes de escribir código
 3. Si existe skill similar → ÚSALA
 4. Si no existe → CREA skill reutilizable

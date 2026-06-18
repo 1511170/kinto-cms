@@ -23,7 +23,7 @@ Sistema de testimonios con schema.org Review markup para SEO/AI citations.
 ## Instalación
 
 ```bash
-node scripts/skill-add.js testimonials
+kinto skill add testimonials --site=<sitio>
 ```
 
 ## Uso en Astro

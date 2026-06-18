@@ -16,11 +16,11 @@
 cat skills-active.json
 
 # Instalar skills disponibles
-node scripts/skill-add.js cms-sveltia
-node scripts/skill-add.js {SKILL_NAME}
+kinto skill add cms-sveltia --site=<sitio>
+kinto skill add <skill-name> --site=<sitio>
 
 # Crear skill específica
-node scripts/skill-create.js {NEW_SKILL}
+kinto skill create <skill-name>
 
 # Dev server
 npm install
@@ -104,7 +104,7 @@ sites/{SITE_NAME}/
 
 **Instalar:**
 ```bash
-node scripts/skill-add.js cms-sveltia
+kinto skill add cms-sveltia --site=<sitio>
 ```
 
 ---

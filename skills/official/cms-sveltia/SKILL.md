@@ -23,7 +23,7 @@ Integra Sveltia CMS para edición visual de contenido vía Git.
 ## Instalación
 
 ```bash
-node scripts/skill-add.js cms-sveltia
+kinto skill add cms-sveltia --site=<sitio>
 ```
 
 ## Configuración

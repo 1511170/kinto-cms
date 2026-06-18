@@ -38,7 +38,7 @@ domain.co ← Shopify hosted checkout (same root domain)
 ## Installation
 
 ```bash
-node scripts/skill-add.js shopify-ecommerce
+kinto skill add shopify-ecommerce --site=<sitio>
 ```
 
 Then configure `config/site.config.ts` with your Shopify settings and deploy the Worker.

@@ -8,20 +8,20 @@
 
 ```bash
 # 1. Crear nuevo sitio para el cliente
-./kinto create-site nombre-cliente
+kinto create-site nombre-cliente
 
 # 2. Entrar al sitio
 cd sites/nombre-cliente
 
 # 3. Ver skills disponibles
-node scripts/skill-list.js
+kinto marketplace
 
 # 4. Instalar skills necesarias
-node scripts/skill-add.js cms-sveltia
-node scripts/skill-add.js testimonials
+kinto skill add cms-sveltia --site=<sitio>
+kinto skill add testimonials --site=<sitio>
 
 # 5. Crear nueva skill (si no existe la que necesitas)
-node scripts/skill-create.js mi-nueva-skill
+kinto skill create mi-nueva-skill
 
 # 6. Instalar dependencias y correr
 npm install
@@ -70,7 +70,7 @@ kinto-cms/
 
 ### Paso 1: Crear el Sitio
 ```bash
-./kinto create-site nombre-cliente
+kinto create-site nombre-cliente
 cd sites/nombre-cliente
 ```
 
@@ -79,7 +79,7 @@ Ejemplo: *"Necesito página de inicio con hero, servicios, testimonios y un form
 
 ### Paso 3: Revisar Skills Existentes
 ```bash
-node scripts/skill-list.js
+kinto marketplace
 ```
 
 **Skills disponibles actualmente:**
@@ -88,8 +88,8 @@ node scripts/skill-list.js
 
 ### Paso 4: Instalar Skills Necesarias
 ```bash
-node scripts/skill-add.js cms-sveltia
-node scripts/skill-add.js testimonials
+kinto skill add cms-sveltia --site=<sitio>
+kinto skill add testimonials --site=<sitio>
 ```
 
 ### Paso 5: Generar Contenido
@@ -98,7 +98,7 @@ Editar `src/pages/index.astro` y crear las páginas necesarias usando las skills
 ### Paso 6: Si Falta una Skill, Crearla
 ```bash
 # Ejemplo: Necesitamos un formulario de contacto
-node scripts/skill-create.js contact-form
+kinto skill create contact-form
 
 # Esto crea: skills/community/contact-form/
 # Luego implementas la skill y la usas
@@ -111,7 +111,7 @@ node scripts/skill-create.js contact-form
 Cuando el cliente necesita algo que no existe:
 
 ```bash
-node scripts/skill-create.js nombre-skill
+kinto skill create nombre-skill
 ```
 
 Esto crea:
@@ -176,7 +176,7 @@ const hasTestimonials = activeSkills.skills.includes('testimonials');
 
 ## 🆘 ¿Atascado?
 
-1. **Ver skills disponibles**: `node scripts/skill-list.js`
+1. **Ver skills disponibles**: `kinto marketplace`
 2. **Ver config del sitio**: `cat config/site.config.ts`
 3. **Ver skills activas**: `cat skills-active.json`
 4. **Leer documentación**: `cat docs/AI_GENERATION.md`
@@ -185,5 +185,5 @@ const hasTestimonials = activeSkills.skills.includes('testimonials');
 
 **Empieza aquí:**
 ```bash
-./kinto create-site mi-cliente && cd sites/mi-cliente && node scripts/skill-list.js
+kinto create-site mi-cliente && cd sites/mi-cliente && kinto marketplace
 ```

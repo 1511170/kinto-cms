@@ -23,7 +23,7 @@ Skill kinto-cms que agrega botones de WhatsApp con tracking GA4 a cualquier siti
 ## Instalación
 
 ```bash
-node scripts/skill-add.js whatsapp-cta
+kinto skill add whatsapp-cta --site=<sitio>
 ```
 
 O bien: importar directamente vía alias `@skills-community/whatsapp-cta/...` desde el sitio.

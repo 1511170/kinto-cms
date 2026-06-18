@@ -24,7 +24,7 @@ Web scraping y crawling para extraer contenido, imágenes y assets de sitios web
 ## Instalación
 
 ```bash
-node scripts/skill-add.js web-scraper
+kinto skill add web-scraper --site=<sitio>
 npm install puppeteer cheerio --legacy-peer-deps
 ```
 

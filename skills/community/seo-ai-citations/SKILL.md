@@ -34,7 +34,7 @@ SEO + AEO (AI Citation Optimization) con Schema.org completo para máxima visibi
 ## Instalación
 
 ```bash
-node scripts/skill-add.js seo-ai-citations
+kinto skill add seo-ai-citations --site=<sitio>
 ```
 
 ## Uso

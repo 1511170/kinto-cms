@@ -25,7 +25,7 @@ Formulario de contacto profesional con validación y estilos Tailwind.
 ## Instalación
 
 ```bash
-node scripts/skill-add.js contact-form
+kinto skill add contact-form --site=<sitio>
 ```
 
 ## Uso

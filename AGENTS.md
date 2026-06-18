@@ -52,6 +52,7 @@ kinto doctor                # diagnostica el entorno
 | `kinto create-site <n> --template=static\|ecommerce` | Crea un sitio nuevo                                               |
 | `kinto dev --site=<n>`                               | Servidor de desarrollo                                            |
 | `kinto build --site=<n>`                             | Build estático                                                    |
+| `kinto verify --site=<n>`                            | Composite: `skill validate` + `build` + checks de estructura      |
 | `kinto deploy --site=<n>`                            | Deploy a Cloudflare                                               |
 | `kinto marketplace`                                  | Lista las site-skills instalables                                 |
 | `kinto skill add <n> --site=<s>`                     | Instala una skill en un sitio                                     |
@@ -60,6 +61,87 @@ kinto doctor                # diagnostica el entorno
 | `kinto skill search <texto>`                         | Busca skills por nombre/tag/descripción                           |
 | `kinto skill validate`                               | Valida skills y regenera el registry                              |
 | `kinto sites list \| clone`                          | Gestión de sitios                                                 |
+
+---
+
+## 🤖 Cheat sheet para agentes
+
+> KINTO se usa **principalmente por agentes** (Claude Code, Kimi, Codex, Cursor)
+> sin TTY interactivo. Pasá flags explícitos siempre — el wizard interactivo
+> aborta con error si no hay TTY ni `--yes`.
+
+### Modo no-interactivo (canónico)
+
+```bash
+# Receta canónica del wizard sin interacción humana:
+kinto start \
+  --site=acme \
+  --template=ecommerce \
+  --skills=cms-sveltia,testimonials \
+  --yes
+# --yes confirma defaults; sin él, sin TTY -> ERROR (es a propósito).
+# --skills es CSV, opcional. --dev levanta dev tras crear. --no-install salta npm install.
+```
+
+### Recetas one-liner
+
+```bash
+# 1. Diagnosticar entorno
+kinto doctor
+
+# 2. Sitio corporativo nuevo
+kinto create-site cliente-acme --template=static
+
+# 3. Tienda Shopify nueva
+kinto create-site tienda-xyz --template=ecommerce
+
+# 4. Ver skills disponibles
+kinto marketplace                          # todas
+kinto marketplace --tag=cms                # filtra por tag
+kinto marketplace --for=ecommerce          # filtra por template recomendado
+kinto skill search testimonials            # texto libre
+
+# 5. Instalar skill (auto-mergea su .env.example al sitio)
+kinto skill add cms-sveltia --site=cliente-acme
+kinto skill add shopify-ecommerce --site=tienda-xyz
+
+# 6. Quitar skill
+kinto skill remove testimonials --site=cliente-acme
+
+# 7. Crear skill nueva (scaffold en skills/community/)
+kinto skill create mi-componente
+
+# 8. Servidor dev + build + verify + deploy
+kinto dev    --site=cliente-acme
+kinto build  --site=cliente-acme
+kinto verify --site=cliente-acme           # gate antes de deploy
+kinto deploy --site=cliente-acme
+
+# 9. Actualizar motor desde upstream (no toca sites/)
+kinto update                               # default: origin/main
+kinto update --ref=origin/staging          # otra rama
+kinto update --remote=upstream             # otro remoto
+
+# 10. Listar y validar
+kinto sites list
+kinto skill validate                       # regenera registry + MARKETPLACE.md
+```
+
+### Flags por comando (referencia completa)
+
+| Comando        | Flags                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------- |
+| `start`        | `--site=<n>`, `--template=<t>`, `--skills=<csv>`, `--yes`, `--no-install`, `--dev`                             |
+| `create-site`  | `--template=<t>` (aliases: `static\|corporate\|enterprise` → enterprise; `ecommerce\|shop\|store` → ecommerce) |
+| `dev`          | `--site=<n>`                                                                                                   |
+| `build`        | `--site=<n>`                                                                                                   |
+| `verify`       | `--site=<n>`                                                                                                   |
+| `deploy`       | `--site=<n>`                                                                                                   |
+| `skill add`    | `--site=<n>`                                                                                                   |
+| `skill remove` | `--site=<n>`                                                                                                   |
+| `skill search` | (texto positional)                                                                                             |
+| `marketplace`  | `--tag=<tag>`, `--for=<template>`                                                                              |
+| `update`       | `--ref=<git-ref>` (default `origin/main`), `--remote=<name>` (default `origin`)                                |
 
 ---
 

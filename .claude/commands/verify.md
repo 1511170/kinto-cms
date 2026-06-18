@@ -1,28 +1,31 @@
 # /verify
 
-Suite de verificación de un sitio de KINTO CMS.
+Suite de verificación de un sitio de KINTO CMS. Invoca el comando real
+`kinto verify --site=<sitio>` (composite implementado en `cli/commands/verify.js`).
 
 ## Uso
 
 ```
-/verify [--site=<sitio>]
+/verify --site=<sitio>
+```
+
+O directamente:
+
+```
+kinto verify --site=<sitio>
 ```
 
 ## Qué hace
 
-1. `kinto build --site=<sitio>` — debe pasar
-2. `kinto skill validate` — registry y MARKETPLACE.md en sync
-3. Verifica que `skills-active.json` coincide con lo importado
-4. Verifica `config/site.config.ts`
-5. Busca anti-patrones (ver AGENTS.md): hardcode de cliente, schema.org faltante,
-   imports sin usar
-6. Reporta pass/fail por cada check
+1. **`skill validate`** — regenera y valida `skills/registry.json` y `MARKETPLACE.md`.
+2. **`npm run build`** del sitio — build estático debe pasar.
+3. **Checks de estructura**:
+   - `skills-active.json` presente
+   - `astro.config.mjs` presente
+   - `package.json` presente
+   - `.env.example` presente si alguna skill activa lo aporta
 
-## Output
+## Exit code
 
-```
-✅ Build: PASS
-✅ Registry: SYNC
-⚠️  SEO: 2 avisos
-❌ Anti-patrones: 1 problema
-```
+`0` si todo OK, `1` si algo falla. Pensado para usar como gate antes de
+`kinto deploy` y en CI.

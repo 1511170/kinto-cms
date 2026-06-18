@@ -26,7 +26,7 @@ Efectos premium tipo Webflow - animaciones GSAP, micro-interacciones, diseño de
 ## Instalación
 
 ```bash
-node scripts/skill-add.js webflow-effects
+kinto skill add webflow-effects --site=<sitio>
 npm install gsap --legacy-peer-deps
 ```
 
