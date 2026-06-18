@@ -87,9 +87,31 @@ export async function fetchCollectionByHandle(
   options: ShopifyFetchOptions,
   handle: string,
 ) {
-  const data = await shopifyFetch(options, COLLECTION_BY_HANDLE_QUERY, {
-    handle,
-    first: 50,
-  });
-  return data.collection;
+  let collection: any = null;
+  const productEdges: any[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+
+  while (hasNextPage) {
+    const data = await shopifyFetch(options, COLLECTION_BY_HANDLE_QUERY, {
+      handle,
+      first: 250,
+      after: cursor,
+    });
+
+    if (!data.collection) return null;
+    collection ??= data.collection;
+    productEdges.push(...(data.collection.products?.edges ?? []));
+    hasNextPage = Boolean(data.collection.products?.pageInfo?.hasNextPage);
+    cursor = data.collection.products?.pageInfo?.endCursor ?? null;
+  }
+
+  return {
+    ...collection,
+    products: {
+      ...(collection.products ?? {}),
+      edges: productEdges,
+      pageInfo: { hasNextPage: false, endCursor: cursor },
+    },
+  };
 }

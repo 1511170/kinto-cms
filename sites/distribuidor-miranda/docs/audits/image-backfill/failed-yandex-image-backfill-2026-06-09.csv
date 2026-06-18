@@ -1,0 +1,38 @@
+productId,sku,title,handle,status,error
+8106095968325,03-005-08-0176,AMORTIGUADOR DEL. CHEVROLET NPR RH/LH,amortiguador-del-chevrolet-npr-rh-lh,failed,read ETIMEDOUT
+8106175758405,02-001-19-0100,CAPOT HYUNDAI I10 09 -15,capot-hyundai-i10-09-15,failed,request total timeout
+8106185654341,4349,CERCO PTA AVEO,cerco-pta-aveo,failed,request total timeout
+8106195779653,QWE-890,CILINDRO VITARA 3 PUERRTAS,cilindro-vitara-3-puerrtas,failed,request total timeout
+8106239098949,CHR-01-016-0001,ELECTROVENTILADOR RAD CHERY VAN 10- 13 ( BEST PARTS ),electroventilador-rad-chery-van-10-13-best-parts,failed,request total timeout
+8106283008069,03-005-30-0166,ESPIRAL DEL RENAULT SANDERO STEPWAY 15,espiral-del-renault-sandero-stepway-15,failed,request total timeout
+8106311024709,CHR-01-027-0006,FARO POSTERIOR CHERY NEW QQ 16- RH (BEST PARTS),faro-posterior-chery-new-qq-16-rh-best-parts,failed,socket hang up
+8106350149701,02-002-25-0233,FARO POSTERIOR MAZDA BT-50 10- 16 RH ( LS ),faro-posterior-mazda-bt-50-10-16-rh-ls,failed,read ETIMEDOUT
+8106373513285,AA-9110,FILTRO AIRE MOTOR GREAT WALL WINGLE 3-5 12-17 GASOLINA ( ADVANCE ),filtro-aire-motor-great-wall-wingle-3-5-12-17-gasolina-advance,failed,request total timeout
+8106384687173,02-025-03-017,GUARDACHOQUE DEL CHERY TIGGO 7 PRO 2022-,guardachoque-del-chery-tiggo-7-pro-2022,failed,request total timeout
+8106396188741,02-025-08-009,GUARDACHOQUE DEL HYUNDAI H1 TQ 08- 15 C/H NEB ( MAXFIT ),guardachoque-del-hyundai-h1-tq-08-15-c-h-neb-maxfit,failed,request total timeout
+8106407264325,CV0220000-0000,GUARDACHOQUE DEL. CHEVROLET AVEO EMOTION,guardachoque-del-chevrolet-aveo-emotion,failed,read ETIMEDOUT
+8106432004165,02-001-16-0097.,GUARDAFANGO DEL GREAT WALL WINGLE 5 13- 19 R C/H F/LAT S/H MOLD ( ALLPARTS ),guardafango-del-great-wall-wingle-5-13-19-r-c-h-f-lat-s-h-mold-allparts,failed,request total timeout
+8106441703493,02-001-35-0276,GUARDAFANGO DEL TOYOTA HILUX 79-83 LH (~),guardafango-del-toyota-hilux-79-83-lh,failed,request total timeout
+8106484826181,JAC-01-033-0007,GUARDAPOLVO GUARDAFANGO POSTERIOR JAC T6 18- LH ( BEST PARTS ),guardapolvo-guardafango-posterior-jac-t6-18-lh-best-parts,failed,request total timeout
+8106494984261,9024765,JUEGO EMPAQUES MOTOR SAIL 1.4,juego-empaques-motor-sail-1-4,failed,request total timeout
+8106507862085,SZ264P,KIT NEBLINERO SUZUKI GRAND VITARA SZ NEXT 15- ( ALT ),kit-neblinero-suzuki-grand-vitara-sz-next-15-alt,failed,request total timeout
+8106553016389,HU-HY2511A-LH,MANILLA INTERIOR HYUNDAI HD-72 TRUCK LH,manilla-interior-hyundai-hd-72-truck-lh,failed,request total timeout
+8106564091973,01-001-08-0489,MANUBRIO VIDRIO CHEVROLET AVEO ACTIVO 05- 19 / FAMILY / CHEVY TAXI LH/RH ( TYG ),manubrio-vidrio-chevrolet-aveo-activo-05-19-family-chevy-taxi-lh-rh-tyg,failed,request total timeout
+8106572546117,02-001-08-0281.,MASCARILLA CHEVROLET SAIL 18- 23 NEG/NIQ S/EMBLEMA ( KRC ),mascarilla-chevrolet-sail-18-23-neg-niq-s-emblema-krc,failed,read ECONNRESET
+8106585161797,MZ0193,MASCARILLA MAZDA B2200,mascarilla-mazda-b2200,failed,read ETIMEDOUT
+8106597974085,4520167D01,MESA SUSP CHEVROLET GRAND VITARA 99- C/R C/B RH ( KENZU ),mesa-susp-chevrolet-grand-vitara-99-c-r-c-b-rh-kenzu,failed,request total timeout
+8106620158021,226CV01C201,NEBLINERO CHEVROLET AVEO EMOTION 08- 18 / OPTRA ADVANCE LH ( TYC ),neblinero-chevrolet-aveo-emotion-08-18-optra-advance-lh-tyc,failed,request total timeout
+8106641522757,05-012-03-015,PASTILLA FRENO POS CHERY ARRIZO 5 2021- 1500,pastilla-freno-pos-chery-arrizo-5-2021-1500,failed,request total timeout
+8106654892101,03-004-35-0057,PASTILLAS FRENO TOYOTA COROLLA 06- DEL 1.6/1.8,pastillas-freno-toyota-corolla-06-del-1-6-1-8,failed,request total timeout
+8106670293061,02-001-08-1946,PUERTA DEL CHEVROLET SPARK 02 05 MATIZ L,puerta-del-chevrolet-spark-02-05-matiz-l,failed,request total timeout
+8106732126277,02-001-08-1404,REFUERZO GUARDACHOQUE CHEVROLET LUV D-MAX 05-08 DEL SUP ( TYG ),refuerzo-guardachoque-chevrolet-luv-d-max-05-08-del-sup-tyg,failed,request total timeout
+8106784456773,10262401750D111A,SENSOR TEMPERATURA ESCAPE DONGFENG ACTIVAN 23-,sensor-temperatura-escape-dongfeng-activan-23,failed,request total timeout
+8106794385477,02-002-08-0459,SILVIN CHEVROLET LUV D-MAX 4X4 14 -18 RH FULL ( DEPO ),silvin-chevrolet-luv-d-max-4x4-14-18-rh-full-depo,failed,request total timeout
+8106803429445,3527-6587,SILVIN GRAND VITARA XL-7 RH,silvin-grand-vitara-xl-7-rh,failed,request total timeout
+8106818633797,02-002-27-0203,SILVIN MITSUBISHI MONTERO SPORT 01 09 RH RIN/GRIS,silvin-mitsubishi-montero-sport-01-09-rh-rin-gris,failed,request total timeout
+8106826825797,FA.226,SILVIN TOYOTA HILUX VIGO 2012-2015 LH ( BM ),silvin-toyota-hilux-vigo-2012-2015-lh-bm,failed,request total timeout
+8106868015173,06-002-19-0984,TERMOSTATO HYUNDAI ACCENT / VERNA / GETZ / MATRIX / ELANTRA / AVANTE / XCITE / TUCSON / IX / SPORTAGE R / SANTA FE 82-C ( SHAP ),termostato-hyundai-accent-verna-getz-matrix-elantra-avante-xcite-tucson-ix-sportage-r-santa-fe-82-c-shap,failed,request total timeout
+8106868080709,06-002-19-0093,TERMOSTATO HYUNDAI ACCENT 1.4/1.6 06 11 ACCENT VERNA,termostato-hyundai-accent-1-4-1-6-06-11-accent-verna,failed,request timeout
+8106901733445,GRW-01-064-0017,VINCHA GUARDACHOQUE DEL GREAT WALL WINGLE 7 19- LH ( BEST PARTS ),vincha-guardachoque-del-great-wall-wingle-7-19-lh-best-parts,failed,request total timeout
+8106910187589,86514-B4500,VINCHA GUARDACHOQUE HYUNDAI GRAND I10 5P 17- 23 / GRAND I10 4P 17- 21 DEL RH ( MOBIS ),vincha-guardachoque-hyundai-grand-i10-5p-17-23-grand-i10-4p-17-21-del-rh-mobis,failed,request total timeout
+8106918903877,866131R000,VINCHA GUARDACHOQUE POSTERIOR LH HYUNDAI ACCENT 12,vincha-guardachoque-posterior-lh-hyundai-accent-12,failed,request total timeout

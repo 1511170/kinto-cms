@@ -1,0 +1,86 @@
+---
+---
+<script>
+  (() => {
+    const clean = (value) => String(value || '').trim();
+    const number = (value) => {
+      const n = Number(String(value || '').replace(/[^0-9.]/g, ''));
+      return Number.isFinite(n) ? n : 0;
+    };
+    const parseResultCount = () => {
+      const copy = document.querySelector('[data-result-copy]')?.textContent || '';
+      const match = copy.match(/Mostrando\s+(\d+)/i);
+      return match ? Number(match[1]) : undefined;
+    };
+    const itemFromNode = (node, index = 0) => {
+      const el = node?.closest?.('[data-product-id], [data-analytics-product]') || node;
+      if (!el) return null;
+      const name = clean(el.dataset.productName || el.dataset.itemName || el.querySelector?.('.dm-card-title')?.textContent || el.querySelector?.('h1')?.textContent);
+      const sku = clean(el.dataset.productSku || el.dataset.itemId || el.querySelector?.('.dm-card-sku')?.textContent);
+      return {
+        item_id: sku || clean(el.dataset.productId),
+        item_name: name,
+        item_category: clean(el.dataset.productCategory || el.dataset.itemCategory),
+        item_brand: clean(el.dataset.productBrand || el.dataset.itemBrand || 'Distribuidor Miranda'),
+        price: number(el.dataset.productPrice || el.dataset.itemPrice),
+        index,
+      };
+    };
+    const push = (event, params = {}) => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event, ...params });
+      if (typeof window.gtag === 'function') window.gtag('event', event, params);
+    };
+    const listRoot = document.querySelector('[data-analytics-list]');
+    const productRoot = document.querySelector('[data-analytics-product]');
+
+    if (productRoot) {
+      const item = itemFromNode(productRoot, 0);
+      if (item?.item_name) push('view_item', { currency: 'USD', value: item.price || undefined, items: [item] });
+    }
+
+    if (listRoot) {
+      const itemListName = clean(listRoot.dataset.analyticsListName || document.querySelector('h1')?.textContent || 'Catálogo');
+      const itemListId = clean(listRoot.dataset.analyticsListId || location.pathname);
+      const items = Array.from(document.querySelectorAll('[data-product-id]')).slice(0, 24).map(itemFromNode).filter(Boolean);
+      push('view_item_list', { item_list_id: itemListId, item_list_name: itemListName, items });
+    }
+
+    document.addEventListener('click', (event) => {
+      const cardLink = event.target.closest?.('[data-product-id] a[href^="/producto/"]');
+      if (cardLink) {
+        const card = cardLink.closest('[data-product-id]');
+        const item = itemFromNode(card, Array.from(document.querySelectorAll('[data-product-id]')).indexOf(card));
+        const itemListName = clean(listRoot?.dataset.analyticsListName || document.querySelector('h1')?.textContent || 'Catálogo');
+        if (item?.item_name) push('select_item', { item_list_name: itemListName, items: [item] });
+      }
+
+      const addButton = event.target.closest?.('[data-add-to-cart]');
+      if (addButton) {
+        const source = addButton.closest('[data-product-id], [data-analytics-product]');
+        const item = itemFromNode(source, 0);
+        if (item?.item_name) push('add_to_cart', { currency: 'USD', value: item.price || undefined, items: [item] });
+      }
+    }, { capture: true });
+
+    let searchTimer = 0;
+    let lastSearch = '';
+    const sendSearch = (input) => {
+      const term = clean(input.value).toLowerCase();
+      if (term.length < 2 || term === lastSearch) return;
+      lastSearch = term;
+      push('search', {
+        search_term: term,
+        item_list_name: clean(listRoot?.dataset.analyticsListName || document.querySelector('h1')?.textContent || 'Catálogo'),
+        results_count: parseResultCount(),
+      });
+    };
+    document.querySelectorAll('[data-filter-search], [data-live-search-input]').forEach((input) => {
+      input.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(() => sendSearch(input), 1200);
+      });
+      input.addEventListener('change', () => sendSearch(input));
+    });
+  })();
+</script>

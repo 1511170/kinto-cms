@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "distribuidor-miranda-storefront",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "dist",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "SHOPIFY_STORE_DOMAIN": "distribuidor-miranda.myshopify.com",
+    "SHOPIFY_API_VERSION": "2026-04",
+    "SHOPIFY_REBUILD_DEBOUNCE_SECONDS": "90"
+  },
+  "kv_namespaces": [
+    { "binding": "SHOPIFY_CACHE", "id": "45f129649a6c49668cf9b9ad5d645138" }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "SHOPIFY_REBUILD_COORDINATOR", "class_name": "ShopifyRebuildCoordinator" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["ShopifyRebuildCoordinator"] }
+  ],
+  "routes": [
+    { "pattern": "www.distribuidormiranda.com.ec/*", "zone_name": "distribuidormiranda.com.ec" },
+    { "pattern": "distribuidormiranda.com.ec/*", "zone_name": "distribuidormiranda.com.ec" }
+  ]
+}

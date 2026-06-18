@@ -1,0 +1,106 @@
+---
+// FilterSidebar.astro - Sidebar de filtros para categorías
+interface Props {
+  categories?: string[];
+  brands?: string[];
+  priceRange?: { min: number; max: number };
+  activeFilters?: Record<string, string[]>;
+}
+
+const { categories = [], brands = [], priceRange = { min: 0, max: 1000 }, activeFilters = {} } = Astro.props;
+---
+
+<aside class="dm-filters">
+  <div class="dm-filters-head">
+    <h3>Filtros</h3>
+    <button class="dm-filters-clear" id="clear-filters">Limpiar</button>
+  </div>
+
+  <div class="dm-filter-group">
+    <h4>Disponibilidad</h4>
+    <ul class="dm-check-list">
+      <li>
+        <label>
+          <input type="checkbox" name="stock" value="in-stock" checked={activeFilters.stock?.includes('in-stock')} />
+          <span>En stock</span>
+          <span class="dm-check-count">{categories.length > 0 ? '1,240' : ''}</span>
+        </label>
+      </li>
+      <li>
+        <label>
+          <input type="checkbox" name="stock" value="low-stock" checked={activeFilters.stock?.includes('low-stock')} />
+          <span>Pocas unidades</span>
+          <span class="dm-check-count">{categories.length > 0 ? '89' : ''}</span>
+        </label>
+      </li>
+    </ul>
+  </div>
+
+  {brands.length > 0 && (
+    <div class="dm-filter-group">
+      <h4>Marca</h4>
+      <ul class="dm-check-list">
+        {brands.map(brand => (
+          <li>
+            <label>
+              <input type="checkbox" name="brand" value={brand} checked={activeFilters.brand?.includes(brand)} />
+              <span>{brand}</span>
+            </label>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <div class="dm-filter-group">
+    <h4>Precio</h4>
+    <input type="range" class="dm-range" min={priceRange.min} max={priceRange.max} value={priceRange.max} id="price-range" />
+    <div class="dm-price-labels">
+      <span>${priceRange.min}</span>
+      <span id="price-value">${priceRange.max}</span>
+    </div>
+  </div>
+
+  <div class="dm-help-card">
+    <div class="dm-help-icon">?</div>
+    <div>
+      <p>¿No encuentras lo que buscas?</p>
+      <a class="dm-help-btn" href="https://wa.me/593996140000" target="_blank">Escríbenos por WhatsApp</a>
+    </div>
+  </div>
+</aside>
+
+<script>
+  // Price range update
+  const range = document.getElementById('price-range');
+  const value = document.getElementById('price-value');
+  range?.addEventListener('input', (e) => {
+    value.textContent = '$' + e.target.value;
+  });
+
+  // Clear filters
+  document.getElementById('clear-filters')?.addEventListener('click', () => {
+    document.querySelectorAll('.dm-filters input[type="checkbox"]').forEach(cb => cb.checked = false);
+    range.value = range.max;
+    value.textContent = '$' + range.max;
+    // Trigger filter update
+    window.dispatchEvent(new CustomEvent('filters:clear'));
+  });
+
+  // Auto-submit on change
+  document.querySelectorAll('.dm-filters input').forEach(input => {
+    input.addEventListener('change', () => {
+      window.dispatchEvent(new CustomEvent('filters:change', { detail: getActiveFilters() }));
+    });
+  });
+
+  function getActiveFilters() {
+    const filters = {};
+    document.querySelectorAll('.dm-filters input[type="checkbox"]:checked').forEach(cb => {
+      if (!filters[cb.name]) filters[cb.name] = [];
+      filters[cb.name].push(cb.value);
+    });
+    filters.price = parseInt(range.value);
+    return filters;
+  }
+</script>

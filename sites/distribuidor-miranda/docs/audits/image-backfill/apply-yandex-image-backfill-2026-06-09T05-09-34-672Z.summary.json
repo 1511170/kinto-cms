@@ -1,0 +1,17 @@
+{
+  "mode": "apply",
+  "generatedAt": "2026-06-09T17:16:11.517Z",
+  "store": "distribuidor-miranda.myshopify.com",
+  "apiVersion": "2025-01",
+  "allProducts": 11808,
+  "productsMissingImagesBeforeCheckpointAndSlice": 11251,
+  "selectedTargets": 11251,
+  "processed": 11251,
+  "uploaded": 11214,
+  "wouldUpload": 0,
+  "noCandidates": 0,
+  "failed": 37,
+  "skipped": 0,
+  "checkpointPath": "/home/k41h4ck3r/work/kinto-miranda/kinto-cms-distribuidor-shopify-worker/sites/distribuidor-miranda/docs/audits/image-backfill/apply-yandex-image-backfill-2026-06-09T05-09-34-672Z.jsonl",
+  "summaryPath": "/home/k41h4ck3r/work/kinto-miranda/kinto-cms-distribuidor-shopify-worker/sites/distribuidor-miranda/docs/audits/image-backfill/apply-yandex-image-backfill-2026-06-09T05-09-34-672Z.summary.json"
+}

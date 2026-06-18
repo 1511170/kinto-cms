@@ -1,0 +1,54 @@
+{
+  "generatedAt": "2026-06-03",
+  "store": "distribuidor-miranda.myshopify.com",
+  "apiVersion": "2025-01",
+  "productsTotal": 11808,
+  "productsWithImage": 552,
+  "productsMissingImage": 11256,
+  "productsWithoutCollections": 8374,
+  "collectionsTotal": 7,
+  "collections": [
+    {
+      "handle": "frontpage",
+      "title": "Home page",
+      "hasImage": false,
+      "hasProducts": false
+    },
+    {
+      "handle": "espejos",
+      "title": "Espejos",
+      "hasImage": false,
+      "hasProducts": true
+    },
+    {
+      "handle": "guardachoques",
+      "title": "Guardachoques",
+      "hasImage": false,
+      "hasProducts": true
+    },
+    {
+      "handle": "radiadores",
+      "title": "Radiadores",
+      "hasImage": false,
+      "hasProducts": true
+    },
+    {
+      "handle": "silvin",
+      "title": "Silvin",
+      "hasImage": false,
+      "hasProducts": true
+    },
+    {
+      "handle": "capot",
+      "title": "Capot",
+      "hasImage": false,
+      "hasProducts": true
+    },
+    {
+      "handle": "todos-los-productos",
+      "title": "Todos los productos",
+      "hasImage": false,
+      "hasProducts": true
+    }
+  ]
+}

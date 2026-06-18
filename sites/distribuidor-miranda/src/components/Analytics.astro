@@ -1,0 +1,44 @@
+---
+import siteConfig from '../../config/site.config.ts';
+
+interface Props {
+  placement?: 'head' | 'body';
+}
+
+const { placement = 'head' } = Astro.props;
+const tracking = siteConfig.shopify.tracking;
+const gtmContainerId = tracking.gtmContainerId?.trim();
+const gaMeasurementId = tracking.gaMeasurementId?.trim();
+---
+
+{placement === 'head' && gtmContainerId && (
+  <Fragment set:html={`<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmContainerId}');</script>
+<!-- End Google Tag Manager -->`} />
+)}
+
+{placement === 'body' && gtmContainerId && (
+  <Fragment set:html={`<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${gtmContainerId}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->`} />
+)}
+
+{placement === 'head' && !gtmContainerId && gaMeasurementId && (
+  <Fragment set:html={`<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '${gaMeasurementId}', {
+    send_page_view: true,
+    anonymize_ip: true
+  });
+</script>
+<!-- End Google Analytics 4 -->`} />
+)}

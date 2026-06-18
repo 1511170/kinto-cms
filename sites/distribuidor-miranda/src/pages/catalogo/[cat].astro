@@ -1,0 +1,665 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { VEHICLE_MAKES } from '../../data/catalog';
+import {
+  getStorefrontCollections,
+  getStorefrontCollection,
+  getStorefrontProducts,
+  isShopifyCollection,
+  isShopifyProduct,
+  collectionHref,
+  collectionDisplayLabel,
+  collectionShortLabel,
+  productAvailable,
+  productImage,
+  productSku,
+  productTitle,
+} from '../../lib/shopify-catalog';
+import { absoluteUrl, breadcrumbSchema, collectionSchema, jsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  const collections = await getStorefrontCollections();
+  return [
+    { params: { cat: 'todos' } },
+    ...collections.map((collection) => ({ params: { cat: isShopifyCollection(collection) ? collection.handle : collection.id } })),
+  ];
+}
+
+const handle = Astro.params.cat!;
+const allCollections = await getStorefrontCollections();
+const navCollections = allCollections.filter((collection) => collectionHref(collection) !== '/catalogo/todos-los-productos/');
+const isAll = handle === 'todos';
+const result = isAll
+  ? { collection: undefined, products: await getStorefrontProducts() }
+  : await getStorefrontCollection(handle);
+const collection = result.collection;
+const products = result.products;
+const label = isAll ? 'Todos los repuestos' : collection ? collectionDisplayLabel(collection) : 'Catálogo';
+const blurb = isAll
+  ? 'Filtra el inventario por vehículo, código, precio, disponibilidad, lado y tipo de pieza.'
+  : collection
+    ? (isShopifyCollection(collection) ? (collection.description || `Repuestos de ${label.toLowerCase()} disponibles para despacho nacional.`) : collection.blurb)
+    : 'Repuestos disponibles en Distribuidor Miranda.';
+
+const toSlug = (value: string) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const money = (value: number) => `$${value.toFixed(2)}`;
+const priceOf = (product: any) => isShopifyProduct(product) ? Number(product.variants?.[0]?.price?.amount ?? 0) : Number(product.price ?? 0);
+const brandOf = (product: any) => (isShopifyProduct(product) ? (product.vendor || 'Distribuidor Miranda') : (product.brand || 'Distribuidor Miranda')).trim();
+const searchTextOf = (product: any) => `${productTitle(product)} ${productSku(product)} ${brandOf(product)} ${isShopifyProduct(product) ? `${product.productType || ''} ${product.tags?.join(' ') || ''}` : ''}`;
+const detectMake = (text: string) => VEHICLE_MAKES.find((make) => new RegExp(`\\b${make.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text)) || '';
+const detectSide = (text: string) => {
+  const value = text.toLowerCase();
+  if (/\b(lh|izq|izquierd[ao]|left)\b/.test(value)) return 'izquierdo';
+  if (/\b(rh|der|derech[ao]|right)\b/.test(value)) return 'derecho';
+  if (/delanter[ao]|\bdel\b|front/.test(value)) return 'delantero';
+  if (/posterior|\bpos\b|traser[ao]|rear/.test(value)) return 'posterior';
+  return 'universal';
+};
+const detectPartType = (text: string) => {
+  const value = text.toLowerCase();
+  if (/guardachoque|parachoque|gchoque|bumper/.test(value)) return 'guardachoque';
+  if (/silvin|faro|neblin|foco|lamp|luz/.test(value)) return 'iluminacion';
+  if (/radiador|electroventilador|ventilador|refriger|condensador|manguera/.test(value)) return 'refrigeracion';
+  if (/capot|bisagra|compuerta|mascarilla|guardafango|carrocer/.test(value)) return 'carroceria';
+  if (/amortiguador|terminal|cremallera|rotula|suspension/.test(value)) return 'suspension';
+  if (/zapata|pastilla|freno|disco/.test(value)) return 'frenos';
+  if (/sensor|bomba|aceite|filtro|bujia|motor/.test(value)) return 'motor';
+  if (/espejo|retrovisor|vidrio/.test(value)) return 'espejos';
+  return 'otros';
+};
+
+const enrichedProducts = products.map((product) => {
+  const title = productTitle(product);
+  const sku = productSku(product);
+  const brand = brandOf(product);
+  const price = priceOf(product);
+  const text = searchTextOf(product);
+  const partType = detectPartType(text);
+  const make = detectMake(text);
+  const side = detectSide(text);
+  return {
+    product,
+    title,
+    sku,
+    brand,
+    brandSlug: toSlug(brand),
+    price,
+    available: productAvailable(product),
+    hasImage: Boolean(productImage(product)),
+    make,
+    makeSlug: make ? toSlug(make) : '',
+    partType,
+    side,
+    searchText: text.toLowerCase(),
+  };
+});
+
+const brands = [...new Map(enrichedProducts.map((item) => [item.brandSlug, item.brand])).entries()]
+  .map(([slug, name]) => ({ slug, name, count: enrichedProducts.filter((item) => item.brandSlug === slug).length }))
+  .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'es'))
+  .slice(0, 14);
+const makes = VEHICLE_MAKES.map((make) => ({ slug: toSlug(make), name: make, count: enrichedProducts.filter((item) => item.make === make).length })).filter((item) => item.count > 0).slice(0, 14);
+const partTypeLabels: Record<string, string> = {
+  guardachoque: 'Guardachoques',
+  iluminacion: 'Iluminación / Silvines',
+  refrigeracion: 'Radiadores / Refrigeración',
+  carroceria: 'Carrocería',
+  suspension: 'Suspensión / Dirección',
+  frenos: 'Frenos',
+  motor: 'Motor / Sensores',
+  espejos: 'Espejos / Vidrios',
+  otros: 'Otros repuestos',
+};
+const partTypes = Object.entries(partTypeLabels).map(([slug, name]) => ({ slug, name, count: enrichedProducts.filter((item) => item.partType === slug).length })).filter((item) => item.count > 0);
+const sideLabels: Record<string, string> = { izquierdo: 'Lado izquierdo (LH/IZQ)', derecho: 'Lado derecho (RH/DER)', delantero: 'Delantero', posterior: 'Posterior', universal: 'Universal / sin lado' };
+const sides = Object.entries(sideLabels).map(([slug, name]) => ({ slug, name, count: enrichedProducts.filter((item) => item.side === slug).length })).filter((item) => item.count > 0);
+const prices = enrichedProducts.map((item) => item.price).filter((price) => price > 0);
+const minPrice = prices.length ? Math.floor(Math.min(...prices)) : 0;
+const maxPrice = prices.length ? Math.ceil(Math.max(...prices)) : 500;
+const photoCount = enrichedProducts.filter((item) => item.hasImage).length;
+const availableCount = enrichedProducts.filter((item) => item.available).length;
+const collectionUrl = isAll ? '/catalogo/todos/' : `/catalogo/${handle}/`;
+const collectionDescription = `${blurb} Compra repuestos en Distribuidor Miranda con despacho a Quito, Guayaquil, Cuenca y todo Ecuador.`;
+const schemaProducts = products;
+const collectionSchemas = [
+  collectionSchema({ name: label, description: collectionDescription, url: collectionUrl, products: schemaProducts }),
+  breadcrumbSchema([
+    { name: 'Inicio', url: '/' },
+    { name: 'Catálogo', url: '/catalogo/todos/' },
+    { name: label, url: collectionUrl },
+  ]),
+];
+---
+<Layout title={`${label} — Catálogo`} description={collectionDescription} canonical={absoluteUrl(collectionUrl)}>
+  <Fragment slot="head">
+    {collectionSchemas.map((schema) => <script type="application/ld+json" set:html={jsonLd(schema)} />)}
+  </Fragment>
+  <Header current={handle} />
+  <main
+    class="dm-main dm-collection dm-filterable-catalog"
+    data-catalog-root
+    data-analytics-list
+    data-analytics-list-id={handle}
+    data-analytics-list-name={label}
+  >
+    <div class="dm-coll-head">
+      <div class="dm-crumbs mono"><a href="/">INICIO</a><span>/</span><span>CATÁLOGO</span><span>/</span><span class="active">{label.toUpperCase()}</span></div>
+      <div class="dm-coll-titlewrap">
+        <div>
+          <h1 class="dm-coll-title">{label}</h1>
+          <p class="dm-coll-sub">{blurb} <strong>{products.length}</strong> referencias cargadas para filtrar al instante.</p>
+        </div>
+        <div class="dm-coll-categoryjump" aria-label="Categorías principales"><a class={isAll ? 'active' : ''} href="/catalogo/todos/">Todos</a>{navCollections.map(c => <a class={collectionHref(c) === `/catalogo/${handle}/` ? 'active' : ''} href={collectionHref(c)}>{collectionShortLabel(c)}</a>)}</div>
+      </div>
+    </div>
+
+    <button class="dm-mobile-filter-toggle" type="button" data-filter-toggle>☷ Abrir filtros avanzados</button>
+
+    <div class="dm-coll-grid">
+      <aside class="dm-filters dm-filters-advanced" data-filter-panel>
+        <div class="dm-filters-head">
+          <div>
+            <h3>Filtros avanzados</h3>
+            <p>Combina vehículo, código, tipo, lado, precio y foto.</p>
+          </div>
+          <button class="dm-filters-clear" type="button" data-clear-filters>Limpiar</button>
+        </div>
+
+        <div class="dm-filter-summary mono">
+          <span><strong>{availableCount}</strong> disponibles</span>
+          <span><strong>{photoCount}</strong> con foto</span>
+          <span><strong>{brands.length}</strong> marcas</span>
+        </div>
+
+        <div class="dm-filter-group dm-filter-searchbox">
+          <h4>Buscar dentro de esta categoría</h4>
+          <label class="dm-filter-input-label">
+            <span>Código, OEM, SKU, pieza o modelo</span>
+            <input type="search" data-filter-search placeholder="Ej: 86520, Aveo, silvin, LH..." autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="dm-filter-group">
+          <h4>Vehículo</h4>
+          <div class="dm-vehicle-sel dm-vehicle-sel-advanced">
+            <select data-filter-select="make">
+              <option value="">Cualquier marca</option>
+              {VEHICLE_MAKES.map(make => <option value={toSlug(make)}>{make}</option>)}
+            </select>
+            <input type="text" data-filter-model placeholder="Modelo: Aveo, Hilux, Sportage..." />
+            <select data-filter-select="year">
+              <option value="">Cualquier año</option>
+              {Array.from({ length: 28 }, (_, i) => 2026 - i).map(year => <option value={year}>{year}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div class="dm-filter-group">
+          <div class="dm-filter-group-title"><h4>Estado comercial</h4><span>rápido</span></div>
+          <ul class="dm-check-list dm-pill-checks">
+            <li><label><input type="checkbox" data-filter-flag="available" value="1" /><span>Disponible</span><span class="dm-check-count mono">{availableCount}</span></label></li>
+            <li><label><input type="checkbox" data-filter-flag="photo" value="1" /><span>Solo con foto</span><span class="dm-check-count mono">{photoCount}</span></label></li>
+            <li><label><input type="checkbox" data-filter-flag="quote" value="1" /><span>Para cotizar / sin precio</span><span class="dm-check-count mono">{enrichedProducts.filter((item) => item.price <= 0 || !item.available).length}</span></label></li>
+          </ul>
+        </div>
+
+        {brands.length > 0 && (
+          <div class="dm-filter-group" data-collapsible-filter>
+            <div class="dm-filter-group-title"><h4>Marca / proveedor</h4><span>{brands.length}</span></div>
+            <input class="dm-mini-filter" type="search" data-facet-search="brand" placeholder="Filtrar marcas..." />
+            <ul class="dm-check-list dm-facet-list" data-facet-list="brand">
+              {brands.map(brand => <li data-facet-option={brand.name.toLowerCase()}><label><input type="checkbox" name="brand" value={brand.slug} data-filter-check="brand" /><span>{brand.name}</span><span class="dm-check-count mono">{brand.count}</span></label></li>)}
+            </ul>
+          </div>
+        )}
+
+        {makes.length > 0 && (
+          <div class="dm-filter-group">
+            <div class="dm-filter-group-title"><h4>Marcas detectadas en títulos</h4><span>{makes.length}</span></div>
+            <ul class="dm-check-list dm-facet-list compact">
+              {makes.map(make => <li><label><input type="checkbox" name="makeFacet" value={make.slug} data-filter-check="make" /><span>{make.name}</span><span class="dm-check-count mono">{make.count}</span></label></li>)}
+            </ul>
+          </div>
+        )}
+
+        <div class="dm-filter-group">
+          <div class="dm-filter-group-title"><h4>Tipo de pieza</h4><span>{partTypes.length}</span></div>
+          <ul class="dm-check-list dm-facet-list">
+            {partTypes.map(type => <li><label><input type="checkbox" name="partType" value={type.slug} data-filter-check="part" /><span>{type.name}</span><span class="dm-check-count mono">{type.count}</span></label></li>)}
+          </ul>
+        </div>
+
+        <div class="dm-filter-group">
+          <div class="dm-filter-group-title"><h4>Lado / posición</h4><span>{sides.length}</span></div>
+          <ul class="dm-check-list dm-facet-list compact">
+            {sides.map(side => <li><label><input type="checkbox" name="side" value={side.slug} data-filter-check="side" /><span>{side.name}</span><span class="dm-check-count mono">{side.count}</span></label></li>)}
+          </ul>
+        </div>
+
+        <div class="dm-filter-group">
+          <h4>Precio</h4>
+          <div class="dm-price-filter">
+            <label><span>Mín.</span><input type="number" min="0" step="1" data-price-min value={minPrice} /></label>
+            <label><span>Máx.</span><input type="number" min="0" step="1" data-price-max value={maxPrice} /></label>
+          </div>
+          <input type="range" class="dm-range" min={minPrice} max={maxPrice} value={maxPrice} data-price-range />
+          <div class="dm-price-labels"><span>{money(minPrice)}</span><span data-price-readout>{money(maxPrice)}</span></div>
+        </div>
+
+        <div class="dm-help-card">
+          <div class="dm-help-icon mono">?</div>
+          <div><strong>¿No encuentras la pieza?</strong><p>Envíanos VIN, código OEM o foto del repuesto y lo cotizamos.</p><a class="dm-help-btn" href="https://wa.me/593996140000?text=Hola%2C%20necesito%20ayuda%20para%20encontrar%20un%20repuesto" target="_blank" rel="noopener">Pedir por WhatsApp</a></div>
+        </div>
+      </aside>
+
+      <section class="dm-coll-main">
+        <div class="dm-toolbar dm-toolbar-advanced">
+          <div class="dm-toolbar-left mono"><span data-result-copy>Mostrando <strong>{products.length}</strong> referencias</span></div>
+          <div class="dm-toolbar-right">
+            <label>Ordenar:
+              <select data-sort-select>
+                <option value="relevance">Relevancia</option>
+                <option value="photo">Con foto primero</option>
+                <option value="price-asc">Precio: menor a mayor</option>
+                <option value="price-desc">Precio: mayor a menor</option>
+                <option value="name-asc">Nombre A–Z</option>
+                <option value="available">Disponibilidad</option>
+              </select>
+            </label>
+            <div class="dm-view-toggle" data-view-toggle><button class="active" type="button" data-view="grid">▦</button><button type="button" data-view="list">☰</button></div>
+          </div>
+        </div>
+        <div class="dm-active-filters" data-active-filters><span>{label}</span><span>Garantía 90 días</span><span>Despacho nacional</span></div>
+        <div class="dm-empty-results" data-empty-results hidden><strong>No encontramos resultados con esa combinación.</strong><p>Prueba quitando un filtro o escríbenos por WhatsApp con el VIN/código OEM.</p></div>
+        <div class="dm-product-grid dm-product-grid-coll" data-products-grid data-client-catalog={isAll ? 'all' : undefined}>
+          {isAll ? (
+            <div class="dm-catalog-loading" data-catalog-loading>
+              <strong>Cargando inventario completo…</strong>
+              <span>Preparando {products.length} referencias para búsqueda y filtros.</span>
+            </div>
+          ) : enrichedProducts.map((item, index) => (
+            <div
+              class="dm-filter-item"
+              data-product-item
+              data-index={index}
+              data-title={item.title}
+              data-search={item.searchText}
+              data-sku={item.sku.toLowerCase()}
+              data-brand={item.brandSlug}
+              data-make={item.makeSlug}
+              data-part={item.partType}
+              data-side={item.side}
+              data-price={item.price}
+              data-available={item.available ? '1' : '0'}
+              data-photo={item.hasImage ? '1' : '0'}
+            >
+              <ProductCard product={item.product} />
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  </main>
+  <Footer />
+
+  <script>
+    const catalog = document.querySelector('[data-catalog-root]');
+    const panel = document.querySelector('[data-filter-panel]');
+    let items = Array.from(document.querySelectorAll('[data-product-item]'));
+    const grid = document.querySelector('[data-products-grid]');
+    const resultCopy = document.querySelector('[data-result-copy]');
+    const chips = document.querySelector('[data-active-filters]');
+    const empty = document.querySelector('[data-empty-results]');
+    const search = document.querySelector('[data-filter-search]');
+    const model = document.querySelector('[data-filter-model]');
+    const sortSelect = document.querySelector('[data-sort-select]');
+    const priceMin = document.querySelector('[data-price-min]');
+    const priceMax = document.querySelector('[data-price-max]');
+    const priceRange = document.querySelector('[data-price-range]');
+    const priceReadout = document.querySelector('[data-price-readout]');
+    const allInputs = () => Array.from(document.querySelectorAll('[data-filter-check], [data-filter-flag], [data-filter-select], [data-filter-search], [data-filter-model], [data-price-min], [data-price-max], [data-sort-select]'));
+
+    const state = {
+      q: '', model: '', make: '', year: '', sort: 'relevance', min: Number(priceMin?.value || 0), max: Number(priceMax?.value || 9999),
+      brands: [], makes: [], parts: [], sides: [], available: false, photo: false, quote: false,
+    };
+    let clientMode = false;
+    let clientProducts = [];
+    let currentPage = 1;
+    const pageSize = 240;
+
+    const slugify = (value) => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>\"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[char]));
+    const detectMakeClient = (text) => ['Chevrolet','Toyota','Hyundai','Kia','Nissan','Mazda','Ford','Volkswagen','Renault','Suzuki','Peugeot','Citroën','Great Wall','Chery','JAC','Mitsubishi'].find((make) => new RegExp(`\\b${make.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text)) || '';
+    const detectSideClient = (text) => {
+      const value = text.toLowerCase();
+      if (/\b(lh|izq|izquierd[ao]|left)\b/.test(value)) return 'izquierdo';
+      if (/\b(rh|der|derech[ao]|right)\b/.test(value)) return 'derecho';
+      if (/delanter[ao]|\bdel\b|front/.test(value)) return 'delantero';
+      if (/posterior|\bpos\b|traser[ao]|rear/.test(value)) return 'posterior';
+      return 'universal';
+    };
+    const detectPartClient = (text) => {
+      const value = text.toLowerCase();
+      if (/guardachoque|parachoque|gchoque|bumper/.test(value)) return 'guardachoque';
+      if (/silvin|faro|neblin|foco|lamp|luz/.test(value)) return 'iluminacion';
+      if (/radiador|electroventilador|ventilador|refriger|condensador|manguera/.test(value)) return 'refrigeracion';
+      if (/capot|bisagra|compuerta|mascarilla|guardafango|carrocer/.test(value)) return 'carroceria';
+      if (/amortiguador|terminal|cremallera|rotula|suspension/.test(value)) return 'suspension';
+      if (/zapata|pastilla|freno|disco/.test(value)) return 'frenos';
+      if (/sensor|bomba|aceite|filtro|bujia|motor/.test(value)) return 'motor';
+      if (/espejo|retrovisor|vidrio/.test(value)) return 'espejos';
+      return 'otros';
+    };
+    function cardHtml(product) {
+      const title = escapeHtml(product.title || product.handle || 'Producto');
+      const sku = escapeHtml(product.sku || product.handle || 'DM');
+      const href = escapeHtml(product.url || `/producto/${product.handle}/`);
+      const img = product.image ? `${product.image}${product.image.includes('?') ? '&' : '?'}width=640` : '';
+      const price = Number(product.price || 0);
+      const compare = Number(product.compareAtPrice || 0);
+      const available = Boolean(product.availableForSale);
+      const variantId = escapeHtml(product.variantId || '');
+      const whatsapp = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${product.title || product.handle} (${product.sku || product.handle || 'DM'})`)}`;
+      return `<article class="dm-card dm-product-card ${available ? '' : 'is-sold-out'}" data-product-id="${escapeHtml(product.handle || sku)}">
+        <a href="${href}" class="dm-card-media ${img ? 'has-real-image' : 'has-placeholder'}">
+          ${img ? `<img src="${escapeHtml(img)}" srcset="${escapeHtml(img.replace('width=640','width=320'))} 320w, ${escapeHtml(img)} 640w, ${escapeHtml(img.replace('width=640','width=960'))} 960w" sizes="(max-width: 720px) 92vw, (max-width: 1100px) 45vw, 25vw" alt="${title}" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="dm-lite-placeholder"><span>${sku.slice(0,6)}</span><strong>REPUESTO</strong></div>`}
+          ${available ? '' : '<span class="dm-badge dm-badge--soldout">Agotado</span>'}
+          ${compare > price && price > 0 ? `<span class="dm-badge dm-badge--sale">-${Math.round((1 - price / compare) * 100)}%</span>` : ''}
+        </a>
+        <div class="dm-card-body"><div class="dm-card-sku mono">${sku}</div><h3 class="dm-card-title"><a href="${href}">${title}</a></h3><div class="dm-card-meta"><span class="dm-stock ${available ? 'is-in' : 'is-out'}"><span></span>${available ? 'Disponible' : 'Consultar'}</span></div><div class="dm-card-price"><span class="dm-card-price-now">${price > 0 ? `$${price.toFixed(2)}` : 'Consultar'}</span>${compare > price && price > 0 ? `<span class="dm-card-price-compare">$${compare.toFixed(2)}</span>` : ''}</div><div class="dm-card-actions">${available && variantId ? `<button class="dm-btn dm-btn-primary dm-btn-full" data-add-to-cart data-variant-id="${variantId}">Agregar al carrito</button>` : `<a class="dm-btn dm-btn-outline dm-btn-full" href="${whatsapp}" target="_blank" rel="noopener">Cotizar disponibilidad</a>`}</div></div>
+      </article>`;
+    }
+    const SYNONYMS = {
+      gchoque: ['guardachoque', 'parachoque', 'bumper'],
+      guardachoque: ['gchoque', 'parachoque', 'bumper'],
+      parachoque: ['guardachoque', 'gchoque', 'bumper'],
+      silvin: ['faro', 'luz', 'lampara', 'lámpara'],
+      faro: ['silvin', 'luz', 'lampara', 'lámpara'],
+      neblina: ['neblinero', 'halogeno', 'halógeno'],
+      neblinero: ['neblina', 'halogeno', 'halógeno'],
+      capot: ['cofre'],
+      cofre: ['capot'],
+      guardafango: ['guardalodo', 'lodera'],
+      guardalodo: ['guardafango', 'lodera'],
+      radiador: ['refrigeracion', 'refrigeración', 'condensador'],
+      refrigeracion: ['radiador', 'condensador'],
+      amortiguador: ['amort', 'suspension', 'suspensión'],
+      espejo: ['retrovisor'],
+      retrovisor: ['espejo'],
+      lh: ['izq', 'izquierdo', 'left'],
+      rh: ['der', 'derecho', 'right'],
+      izq: ['lh', 'izquierdo', 'left'],
+      der: ['rh', 'derecho', 'right'],
+    };
+    const normalizeText = (value) => String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const expandedGroups = (value) => normalizeText(value).split(/\s+/).filter(Boolean).map((term) => [term, ...(SYNONYMS[term] || []).map(normalizeText)]);
+    const fuzzyIncludes = (text, value) => {
+      if (!value) return true;
+      const normalized = normalizeText(text);
+      return expandedGroups(value).every((group) => group.some((term) => normalized.includes(term)));
+    };
+
+    function toClientProduct(product, index) {
+      const text = `${product.title || ''} ${product.sku || ''} ${product.vendor || ''} ${product.productType || ''} ${(product.tags || []).join(' ')}`;
+      const make = detectMakeClient(text);
+      return {
+        product,
+        index,
+        title: product.title || '',
+        search: normalizeText(text),
+        sku: normalizeText(product.sku || ''),
+        brand: slugify(product.vendor || 'Distribuidor Miranda'),
+        make: slugify(make),
+        part: detectPartClient(text),
+        side: detectSideClient(text),
+        price: Number(product.price || 0),
+        available: product.availableForSale ? '1' : '0',
+        photo: product.image ? '1' : '0',
+      };
+    }
+    function clientItemHtml(item) {
+      return `<div class="dm-filter-item" data-product-item data-index="${item.index}" data-title="${escapeHtml(item.title)}" data-search="${escapeHtml(item.search)}" data-sku="${escapeHtml(item.sku)}" data-brand="${escapeHtml(item.brand)}" data-make="${escapeHtml(item.make)}" data-part="${escapeHtml(item.part)}" data-side="${escapeHtml(item.side)}" data-price="${item.price}" data-available="${item.available}" data-photo="${item.photo}">${cardHtml(item.product)}</div>`;
+    }
+    async function loadClientCatalog() {
+      if (!grid || grid.dataset.clientCatalog !== 'all') return;
+      clientMode = true;
+      const response = await fetch('/search-index.json', { headers: { 'Accept': 'application/json' } });
+      const payload = await response.json();
+      clientProducts = (Array.isArray(payload.products) ? payload.products : []).map(toClientProduct);
+      items = [];
+    }
+
+    function selected(selector) { return Array.from(document.querySelectorAll(selector + ':checked')).map(input => input.value); }
+    function syncStateFromDom() {
+      state.q = normalizeText((search?.value || '').trim());
+      state.model = normalizeText((model?.value || '').trim());
+      state.make = document.querySelector('[data-filter-select="make"]')?.value || '';
+      state.year = document.querySelector('[data-filter-select="year"]')?.value || '';
+      state.sort = sortSelect?.value || 'relevance';
+      state.min = Number(priceMin?.value || 0);
+      state.max = Number(priceMax?.value || 999999);
+      state.brands = selected('[data-filter-check="brand"]');
+      state.makes = selected('[data-filter-check="make"]');
+      state.parts = selected('[data-filter-check="part"]');
+      state.sides = selected('[data-filter-check="side"]');
+      state.available = Boolean(document.querySelector('[data-filter-flag="available"]:checked'));
+      state.photo = Boolean(document.querySelector('[data-filter-flag="photo"]:checked'));
+      state.quote = Boolean(document.querySelector('[data-filter-flag="quote"]:checked'));
+    }
+    function matches(item) {
+      const d = item.dataset;
+      const text = `${d.search || ''} ${d.sku || ''}`;
+      const price = Number(d.price || 0);
+      if (state.q && !fuzzyIncludes(text, state.q)) return false;
+      if (state.model && !fuzzyIncludes(text, state.model)) return false;
+      if (state.year && !text.includes(state.year)) return false;
+      if (state.make && d.make !== state.make && !text.includes(state.make.replace(/-/g, ' '))) return false;
+      if (state.brands.length && !state.brands.includes(d.brand)) return false;
+      if (state.makes.length && !state.makes.includes(d.make)) return false;
+      if (state.parts.length && !state.parts.includes(d.part)) return false;
+      if (state.sides.length && !state.sides.includes(d.side)) return false;
+      if (state.available && d.available !== '1') return false;
+      if (state.photo && d.photo !== '1') return false;
+      if (state.quote && !(price <= 0 || d.available !== '1')) return false;
+      if (price > 0 && (price < state.min || price > state.max)) return false;
+      return true;
+    }
+    function sortItems(visible) {
+      const sorted = [...visible];
+      sorted.sort((a, b) => {
+        const ad = a.dataset, bd = b.dataset;
+        const ap = Number(ad.price || 0), bp = Number(bd.price || 0);
+        if (state.sort === 'photo') return Number(bd.photo) - Number(ad.photo) || Number(ad.index) - Number(bd.index);
+        if (state.sort === 'price-asc') return (ap || 999999) - (bp || 999999);
+        if (state.sort === 'price-desc') return bp - ap;
+        if (state.sort === 'name-asc') return (ad.title || '').localeCompare(bd.title || '', 'es');
+        if (state.sort === 'available') return Number(bd.available) - Number(ad.available) || Number(ad.index) - Number(bd.index);
+        return Number(ad.index) - Number(bd.index);
+      });
+      sorted.forEach(item => grid?.appendChild(item));
+    }
+    function matchesClient(item) {
+      const text = `${item.search || ''} ${item.sku || ''}`;
+      const price = Number(item.price || 0);
+      if (state.q && !fuzzyIncludes(text, state.q)) return false;
+      if (state.model && !fuzzyIncludes(text, state.model)) return false;
+      if (state.year && !text.includes(state.year)) return false;
+      if (state.make && item.make !== state.make && !text.includes(state.make.replace(/-/g, ' '))) return false;
+      if (state.brands.length && !state.brands.includes(item.brand)) return false;
+      if (state.makes.length && !state.makes.includes(item.make)) return false;
+      if (state.parts.length && !state.parts.includes(item.part)) return false;
+      if (state.sides.length && !state.sides.includes(item.side)) return false;
+      if (state.available && item.available !== '1') return false;
+      if (state.photo && item.photo !== '1') return false;
+      if (state.quote && !(price <= 0 || item.available !== '1')) return false;
+      if (price > 0 && (price < state.min || price > state.max)) return false;
+      return true;
+    }
+    function sortClient(visible) {
+      return [...visible].sort((a, b) => {
+        const ap = Number(a.price || 0), bp = Number(b.price || 0);
+        if (state.sort === 'photo') return Number(b.photo) - Number(a.photo) || a.index - b.index;
+        if (state.sort === 'price-asc') return (ap || 999999) - (bp || 999999);
+        if (state.sort === 'price-desc') return bp - ap;
+        if (state.sort === 'name-asc') return (a.title || '').localeCompare(b.title || '', 'es');
+        if (state.sort === 'available') return Number(b.available) - Number(a.available) || a.index - b.index;
+        return a.index - b.index;
+      });
+    }
+    function renderClientPage(visible) {
+      const totalPages = Math.max(1, Math.ceil(visible.length / pageSize));
+      currentPage = Math.min(Math.max(1, currentPage), totalPages);
+      const start = (currentPage - 1) * pageSize;
+      const pageItems = visible.slice(start, start + pageSize);
+      const pager = totalPages > 1 ? `<nav class="dm-pagination dm-client-pagination" aria-label="Paginación catálogo completo"><div class="dm-pagination-info">Página ${currentPage} de ${totalPages} · ${visible.length} resultados</div><div class="dm-pagination-buttons"><button class="dm-pagination-btn" data-client-page="prev" ${currentPage === 1 ? 'disabled' : ''}>← Anterior</button><span class="dm-pagination-btn dm-pagination-btn--active">${currentPage}</span><button class="dm-pagination-btn" data-client-page="next" ${currentPage === totalPages ? 'disabled' : ''}>Siguiente →</button></div></nav>` : '';
+      grid.innerHTML = pageItems.map(clientItemHtml).join('') + pager;
+      items = Array.from(document.querySelectorAll('[data-product-item]'));
+      grid.querySelectorAll('[data-client-page]').forEach((btn) => btn.addEventListener('click', () => {
+        currentPage += btn.dataset.clientPage === 'next' ? 1 : -1;
+        renderClientPage(visible);
+        renderChips(visible.length, clientProducts.length);
+        window.scrollTo({ top: grid.getBoundingClientRect().top + window.scrollY - 140, behavior: 'smooth' });
+      }));
+    }
+    function renderChips(count, total = items.length) {
+      const entries = [];
+      if (state.q) entries.push(`Búsqueda: ${state.q}`);
+      if (state.model) entries.push(`Modelo: ${state.model}`);
+      if (state.make) entries.push(`Marca vehículo: ${state.make.replace(/-/g, ' ')}`);
+      if (state.year) entries.push(`Año: ${state.year}`);
+      if (state.available) entries.push('Disponible');
+      if (state.photo) entries.push('Con foto');
+      if (state.quote) entries.push('Cotizar');
+      if (state.brands.length) entries.push(`${state.brands.length} marcas/proveedores`);
+      if (state.parts.length) entries.push(`${state.parts.length} tipos de pieza`);
+      if (state.sides.length) entries.push(`${state.sides.length} posiciones`);
+      if (state.min || state.max) entries.push(`Precio ${state.min}–${state.max}`);
+      chips.innerHTML = entries.length ? entries.map(text => `<button type="button" class="dm-filter-chip">${text}</button>`).join('') : '<span>Sin filtros activos</span><span>Garantía 90 días</span><span>Despacho nacional</span>';
+      resultCopy.innerHTML = `Mostrando <strong>${count}</strong> de <strong>${total}</strong> referencias`;
+      empty.hidden = count !== 0;
+    }
+    function updateUrl() {
+      const params = new URLSearchParams();
+      if (state.q) params.set('q', state.q);
+      if (state.model) params.set('model', state.model);
+      if (state.make) params.set('make', state.make);
+      if (state.year) params.set('year', state.year);
+      if (state.sort !== 'relevance') params.set('sort', state.sort);
+      if (state.brands.length) params.set('brand', state.brands.join(','));
+      if (state.makes.length) params.set('vehicle', state.makes.join(','));
+      if (state.parts.length) params.set('type', state.parts.join(','));
+      if (state.sides.length) params.set('side', state.sides.join(','));
+      if (state.available) params.set('available', '1');
+      if (state.photo) params.set('photo', '1');
+      if (state.quote) params.set('quote', '1');
+      if (priceMin && Number(priceMin.value) !== Number(priceMin.defaultValue)) params.set('min', String(state.min));
+      if (priceMax && Number(priceMax.value) !== Number(priceMax.defaultValue)) params.set('max', String(state.max));
+      const next = `${location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+      history.replaceState(null, '', next);
+    }
+    function apply() {
+      syncStateFromDom();
+      if (priceRange) priceRange.value = String(state.max);
+      if (priceReadout) priceReadout.textContent = '$' + Number(state.max || 0).toFixed(2);
+      if (clientMode) {
+        currentPage = 1;
+        const visible = sortClient(clientProducts.filter(matchesClient));
+        renderClientPage(visible);
+        renderChips(visible.length, clientProducts.length);
+        updateUrl();
+        return;
+      }
+      const visible = items.filter(matches);
+      items.forEach(item => item.hidden = !visible.includes(item));
+      sortItems(visible);
+      renderChips(visible.length);
+      updateUrl();
+    }
+    function setChecks(selector, values) { values.forEach(value => { const input = document.querySelector(`${selector}[value="${CSS.escape(value)}"]`); if (input) input.checked = true; }); }
+    function hydrateFromUrl() {
+      const params = new URLSearchParams(location.search);
+      if (params.get('q') && search) search.value = params.get('q');
+      if (params.get('model') && model) model.value = params.get('model');
+      if (params.get('make')) document.querySelector('[data-filter-select="make"]').value = params.get('make');
+      if (params.get('year')) document.querySelector('[data-filter-select="year"]').value = params.get('year');
+      if (params.get('sort') && sortSelect) sortSelect.value = params.get('sort');
+      if (params.get('min') && priceMin) priceMin.value = params.get('min');
+      if (params.get('max') && priceMax) priceMax.value = params.get('max');
+      setChecks('[data-filter-check="brand"]', (params.get('brand') || '').split(',').filter(Boolean));
+      setChecks('[data-filter-check="make"]', (params.get('vehicle') || '').split(',').filter(Boolean));
+      setChecks('[data-filter-check="part"]', (params.get('type') || '').split(',').filter(Boolean));
+      setChecks('[data-filter-check="side"]', (params.get('side') || '').split(',').filter(Boolean));
+      if (params.get('available')) document.querySelector('[data-filter-flag="available"]').checked = true;
+      if (params.get('photo')) document.querySelector('[data-filter-flag="photo"]').checked = true;
+      if (params.get('quote')) document.querySelector('[data-filter-flag="quote"]').checked = true;
+    }
+    let debounce;
+    allInputs().forEach(input => input.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(apply, 80); }));
+    allInputs().forEach(input => input.addEventListener('change', apply));
+    priceRange?.addEventListener('input', () => { if (priceMax) priceMax.value = priceRange.value; apply(); });
+    document.querySelector('[data-clear-filters]')?.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter-panel] input[type="checkbox"]').forEach(input => input.checked = false);
+      [search, model].forEach(input => { if (input) input.value = ''; });
+      document.querySelectorAll('[data-filter-select]').forEach(select => select.value = '');
+      if (sortSelect) sortSelect.value = 'relevance';
+      if (priceMin) priceMin.value = priceMin.defaultValue;
+      if (priceMax) priceMax.value = priceMax.defaultValue;
+      apply();
+    });
+    document.querySelector('[data-filter-toggle]')?.addEventListener('click', () => {
+      panel?.classList.toggle('is-open');
+      document.querySelector('[data-filter-toggle]').textContent = panel?.classList.contains('is-open') ? '× Cerrar filtros' : '☷ Abrir filtros avanzados';
+    });
+    document.querySelectorAll('[data-facet-search]').forEach(input => input.addEventListener('input', (event) => {
+      const target = event.currentTarget;
+      const list = document.querySelector(`[data-facet-list="${target.dataset.facetSearch}"]`);
+      const q = target.value.toLowerCase();
+      list?.querySelectorAll('[data-facet-option]').forEach(item => { item.hidden = !item.dataset.facetOption.includes(q); });
+    }));
+    document.querySelectorAll('[data-view-toggle] button').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('[data-view-toggle] button').forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      grid?.classList.toggle('is-list-view', button.dataset.view === 'list');
+    }));
+    if (!window.__dmAddToCartBound) {
+      window.__dmAddToCartBound = true;
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-add-to-cart]');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const variantId = btn.getAttribute('data-variant-id');
+        if (!variantId) {
+          window.location.href = 'mailto:ventas@distribuidormiranda.ec';
+          return;
+        }
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Agregando…';
+        document.dispatchEvent(new CustomEvent('cart-add-request', {
+          detail: {
+            variantId,
+            quantity: 1,
+            onSuccess: () => { btn.disabled = false; btn.textContent = originalText || 'Agregar al carrito'; },
+            onError: () => { btn.disabled = false; btn.textContent = 'Error, intentar de nuevo'; setTimeout(() => { btn.textContent = originalText || 'Agregar al carrito'; }, 1800); },
+          },
+        }));
+      });
+    }
+    async function initCatalog() {
+      try {
+        await loadClientCatalog();
+        hydrateFromUrl();
+        apply();
+      } catch (error) {
+        console.error('[catalog] No se pudo cargar el inventario completo', error);
+        if (grid) grid.innerHTML = '<div class="dm-empty-results"><strong>No se pudo cargar el inventario completo.</strong><p>Recarga la página o escríbenos por WhatsApp para buscar una pieza.</p></div>';
+      }
+    }
+    initCatalog();
+  </script>
+</Layout>

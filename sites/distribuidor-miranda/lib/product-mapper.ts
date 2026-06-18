@@ -1,5 +1,4 @@
 export interface Product {
-  id: string;
   handle: string;
   title: string;
   description: string;
@@ -55,11 +54,6 @@ export interface ProductMetafields {
   switchLayer?: string[];
   throughput?: string[];
   mounting?: string[];
-  /** Global identifiers for Google Merchant Center and rich results. */
-  gtin?: string;
-  mpn?: string;
-  /** Google Product Taxonomy category, either ID or full path. */
-  googleProductCategory?: string;
 }
 
 export interface Variant {
@@ -115,7 +109,6 @@ export interface CartState {
 
 export function mapShopifyProduct(raw: any): Product {
   return {
-    id: raw.id ?? raw.handle,
     handle: raw.handle,
     title: raw.title,
     description: raw.description,
@@ -187,15 +180,6 @@ function parseMetafields(raw: any): ProductMetafields {
         result.throughput = parseStringList(value);
       } else if (key === "mounting") {
         result.mounting = parseStringList(value);
-      } else if (key === "gtin") {
-        result.gtin = value.trim();
-      } else if (key === "mpn") {
-        result.mpn = value.trim();
-      } else if (
-        key === "google_product_category" ||
-        key === "googleProductCategory"
-      ) {
-        result.googleProductCategory = value.trim();
       }
     } catch (err) {
       console.warn(`[product-mapper] Failed to parse metafield ${key}:`, err);
@@ -322,7 +306,6 @@ function mapShopifyVariant(raw: any): Variant {
 
 export function mapShopifyCollection(raw: any): Collection {
   return {
-    id: raw.id ?? raw.handle,
     handle: raw.handle,
     title: raw.title,
     description: raw.description,

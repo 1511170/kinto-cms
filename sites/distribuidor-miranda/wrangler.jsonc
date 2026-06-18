@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "distribuidor-miranda-storefront",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-06-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "SHOPIFY_STORE_DOMAIN": "distribuidor-miranda.myshopify.com",
+    "SHOPIFY_API_VERSION": "2026-04",
+    "SHOPIFY_REBUILD_DEBOUNCE_SECONDS": "90"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SHOPIFY_CACHE",
+      "id": "45f129649a6c49668cf9b9ad5d645138",
+      "preview_id": "45f129649a6c49668cf9b9ad5d645138"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

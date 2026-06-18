@@ -1,0 +1,6 @@
+.env
+*.env
+baseline_*.json
+audit-report-*.json
+test-results/
+playwright-report/
