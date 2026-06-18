@@ -45,3 +45,9 @@ coverage/
 # KINTO CMS
 .kinto-backup/
 graphify-out/
+
+# Clientes BI (skill meta-ads y futuras) — secretos y data efímera
+clients/*/.env-*
+clients/*/reports/*
+!clients/*/reports/.gitkeep
+!clients/_template/.env.example

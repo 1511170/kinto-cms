@@ -1,5 +1,5 @@
 {
-  "count": 17,
+  "count": 18,
   "skills": [
     {
       "name": "blog",
@@ -157,6 +157,26 @@
         "ecommerce"
       ],
       "path": "skills/community/image-optimizer"
+    },
+    {
+      "name": "meta-ads",
+      "category": "community",
+      "version": "1.0.0",
+      "description": "Meta Ads CLI multi-cliente para KINTO — setup, operaciones CRUD, recipes (daily report, low-CTR audit, budget alerts) y validador de atribución vs Server-Side Tracking. Patrón clients/<slug>/ con env var KINTO_CLIENT.",
+      "tags": [
+        "bi",
+        "ads",
+        "meta",
+        "attribution"
+      ],
+      "requires": [],
+      "needs": [
+        "meta-ads-cli",
+        "meta-system-user-token",
+        "python"
+      ],
+      "recommendedFor": [],
+      "path": "skills/community/meta-ads"
     },
     {
       "name": "seo-ai-citations",

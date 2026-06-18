@@ -1,0 +1,5 @@
+# Reportes generados por las skills de KINTO BI quedan acá:
+#   <YYYY-MM-DD>-daily.json
+#   <YYYY-MM-DD>-attribution.json
+#   audit.log  (cambios de status disparados por hooks)
+#   alerts.log (alertas de budget)

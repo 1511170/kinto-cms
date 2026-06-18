@@ -145,6 +145,49 @@ kinto skill validate                       # regenera registry + MARKETPLACE.md
 
 ---
 
+## 📊 Ads ops & BI (skill `meta-ads`)
+
+KINTO CMS sirve sitios web. KINTO BI corre **encima** del mismo repo para
+operar Meta Ads multi-cliente y validar atribución contra Server-Side
+Tracking del cliente. Los clientes BI viven en `clients/<slug>/` (paralelo
+a `sites/<name>/`).
+
+### Crear cliente BI
+
+```bash
+mkdir -p clients/<slug>/reports
+cp clients/_template/client.json clients/<slug>/client.json
+cp clients/_template/.env.example clients/<slug>/.env-meta-ads
+# Editar client.json (slug, currency, timezone, meta_ad_account_id, sst_source)
+# Editar .env-meta-ads con el token de System User (NUNCA commitear)
+```
+
+### Operar (siempre con `KINTO_CLIENT` set)
+
+```bash
+export KINTO_CLIENT=<slug>           # Unix
+$env:KINTO_CLIENT="<slug>"           # PowerShell
+
+# Recipes (markdown que el agente lee y ejecuta):
+#   skills/community/meta-ads/recipes/{daily-report,low-ctr-audit,
+#     budget-alerts,attribution-validation,historical-analysis,
+#     ab-paused-launch}.md
+
+# Validar que Meta no se esté atribuyendo conversiones de Google/orgánico:
+bash skills/community/meta-ads/scripts/daily-report.sh
+python skills/community/meta-ads/scripts/attribution-diff.py \
+  --client=$KINTO_CLIENT --window=7
+```
+
+Subagente especializado: **`.claude/agents/bi-operator.md`** — guía un
+agente paso a paso para operar campañas y validar atribución de forma
+segura (audit log obligatorio, no escalar sin ROAS-SST validado).
+
+Más en `skills/community/meta-ads/SKILL.md`, `setup.md`, `operations.md` y
+las recipes.
+
+---
+
 ## 🧩 Dos tipos de "skill" — no los confundas
 
 | Tipo            | Qué es                                            | Dónde vive                     |

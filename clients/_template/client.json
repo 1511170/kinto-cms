@@ -1,0 +1,23 @@
+{
+  "name": "<Cliente Name>",
+  "slug": "<slug>",
+  "currency": "USD",
+  "timezone": "America/Bogota",
+  "vertical": "ecommerce",
+  "meta_ad_account_id": "act_XXXXXXXXXX",
+  "meta_page_id": null,
+  "attribution_window_days": 7,
+  "sst_source": {
+    "type": "json",
+    "path": null,
+    "query": null,
+    "endpoint": null,
+    "auth": null
+  },
+  "alerts": {
+    "daily_budget_alert_threshold": null,
+    "channel": null
+  },
+  "notes": "",
+  "created_at": "2026-05-13"
+}

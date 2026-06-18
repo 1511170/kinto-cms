@@ -3,7 +3,7 @@
 > Catálogo de site-skills instalables. **Generado automáticamente** desde
 > `skills/registry.json` — no lo edites a mano (corre `kinto skill validate`).
 
-Total: **17 skills**
+Total: **18 skills**
 
 Instala cualquier skill con: `kinto skill add <nombre> --site=<sitio>`
 
@@ -27,6 +27,7 @@ Instala cualquier skill con: `kinto skill add <nombre> --site=<sitio>`
 | `design-bridge` | 0.1.0 | Puente opt-in para importar diseños desde open-design.ai (con stubs para Stitch y Claude Design) a tokens CSS y componentes Astro | design, tokens, import, open-design | open-design-api-key |
 | `forms-web3forms` | 1.0.0 | Formularios serverless vía Web3Forms (sin backend propio) | forms, serverless | — |
 | `image-optimizer` | 1.0.0 | Optimización y compresión de imágenes en build | images, performance | — |
+| `meta-ads` | 1.0.0 | Meta Ads CLI multi-cliente para KINTO — setup, operaciones CRUD, recipes (daily report, low-CTR audit, budget alerts) y validador de atribución vs Server-Side Tracking. Patrón clients/<slug>/ con env var KINTO_CLIENT. | bi, ads, meta, attribution | meta-ads-cli, meta-system-user-token, python |
 | `seo-ai-citations` | 1.0.0 | SEO + schema.org (6+ tipos) optimizado para citaciones de IA | seo, schema-org, ai | — |
 | `testimonials` | 1.0.0 | Testimonios de clientes con schema.org Review | social-proof, seo | — |
 | `web-scraper` | 1.0.0 | Scraping de contenido para migración de sitios | scraping, migration | — |
