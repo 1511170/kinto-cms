@@ -149,6 +149,18 @@ node skills/official/shopify-ecommerce/scripts/reset-zero-prices.mjs \
 
 The enrichment flow writes titles and `kinto.*` metafields only for confident matches; ambiguous and missing matches stay in the report for manual review. Benchmark text should be rewritten for your brand and verified against official manufacturer specs before any description overwrite is enabled.
 
+## QA: Mobile Audit
+
+`scripts/mobile-audit.mjs` mide la experiencia móvil de una vitrina: alto de header, % de viewport usado por el primer producto, overflow horizontal, y captura screenshots con/sin mega-menú abierto. Útil como gate antes de un release.
+
+```bash
+# Requiere `npm i -D playwright` en el sitio (no se instala por defecto).
+node ../../skills/official/shopify-ecommerce/scripts/mobile-audit.mjs \
+  https://localhost:4321/store/todos /tmp/audit-mobile
+```
+
+Genera `*-closed.png`, `*-open.png` y un JSON con métricas. La URL es positional, sin default — si no la pasas, sale con error claro.
+
 ## Google Merchant Center Feed
 
 The skill includes a reusable RSS 2.0 feed generator for Google Merchant Center, Meta Commerce, and similar catalog systems:

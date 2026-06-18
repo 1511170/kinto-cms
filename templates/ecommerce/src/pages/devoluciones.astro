@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PolicyPage from '../components/legal/PolicyPage.astro';
+
+// TODO: ajustar al brief del cliente.
+const sections = [
+  {
+    title: 'Plazos',
+    body: 'El plazo para solicitar una devolución se cuenta desde la fecha de entrega del producto.',
+  },
+  {
+    title: 'Condiciones',
+    body: 'El producto debe estar en su empaque original, sin uso, con todos los accesorios y comprobante de compra.',
+    bullets: [
+      'Productos con sellos de seguridad rotos no son retornables.',
+      'Artículos de higiene personal y consumibles tienen restricciones específicas.',
+    ],
+  },
+  {
+    title: 'Cómo solicitar',
+    body: 'Contáctanos por nuestros canales oficiales con número de pedido y motivo. El equipo te indica los siguientes pasos.',
+  },
+];
+---
+
+<Layout title="Devoluciones">
+  <PolicyPage
+    eyebrow="Política"
+    title="Devoluciones"
+    description="Plazos, condiciones y proceso para devolver un producto."
+    updated="2026-06-01"
+    sections={sections}
+  />
+</Layout>

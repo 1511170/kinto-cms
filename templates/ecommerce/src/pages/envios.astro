@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PolicyPage from '../components/legal/PolicyPage.astro';
+
+// TODO: ajustar al brief del cliente. Cada sección admite body (texto) y/o bullets (lista).
+const sections = [
+  {
+    title: 'Cobertura',
+    body: '{CLIENT_NAME} realiza despachos según cobertura logística, disponibilidad del producto y validaciones internas.',
+    bullets: [
+      'La cobertura puede variar según ciudad, zona rural o restricciones del transportador.',
+      'Para productos voluminosos, frágiles o sensibles, se confirman condiciones especiales antes del despacho.',
+    ],
+  },
+  {
+    title: 'Tiempos de entrega',
+    body: 'Los tiempos dependen de disponibilidad, confirmación de pago, destino y operación del transportador.',
+  },
+  {
+    title: 'Costo del envío',
+    body: 'El costo se calcula al momento del pedido según destino, peso y dimensiones.',
+  },
+];
+---
+
+<Layout title="Envíos">
+  <PolicyPage
+    eyebrow="Política"
+    title="Envíos"
+    description="Condiciones de cobertura, tiempos y costos para los pedidos."
+    updated="2026-06-01"
+    sections={sections}
+  />
+</Layout>

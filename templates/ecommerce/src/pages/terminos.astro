@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PolicyPage from '../components/legal/PolicyPage.astro';
+
+// TODO: ajustar a la jurisdicción del cliente.
+const sections = [
+  {
+    title: 'Aceptación',
+    body: 'Al comprar en {DOMAIN} aceptas estos términos y las políticas vinculadas (envíos, devoluciones, privacidad).',
+  },
+  {
+    title: 'Productos y precios',
+    body: 'Los precios y disponibilidad pueden cambiar sin previo aviso. La disponibilidad final se confirma al procesar el pedido.',
+  },
+  {
+    title: 'Pagos',
+    body: 'Se aceptan los medios de pago indicados en el checkout. Las transacciones son procesadas por proveedores externos certificados.',
+  },
+  {
+    title: 'Responsabilidad',
+    body: 'No nos hacemos responsables por uso indebido del producto. Sigue las indicaciones del fabricante y la normativa aplicable.',
+  },
+];
+---
+
+<Layout title="Términos y condiciones">
+  <PolicyPage
+    eyebrow="Legal"
+    title="Términos y condiciones"
+    description="Condiciones de uso, compra y responsabilidades."
+    updated="2026-06-01"
+    sections={sections}
+  />
+</Layout>

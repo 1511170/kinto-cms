@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PolicyPage from '../components/legal/PolicyPage.astro';
+
+// TODO: ajustar según las cookies que efectivamente usa el sitio.
+const sections = [
+  {
+    title: '¿Qué son las cookies?',
+    body: 'Pequeños archivos que el navegador guarda para recordar tus preferencias y mejorar la experiencia.',
+  },
+  {
+    title: 'Cookies que usamos',
+    bullets: [
+      'Esenciales — necesarias para el funcionamiento del sitio (carrito, sesión).',
+      'Analytics — datos anónimos para mejorar el contenido (opt-in).',
+      'Marketing — para mostrar contenido relevante (opt-in).',
+    ],
+  },
+  {
+    title: 'Cómo gestionarlas',
+    body: 'Puedes aceptar, rechazar o configurar las cookies desde el banner inicial o la configuración del navegador.',
+  },
+];
+---
+
+<Layout title="Política de cookies">
+  <PolicyPage
+    eyebrow="Legal"
+    title="Política de cookies"
+    description="Qué cookies usa {CLIENT_NAME} y cómo controlarlas."
+    updated="2026-06-01"
+    sections={sections}
+  />
+</Layout>

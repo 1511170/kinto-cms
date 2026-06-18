@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PolicyPage from '../components/legal/PolicyPage.astro';
+
+// TODO: ajustar al marco legal del país del cliente (LGPD, GDPR, Ley 1581 Colombia, etc.).
+const sections = [
+  {
+    title: 'Qué datos recopilamos',
+    bullets: [
+      'Datos de contacto (nombre, email, teléfono, dirección de envío).',
+      'Información de pedidos y transacciones.',
+      'Datos de navegación anónimos (cookies, analytics).',
+    ],
+  },
+  {
+    title: 'Para qué los usamos',
+    bullets: [
+      'Procesar pedidos y despachos.',
+      'Comunicarnos sobre tu pedido o consultas.',
+      'Mejorar el sitio y la experiencia de compra.',
+    ],
+  },
+  {
+    title: 'Tus derechos',
+    body: 'Puedes acceder, corregir o eliminar tus datos personales contactándonos por los canales oficiales.',
+  },
+];
+---
+
+<Layout title="Política de privacidad">
+  <PolicyPage
+    eyebrow="Legal"
+    title="Política de privacidad"
+    description="Cómo {CLIENT_NAME} recopila, usa y protege tus datos personales."
+    updated="2026-06-01"
+    sections={sections}
+  />
+</Layout>

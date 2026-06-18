@@ -29,6 +29,12 @@ const PERSONALIZE = [
   "skills-active.json",
   ".env.example",
   "wrangler.jsonc",
+  // Páginas legales del template ecommerce (usan {CLIENT_NAME}, {DOMAIN}, etc.).
+  "src/pages/envios.astro",
+  "src/pages/devoluciones.astro",
+  "src/pages/privacidad.astro",
+  "src/pages/terminos.astro",
+  "src/pages/politica-de-cookies.astro",
 ];
 
 export default async function createSite({ _, flags }) {
