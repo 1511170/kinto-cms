@@ -47,4 +47,17 @@ if (Test-Path (Join-Path $cwd '.git')) {
 
 Write-Host '-> Lanzando el wizard de KINTO...' -ForegroundColor Cyan
 Write-Host ''
-node bin/kinto.js start
+
+# Modo no-interactivo (agentes): si $env:KINTO_YES esta definido, pasamos
+# los flags desde env vars a `kinto start --yes`. Si no, wizard interactivo.
+if ($env:KINTO_YES) {
+    $kintoArgs = @('bin/kinto.js', 'start', '--yes')
+    if ($env:KINTO_SITE)       { $kintoArgs += "--site=$($env:KINTO_SITE)" }
+    if ($env:KINTO_TEMPLATE)   { $kintoArgs += "--template=$($env:KINTO_TEMPLATE)" }
+    if ($env:KINTO_SKILLS)     { $kintoArgs += "--skills=$($env:KINTO_SKILLS)" }
+    if ($env:KINTO_DEV)        { $kintoArgs += '--dev' }
+    if ($env:KINTO_NO_INSTALL) { $kintoArgs += '--no-install' }
+    node @kintoArgs
+} else {
+    node bin/kinto.js start
+}

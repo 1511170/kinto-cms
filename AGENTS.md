@@ -64,6 +64,61 @@ kinto doctor                # diagnostica el entorno
 
 ---
 
+## 🚀 Onboarding agent-first (un comando, sitio listo)
+
+> Para que un agente (Claude Code, Kimi, Codex…) lleve **todo el onboarding
+> en un solo paso**: set env vars con el contexto + corré el one-liner. El
+> instalador clona el repo, scaffolda el sitio, instala deps + skills,
+> compila, y deja una checklist de próximos pasos en stdout.
+
+### Protocolo `KINTO_*` que lee el instalador
+
+| Var                | Qué hace                                                                                              |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `KINTO_YES`        | **Switch maestro.** Si está set (cualquier valor), activa modo no-interactivo + `--yes`.              |
+| `KINTO_SITE`       | Nombre del sitio (`--site=`). Ej: `acme`, `cliente-xyz`.                                              |
+| `KINTO_TEMPLATE`   | Template (`--template=`). Aliases válidos: `static\|corporate\|enterprise`, `ecommerce\|shop\|store`. |
+| `KINTO_SKILLS`     | CSV de skills a instalar (`--skills=`). Ej: `cms-sveltia,shopify-ecommerce`.                          |
+| `KINTO_DEV`        | Si set, levanta `npm run dev` tras crear el sitio.                                                    |
+| `KINTO_NO_INSTALL` | Si set, salta `npm install` (útil si vas a instalar manual o en CI cacheada).                         |
+
+Sin `KINTO_YES` el instalador corre el wizard interactivo (humano). Esto
+es deliberado: forzamos la confirmación explícita de "estoy en modo
+no-interactivo" para evitar sitios creados con defaults en silencio.
+
+### One-liner Windows (PowerShell)
+
+```powershell
+$env:KINTO_SITE="acme"; $env:KINTO_TEMPLATE="ecommerce"
+$env:KINTO_SKILLS="cms-sveltia,shopify-ecommerce"; $env:KINTO_YES="1"
+mkdir mi-proyecto; cd mi-proyecto
+irm get.kinto.co | iex
+```
+
+### One-liner Unix (bash/zsh)
+
+```bash
+mkdir mi-proyecto && cd mi-proyecto
+curl -fsSL get.kinto.co | KINTO_SITE=acme KINTO_TEMPLATE=ecommerce \
+  KINTO_SKILLS=cms-sveltia,shopify-ecommerce KINTO_YES=1 bash
+```
+
+### Qué hace el comando (encadenado)
+
+1. Clona `kinto-cms` dentro de la carpeta actual (vacía).
+2. Corre `kinto start --yes --site=… --template=… --skills=…` por debajo.
+3. `npm install` en `sites/<n>/`.
+4. Por cada skill, `kinto skill add` + auto-merge de su `.env.example` al sitio.
+5. Build de verificación.
+6. Imprime **🎯 Próximos pasos del onboarding** numerados — el agente sigue la
+   checklist: configurar `.env` con valores reales, customizar legales y
+   landing al brief del cliente, `kinto verify`, `kinto deploy`.
+
+Si algo falla (build, skill), el output dice exactamente qué — el agente
+corrige y vuelve a `kinto verify --site=<n>` como gate.
+
+---
+
 ## 🤖 Cheat sheet para agentes
 
 > KINTO se usa **principalmente por agentes** (Claude Code, Kimi, Codex, Cursor)

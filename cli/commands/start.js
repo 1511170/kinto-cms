@@ -116,13 +116,27 @@ export default async function start({ flags }) {
   log.info("");
   log.ok(`Sitio "${siteName}" listo en sites/${siteName}/`);
   log.info("");
-  log.info("▸ Desarrollar localmente:");
-  log.info(`    cd sites/${siteName}`);
-  log.info("    npm run dev");
+  log.info("🎯 Próximos pasos del onboarding:");
+  log.info(
+    `  1. Credenciales: cd sites/${siteName} && cp .env.example .env (editar con valores reales)`,
+  );
+  log.info("  2. Brand & dominio: config/site.config.ts");
+  log.info(
+    "  3. Legales por brief: src/pages/{envios,devoluciones,privacidad,terminos,politica-de-cookies}.astro",
+  );
+  log.info(
+    "  4. Landing / hero: src/pages/index.astro + src/styles/global.css",
+  );
+  log.info(`  5. Validar: kinto verify --site=${siteName}`);
+  log.info(
+    `  6. Local: cd sites/${siteName} && npm run dev   → http://localhost:4321`,
+  );
+  log.info(`  7. Deploy: kinto deploy --site=${siteName}`);
   log.info("");
   log.info("▸ Comandos KINTO (desde la raíz del repo):");
   log.info(`    node bin/kinto.js dev --site=${siteName}`);
   log.info(`    node bin/kinto.js build --site=${siteName}`);
+  log.info(`    node bin/kinto.js verify --site=${siteName}`);
   log.info(`    node bin/kinto.js deploy --site=${siteName}`);
   log.info("");
   log.info("▸ (Opcional) habilita el comando `kinto` global:");

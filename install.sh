@@ -47,6 +47,19 @@ fi
 
 echo "▸ Lanzando el wizard de KINTO..."
 echo ""
-# `curl | bash` deja el script en stdin; el wizard es interactivo, así que
-# redirigimos stdin al terminal controlador.
-exec node bin/kinto.js start < /dev/tty
+
+# Modo no-interactivo (agentes): si KINTO_YES está definido, pasamos los
+# flags desde env vars a `kinto start --yes`. Si no, wizard interactivo
+# con stdin redirigido al terminal controlador (curl|bash deja el script
+# en stdin, hay que reconectar al TTY).
+if [ -n "${KINTO_YES:-}" ]; then
+  args=(bin/kinto.js start --yes)
+  [ -n "${KINTO_SITE:-}" ]       && args+=("--site=${KINTO_SITE}")
+  [ -n "${KINTO_TEMPLATE:-}" ]   && args+=("--template=${KINTO_TEMPLATE}")
+  [ -n "${KINTO_SKILLS:-}" ]     && args+=("--skills=${KINTO_SKILLS}")
+  [ -n "${KINTO_DEV:-}" ]        && args+=(--dev)
+  [ -n "${KINTO_NO_INSTALL:-}" ] && args+=(--no-install)
+  exec node "${args[@]}"
+else
+  exec node bin/kinto.js start < /dev/tty
+fi
