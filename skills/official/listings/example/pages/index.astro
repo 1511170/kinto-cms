@@ -1,0 +1,143 @@
+---
+import Base from "@layouts/Base.astro";
+import ListingCard from "@components/ListingCard.astro";
+import { fetchAllListings } from "@lib/listings/sedi-client";
+import { ordenar, tiposUnicos } from "@lib/listings/filter-sort";
+
+const listings = await fetchAllListings({ soloDisponibles: true });
+const arriendo = listings.filter((l) => l.operacion.includes("arriendo"));
+const venta = listings.filter((l) => l.operacion.includes("venta"));
+const destacados = ordenar(listings.filter((l) => l.fotos.length >= 3), "recientes").slice(0, 6);
+const recientesArriendo = ordenar(arriendo, "recientes").slice(0, 3);
+const conteoPorTipo = tiposUnicos(listings).map((t) => ({ tipo: t, n: listings.filter((l) => l.tipo === t).length })).sort((a, b) => b.n - a.n).slice(0, 8);
+const heroFotos = destacados.map((d) => d.imagenPrincipal).filter(Boolean).slice(0, 3) as string[];
+---
+<Base active="inicio">
+  <section class="hero">
+    <div class="contenedor">
+      <div class="hero-grid">
+        <div>
+          <span class="kicker">Inmobiliaria en Arauca</span>
+          <h1>Encuentra tu próximo <span class="resaltado">hogar</span> en Arauca</h1>
+          <p class="lead">Casas, apartamentos y locales en arriendo y venta, con respaldo y acompañamiento de principio a fin.</p>
+
+          <form class="buscador" action="/inmuebles" method="get">
+            <div class="buscador-tabs">
+              <button type="button" class="buscador-tab activo" data-op="todos">Todos</button>
+              <button type="button" class="buscador-tab" data-op="arriendo">Arriendo</button>
+              <button type="button" class="buscador-tab" data-op="venta">Venta</button>
+            </div>
+            <input type="hidden" name="operacion" id="heroOp" value="" />
+            <div class="buscador-fila">
+              <input type="text" name="q" placeholder="Barrio, zona o tipo de inmueble…" />
+              <select name="tipo">
+                <option value="">Tipo</option>
+                {tiposUnicos(listings).map((t) => (<option value={t}>{t}</option>))}
+              </select>
+              <button type="submit" class="btn btn-azul btn-grande">Buscar</button>
+            </div>
+          </form>
+
+          <div class="hero-stats">
+            <div class="hero-stat"><div class="num">{listings.length}</div><div class="lbl">Inmuebles</div></div>
+            <div class="hero-stat"><div class="num">{arriendo.length}</div><div class="lbl">En arriendo</div></div>
+            <div class="hero-stat"><div class="num">{venta.length}</div><div class="lbl">En venta</div></div>
+            <div class="hero-stat"><div class="num">+15</div><div class="lbl">Años</div></div>
+          </div>
+        </div>
+
+        <div class="hero-fotos">
+          {heroFotos.length >= 3
+            ? heroFotos.map((src) => (<div class="foto"><img src={src} alt="Inmueble destacado" class="img-cover" /></div>))
+            : [1,2,3].map((i) => (<div class="ph" data-label={`Foto ${i}`}></div>))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="seccion-cabecera">
+        <div>
+          <span class="kicker">Qué hacemos</span>
+          <h2>Te acompañamos en cada paso</h2>
+        </div>
+      </div>
+      <div class="grid-servicios">
+        <a href="/inmuebles?operacion=arriendo" class="card-servicio">
+          <div class="ph"></div><div class="velo"></div>
+          <div class="contenido"><h3>Arrienda</h3><p>Inmuebles verificados, listos para habitar.</p><span class="enlace">Ver en arriendo →</span></div>
+        </a>
+        <a href="/inmuebles?operacion=venta" class="card-servicio">
+          <div class="ph ph-calida"></div><div class="velo"></div>
+          <div class="contenido"><h3>Compra</h3><p>Invierte en propiedad con documentación al día.</p><span class="enlace">Ver en venta →</span></div>
+        </a>
+        <a href="/contacto" class="card-servicio">
+          <div class="ph"></div><div class="velo"></div>
+          <div class="contenido"><h3>Consigna</h3><p>Pon tu inmueble con nosotros y lo gestionamos.</p><span class="enlace">Consignar →</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion seccion-suave">
+    <div class="contenedor">
+      <div class="seccion-cabecera"><div><span class="kicker">Explora</span><h2>Por tipo de inmueble</h2></div></div>
+      <div class="grid-tipos">
+        {conteoPorTipo.map((c) => (
+          <a href={`/inmuebles?tipo=${encodeURIComponent(c.tipo)}`} class="card-tipo-link">
+            <span class="nombre">{c.tipo}</span>
+            <span class="cuenta">{c.n} disponible{c.n === 1 ? "" : "s"}</span>
+            <span class="flecha">Ver →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {destacados.length > 0 && (
+    <section class="seccion">
+      <div class="contenedor">
+        <div class="seccion-cabecera">
+          <div><span class="kicker">Destacados</span><h2>Inmuebles recomendados</h2></div>
+          <a href="/inmuebles" class="btn btn-fantasma">Ver todos</a>
+        </div>
+        <div class="grid-inmuebles">{destacados.map((l) => (<ListingCard listing={l} />))}</div>
+      </div>
+    </section>
+  )}
+
+  {recientesArriendo.length > 0 && (
+    <section class="seccion seccion-suave">
+      <div class="contenedor">
+        <div class="seccion-cabecera">
+          <div><span class="kicker">Recientes</span><h2>Últimos en arriendo</h2></div>
+          <a href="/inmuebles?operacion=arriendo" class="btn btn-fantasma">Ver arriendo</a>
+        </div>
+        <div class="grid-inmuebles">{recientesArriendo.map((l) => (<ListingCard listing={l} />))}</div>
+      </div>
+    </section>
+  )}
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="banda-cta">
+        <div>
+          <h2>¿No encuentras lo que buscas?</h2>
+          <p>Cuéntanos qué necesitas y te ayudamos a encontrarlo. Respuesta rápida por WhatsApp.</p>
+        </div>
+        <a href="/contacto" class="btn btn-rojo btn-grande">Hablar con un asesor</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const tabs = document.querySelectorAll(".buscador-tab");
+    const op = document.getElementById("heroOp");
+    tabs.forEach((t) => t.addEventListener("click", () => {
+      tabs.forEach((x) => x.classList.remove("activo"));
+      t.classList.add("activo");
+      op.value = t.dataset.op === "todos" ? "" : t.dataset.op;
+    }));
+  </script>
+</Base>

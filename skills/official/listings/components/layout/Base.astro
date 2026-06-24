@@ -1,0 +1,126 @@
+---
+import "../styles/global.css";
+import { LISTINGS_CONFIG } from "@lib/listings/config/listings.config";
+import { whatsappLink } from "@lib/listings/format";
+
+interface Props {
+  title?: string;
+  description?: string;
+  active?: "inicio" | "inmuebles" | "nosotros" | "contacto" | "mantenimiento";
+}
+const { title, description, active } = Astro.props;
+const brand = LISTINGS_CONFIG.brand;
+const tituloFull = title ? `${title} · ${brand.nombre}` : `${brand.nombre} · Arriendo y venta de inmuebles en Arauca`;
+const desc = description ?? "Encuentra casas, apartamentos y locales en arriendo y venta en Arauca con Inmobiliaria Arauca.";
+const wa = whatsappLink(brand.whatsapp, "Hola, vengo del sitio web y quiero información.");
+const nav = [
+  { href: "/", label: "Inicio", key: "inicio" },
+  { href: "/inmuebles", label: "Inmuebles", key: "inmuebles" },
+  { href: "/nosotros", label: "Nosotros", key: "nosotros" },
+  { href: "/mantenimiento", label: "Mantenimiento", key: "mantenimiento" },
+  { href: "/contacto", label: "Contacto", key: "contacto" },
+];
+---
+
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloFull}</title>
+    <meta name="description" content={desc} />
+    <link rel="icon" href="/favicon.svg" />
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="contenedor">
+        <div class="topbar-grupo">
+          <span>Lun a Vie 8:00–12:00 · 2:00–6:00 · Sáb 9:00–12:00</span>
+        </div>
+        <div class="topbar-grupo">
+          <a href={`tel:${brand.telefono.replace(/\s/g, "")}`}>{brand.telefono}</a>
+          <span class="punto"></span>
+          <a href={`mailto:${brand.email}`}>{brand.email}</a>
+        </div>
+      </div>
+    </div>
+
+    <header class="header">
+      <div class="contenedor">
+        <a href="/" class="logo-link">
+          <span class="marca-cuadro"></span>
+          <span>{brand.nombre}</span>
+        </a>
+        <nav class="nav">
+          {nav.map((n) => (
+            <a href={n.href} class={active === n.key ? "activo" : ""}>{n.label}</a>
+          ))}
+        </nav>
+        <div class="header-cta">
+          <a href={wa} class="btn btn-azul" target="_blank" rel="noopener">WhatsApp</a>
+          <button class="btn-menu" id="btnMenu" aria-label="Menú"><span></span><span></span><span></span></button>
+        </div>
+      </div>
+      <div class="nav-movil" id="navMovil">
+        {nav.map((n) => (<a href={n.href} class={active === n.key ? "activo" : ""}>{n.label}</a>))}
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="contenedor">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-logo"><span class="cuadro"></span> {brand.nombre}</div>
+            <p class="footer-marca">
+              Más de 15 años conectando familias con su hogar ideal en Arauca.
+              Arriendo, venta y administración de inmuebles con respaldo y confianza.
+            </p>
+          </div>
+          <div>
+            <h4>Navegación</h4>
+            <ul>
+              <li><a href="/inmuebles">Inmuebles</a></li>
+              <li><a href="/nosotros">Nosotros</a></li>
+              <li><a href="/contacto">Contacto</a></li>
+              <li><a href="/mantenimiento">Mantenimiento</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Operaciones</h4>
+            <ul>
+              <li><a href="/inmuebles?operacion=arriendo">En arriendo</a></li>
+              <li><a href="/inmuebles?operacion=venta">En venta</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Contacto</h4>
+            <ul>
+              <li><a href={`tel:${brand.telefono.replace(/\s/g, "")}`}>{brand.telefono}</a></li>
+              <li><a href={`mailto:${brand.email}`}>{brand.email}</a></li>
+              <li>{brand.direccion}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-inferior">
+          <span>© {new Date().getFullYear()} {brand.nombre}. Todos los derechos reservados.</span>
+          <span>Hecho en Arauca, Colombia.</span>
+        </div>
+      </div>
+    </footer>
+
+    <a href={wa} class="wa-flotante" target="_blank" rel="noopener">
+      <span class="burbuja"></span><span class="texto">Escríbenos</span>
+    </a>
+
+    <script>
+      const btn = document.getElementById("btnMenu");
+      const movil = document.getElementById("navMovil");
+      btn?.addEventListener("click", () => movil?.classList.toggle("abierto"));
+    </script>
+  </body>
+</html>

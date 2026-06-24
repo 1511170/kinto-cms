@@ -1,0 +1,59 @@
+---
+import Base from "@layouts/Base.astro";
+import { LISTINGS_CONFIG } from "@lib/listings/config/listings.config";
+const brand = LISTINGS_CONFIG.brand;
+---
+<Base title="Contacto" active="contacto" description="Contáctanos para arrendar, comprar o consignar inmuebles en Arauca.">
+  <section class="cabecera-pagina">
+    <div class="contenedor">
+      <div class="migas"><a href="/">Inicio</a> / Contacto</div>
+      <h1>Hablemos</h1>
+      <p class="sub">Escríbenos y un asesor te responderá lo antes posible.</p>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="grid-2" style="align-items:start">
+        <div class="card-plana">
+          <h3>Datos de contacto</h3>
+          <ul class="lista-datos" style="margin-top:18px">
+            <li><span class="k">WhatsApp / Teléfono</span><span class="v"><a href={`tel:${brand.telefono.replace(/\s/g,"")}`}>{brand.telefono}</a></span></li>
+            <li><span class="k">Correo</span><span class="v"><a href={`mailto:${brand.email}`}>{brand.email}</a></span></li>
+            <li><span class="k">Dirección</span><span class="v">{brand.direccion}</span></li>
+            <li><span class="k">Horario</span><span class="v">Lun–Vie 8–12 / 2–6 · Sáb 9–12</span></li>
+          </ul>
+        </div>
+
+        <div class="card-plana">
+          <h3>Envíanos un mensaje</h3>
+          <form id="formContacto" style="margin-top:18px">
+            <div class="form-grid">
+              <div class="campo"><label>Nombre</label><input name="nombre" required /></div>
+              <div class="campo"><label>Teléfono</label><input name="telefono" required /></div>
+              <div class="campo ancho-completo"><label>Motivo</label>
+                <select name="motivo">
+                  <option>Quiero arrendar</option>
+                  <option>Quiero comprar</option>
+                  <option>Quiero consignar mi inmueble</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div class="campo ancho-completo"><label>Mensaje</label><textarea name="mensaje" placeholder="Cuéntanos qué buscas…"></textarea></div>
+              <div class="ancho-completo"><button type="submit" class="btn btn-wa btn-grande btn-bloque">Enviar por WhatsApp</button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script define:vars={{ wa: brand.whatsapp }}>
+    document.getElementById("formContacto").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const txt = `Hola, soy ${f.nombre.value} (tel ${f.telefono.value}). Motivo: ${f.motivo.value}. ${f.mensaje.value}`;
+      window.open(`https://wa.me/${wa}?text=${encodeURIComponent(txt)}`, "_blank");
+    });
+  </script>
+</Base>

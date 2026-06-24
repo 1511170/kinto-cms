@@ -1,0 +1,58 @@
+---
+import Base from "@layouts/Base.astro";
+import { LISTINGS_CONFIG } from "@lib/listings/config/listings.config";
+const brand = LISTINGS_CONFIG.brand;
+---
+<Base title="Mantenimiento" active="mantenimiento" description="Reporta una solicitud de mantenimiento o reparación de tu inmueble.">
+  <section class="cabecera-pagina">
+    <div class="contenedor">
+      <div class="migas"><a href="/">Inicio</a> / Mantenimiento</div>
+      <h1>Solicitud de mantenimiento</h1>
+      <p class="sub">¿Eres inquilino y necesitas una reparación? Cuéntanos y gestionamos el ticket.</p>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <div class="grid-2" style="align-items:start">
+        <div class="card-plana">
+          <h3>Reportar una novedad</h3>
+          <form id="formMant" style="margin-top:18px">
+            <div class="form-grid">
+              <div class="campo"><label>Nombre</label><input name="nombre" required /></div>
+              <div class="campo"><label>Teléfono</label><input name="telefono" required /></div>
+              <div class="campo ancho-completo"><label>Dirección del inmueble</label><input name="direccion" required /></div>
+              <div class="campo"><label>Tipo de reparación</label>
+                <select name="tipo"><option>Plomería</option><option>Electricidad</option><option>Cerrajería</option><option>Pintura / obra</option><option>Otro</option></select>
+              </div>
+              <div class="campo"><label>Urgencia</label>
+                <select name="urgencia"><option>Baja</option><option>Media</option><option>Alta</option><option>Crítica</option></select>
+              </div>
+              <div class="campo ancho-completo"><label>Descripción</label><textarea name="detalle" placeholder="Describe el problema…"></textarea></div>
+              <div class="ancho-completo"><button type="submit" class="btn btn-wa btn-grande btn-bloque">Enviar solicitud por WhatsApp</button></div>
+            </div>
+          </form>
+        </div>
+
+        <div class="card-plana">
+          <h3>¿Cómo funciona?</h3>
+          <div class="grid-3" style="grid-template-columns:1fr;gap:14px;margin-top:14px">
+            <div><strong>1. Reportas</strong><p>Envías la solicitud con los datos del inmueble.</p></div>
+            <div><strong>2. Registramos</strong><p>Creamos el ticket en nuestro sistema (SEDI).</p></div>
+            <div><strong>3. Coordinamos</strong><p>Asignamos personal y te avisamos la visita.</p></div>
+          </div>
+          <p style="margin-top:18px" class="nota-codigo">Emergencias: <strong>{brand.telefono}</strong></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script define:vars={{ wa: brand.whatsapp }}>
+    document.getElementById("formMant").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const txt = `Solicitud de mantenimiento%0A- Nombre: ${f.nombre.value}%0A- Tel: ${f.telefono.value}%0A- Inmueble: ${f.direccion.value}%0A- Tipo: ${f.tipo.value}%0A- Urgencia: ${f.urgencia.value}%0A- Detalle: ${f.detalle.value}`;
+      window.open(`https://wa.me/${wa}?text=${txt}`, "_blank");
+    });
+  </script>
+</Base>

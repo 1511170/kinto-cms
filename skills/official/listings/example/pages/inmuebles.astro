@@ -1,0 +1,219 @@
+---
+import Base from "@layouts/Base.astro";
+import ListingCard from "@components/ListingCard.astro";
+import { fetchAllListings } from "@lib/listings/sedi-client";
+import { ordenar, barriosUnicos, tiposUnicos } from "@lib/listings/filter-sort";
+import { tituloListing } from "@lib/listings/format";
+
+const todos = await fetchAllListings({ soloDisponibles: true });
+const listings = ordenar(todos, "recientes");
+const barrios = barriosUnicos(listings);
+const tipos = tiposUnicos(listings);
+const norm = (s: string) => (s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+---
+<Base title="Inmuebles" active="inmuebles" description="Catálogo de inmuebles en arriendo y venta en Arauca.">
+  <section class="cabecera-pagina">
+    <div class="contenedor">
+      <div class="migas"><a href="/">Inicio</a> / Inmuebles</div>
+      <h1>Inmuebles disponibles</h1>
+      <p class="sub">Explora nuestro catálogo en Arauca. Filtra por operación, tipo, zona y precio.</p>
+    </div>
+  </section>
+
+  <div class="contenedor">
+    <div class="layout-listado">
+      <aside class="filtros" id="filtros">
+        <h3>Filtros <button class="limpiar" id="limpiar">Limpiar</button></h3>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Operación</span>
+          <div class="segmentos" id="segOperacion">
+            <button class="segmento activo" data-val="todos">Todos</button>
+            <button class="segmento" data-val="arriendo">Arriendo</button>
+            <button class="segmento" data-val="venta">Venta</button>
+          </div>
+        </div>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Buscar</span>
+          <input type="text" id="fTexto" placeholder="Barrio, dirección, palabra…" />
+        </div>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Tipo</span>
+          <div class="chips" id="fTipos">
+            {tipos.map((t) => (<button class="chip" data-val={norm(t)}>{t}</button>))}
+          </div>
+        </div>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Zona / Barrio</span>
+          <select id="fBarrio">
+            <option value="">Todas</option>
+            {barrios.map((b) => (<option value={norm(b)}>{b}</option>))}
+          </select>
+        </div>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Precio (COP)</span>
+          <div class="fila-rango">
+            <input type="number" id="fPrecioMin" placeholder="Mín" min="0" />
+            <input type="number" id="fPrecioMax" placeholder="Máx" min="0" />
+          </div>
+        </div>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Habitaciones</span>
+          <div class="chips" id="fHab">
+            {[1,2,3,4].map((n) => (<button class="chip" data-val={n}>{n}+</button>))}
+          </div>
+        </div>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Baños</span>
+          <div class="chips" id="fBanos">
+            {[1,2,3].map((n) => (<button class="chip" data-val={n}>{n}+</button>))}
+          </div>
+        </div>
+
+        <div class="filtro-grupo">
+          <span class="titulo">Área mínima (m²)</span>
+          <input type="number" id="fArea" placeholder="Ej: 60" min="0" />
+        </div>
+      </aside>
+
+      <div>
+        <div class="barra-resultados">
+          <div class="cuenta"><span id="cuenta">{listings.length}</span> inmuebles</div>
+          <div class="orden">
+            <button class="btn btn-fantasma btn-filtros-movil" id="btnFiltrosMovil">Filtros</button>
+            Ordenar
+            <select id="fOrden">
+              <option value="recientes">Más recientes</option>
+              <option value="precio-asc">Precio: menor a mayor</option>
+              <option value="precio-desc">Precio: mayor a menor</option>
+              <option value="area-desc">Área: mayor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-inmuebles" id="grid">
+          {listings.map((l) => (
+            <div
+              class="item-inmueble"
+              data-op={l.operacion}
+              data-tipo={norm(l.tipo)}
+              data-barrio={norm(l.barrio)}
+              data-precio={l.precio ?? 0}
+              data-hab={l.habitaciones ?? 0}
+              data-banos={l.banos ?? 0}
+              data-area={l.area ?? 0}
+              data-ref={l.ref}
+              data-texto={norm(`${tituloListing(l)} ${l.direccion} ${l.barrio} ${l.tipo} ${l.descripcion}`)}
+            >
+              <ListingCard listing={l} />
+            </div>
+          ))}
+        </div>
+
+        <div class="sin-resultados" id="sinResultados" style="display:none">
+          <h3>No encontramos inmuebles con esos filtros</h3>
+          <p>Prueba ampliando el rango de precio o quitando filtros. ¿Buscas algo puntual? Escríbenos por WhatsApp.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+    const grid = $("#grid");
+    const items = Array.from(document.querySelectorAll(".item-inmueble"));
+    const estado = { operacion: "todos", texto: "", tipos: new Set(), barrio: "", precioMin: null, precioMax: null, hab: 0, banos: 0, area: 0, orden: "recientes" };
+
+    function chipsToggle(container, multi, onChange) {
+      container.querySelectorAll(".chip").forEach((c) =>
+        c.addEventListener("click", () => {
+          if (multi) c.classList.toggle("activo");
+          else {
+            const yaActivo = c.classList.contains("activo");
+            container.querySelectorAll(".chip").forEach((x) => x.classList.remove("activo"));
+            if (!yaActivo) c.classList.add("activo");
+          }
+          onChange();
+        }),
+      );
+    }
+
+    function aplicar() {
+      let visibles = 0;
+      const params = new URLSearchParams();
+      if (estado.operacion !== "todos") params.set("operacion", estado.operacion);
+      history.replaceState(null, "", params.toString() ? `?${params}` : location.pathname);
+
+      for (const it of items) {
+        const d = it.dataset;
+        let ok = true;
+        if (estado.operacion !== "todos" && !d.op.includes(estado.operacion)) ok = false;
+        if (ok && estado.tipos.size && !estado.tipos.has(d.tipo)) ok = false;
+        if (ok && estado.barrio && d.barrio !== estado.barrio) ok = false;
+        if (ok && estado.precioMin != null && +d.precio < estado.precioMin) ok = false;
+        if (ok && estado.precioMax != null && +d.precio > estado.precioMax) ok = false;
+        if (ok && estado.hab && +d.hab < estado.hab) ok = false;
+        if (ok && estado.banos && +d.banos < estado.banos) ok = false;
+        if (ok && estado.area && +d.area < estado.area) ok = false;
+        if (ok && estado.texto) {
+          const ws = estado.texto.split(/\s+/).filter(Boolean);
+          if (!ws.every((w) => d.texto.includes(w))) ok = false;
+        }
+        it.style.display = ok ? "" : "none";
+        if (ok) visibles++;
+      }
+      $("#cuenta").textContent = visibles;
+      $("#sinResultados").style.display = visibles ? "none" : "block";
+      ordenarDom();
+    }
+
+    function ordenarDom() {
+      const vis = items.filter((i) => i.style.display !== "none");
+      vis.sort((a, b) => {
+        const da = a.dataset, db = b.dataset;
+        switch (estado.orden) {
+          case "precio-asc": return (+da.precio || Infinity) - (+db.precio || Infinity);
+          case "precio-desc": return (+db.precio) - (+da.precio);
+          case "area-desc": return (+db.area) - (+da.area);
+          default: return (+db.ref) - (+da.ref);
+        }
+      });
+      vis.forEach((n) => grid.appendChild(n));
+    }
+
+    // Operación (segmentos)
+    document.querySelectorAll("#segOperacion .segmento").forEach((s) =>
+      s.addEventListener("click", () => {
+        document.querySelectorAll("#segOperacion .segmento").forEach((x) => x.classList.remove("activo"));
+        s.classList.add("activo");
+        estado.operacion = s.dataset.val;
+        aplicar();
+      }),
+    );
+    chipsToggle($("#fTipos"), true, () => { estado.tipos = new Set(Array.from(document.querySelectorAll("#fTipos .chip.activo")).map((c) => c.dataset.val)); aplicar(); });
+    chipsToggle($("#fHab"), false, () => { const a = $("#fHab .chip.activo"); estado.hab = a ? +a.dataset.val : 0; aplicar(); });
+    chipsToggle($("#fBanos"), false, () => { const a = $("#fBanos .chip.activo"); estado.banos = a ? +a.dataset.val : 0; aplicar(); });
+    $("#fBarrio").addEventListener("change", (e) => { estado.barrio = e.target.value; aplicar(); });
+    $("#fTexto").addEventListener("input", (e) => { estado.texto = e.target.value.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); aplicar(); });
+    $("#fPrecioMin").addEventListener("input", (e) => { estado.precioMin = e.target.value ? +e.target.value : null; aplicar(); });
+    $("#fPrecioMax").addEventListener("input", (e) => { estado.precioMax = e.target.value ? +e.target.value : null; aplicar(); });
+    $("#fArea").addEventListener("input", (e) => { estado.area = e.target.value ? +e.target.value : 0; aplicar(); });
+    $("#fOrden").addEventListener("change", (e) => { estado.orden = e.target.value; ordenarDom(); });
+    $("#limpiar").addEventListener("click", () => location.href = location.pathname);
+    $("#btnFiltrosMovil")?.addEventListener("click", () => $("#filtros").classList.toggle("abierto"));
+
+    // Estado inicial desde URL (?operacion=)
+    const op = new URLSearchParams(location.search).get("operacion");
+    if (op === "arriendo" || op === "venta") {
+      document.querySelectorAll("#segOperacion .segmento").forEach((x) => x.classList.toggle("activo", x.dataset.val === op));
+      estado.operacion = op;
+    }
+    aplicar();
+  </script>
+</Base>

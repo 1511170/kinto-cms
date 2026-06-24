@@ -1,0 +1,40 @@
+---
+import type { Listing } from "@lib/listings/types";
+import { precioConSufijo, tituloListing } from "@lib/listings/format";
+
+interface Props { listing: Listing; }
+const { listing: l } = Astro.props;
+const esArriendo = l.operacion.includes("arriendo");
+const badgeClass = l.operacion === "venta" ? "badge-venta" : "badge-arriendo";
+const badgeText = l.operacion === "venta" ? "En venta" : "En arriendo";
+const meta = [
+  l.habitaciones ? `${l.habitaciones} hab` : null,
+  l.banos ? `${l.banos} baño${l.banos === 1 ? "" : "s"}` : null,
+  l.area ? `${l.area} m²` : null,
+  l.parqueaderos ? `${l.parqueaderos} parq.` : null,
+].filter(Boolean) as string[];
+---
+<article class="card-inmueble">
+  <a href={`/inmueble/${l.slug}`} class="card-foto" aria-label={tituloListing(l)}>
+    <span class={`badge ${badgeClass}`}>{badgeText}</span>
+    {l.imagenPrincipal
+      ? <img src={l.imagenPrincipal} alt={tituloListing(l)} class="img-cover" loading="lazy" width="400" height="300" />
+      : <span class="ph" data-label="Sin foto" style="position:absolute;inset:0"></span>}
+  </a>
+  <div class="card-cuerpo">
+    <span class="card-tipo">{l.tipo}{l.barrio ? ` · ${l.barrio}` : ""}</span>
+    <div class="card-precio">
+      {precioConSufijo(l.precio, l.operacion).replace("/mes", "")}
+      {esArriendo && l.precio ? <span class="periodo">/mes</span> : null}
+    </div>
+    <h3 class="card-titulo"><a href={`/inmueble/${l.slug}`}>{tituloListing(l)}</a></h3>
+    <p class="card-direccion">{l.direccion}</p>
+    {meta.length > 0 && (
+      <div class="card-meta">
+        {meta.map((m, i) => (
+          <>{i > 0 && <span class="sep">·</span>}<span>{m}</span></>
+        ))}
+      </div>
+    )}
+  </div>
+</article>
