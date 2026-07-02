@@ -13,7 +13,7 @@ import {
 export const siteUrl = `https://${siteConfig.site.domain}`;
 export const businessName = siteConfig.site.name;
 export const businessEmail = 'ventas@distribuidormiranda.com.ec';
-export const businessWhatsapp = `+593${'996140000'}`;
+export const businessWhatsapp = siteConfig.contact.whatsappDisplay;
 export const businessPhone = businessWhatsapp;
 
 export function absoluteUrl(path = '/') {

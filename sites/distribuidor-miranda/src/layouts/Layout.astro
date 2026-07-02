@@ -1,6 +1,7 @@
 ---
 import siteConfig from '../../config/site.config.ts';
 import CartDrawer from '@skills-official/shopify-ecommerce/components/cart/CartDrawer.astro';
+import WhatsappFloatingButton from '@skills-community/whatsapp-cta/components/WhatsappFloatingButton.astro';
 import Analytics from '../components/Analytics.astro';
 import AnalyticsEvents from '../components/AnalyticsEvents.astro';
 import '../styles/global.css';
@@ -33,6 +34,7 @@ const siteName = siteConfig.site.name;
 const siteUrl = `https://${siteConfig.site.domain}`;
 const fullImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 const titleFull = title === siteName ? title : `${title} | ${siteName}`;
+const whatsappDefaultMessage = siteConfig.contact.whatsappDefaultMessage.replace('{url}', canonical);
 ---
 
 <!DOCTYPE html>
@@ -95,9 +97,15 @@ const titleFull = title === siteName ? title : `${title} | ${siteName}`;
     <CartDrawer
       shippingNote="Envío a todo Ecuador · múltiples medios de pago"
       checkoutTrustNote="Pago seguro · tarjeta, transferencia y pago contra entrega"
-      whatsappUrl="https://wa.me/593996140000"
+      whatsappUrl={`https://wa.me/${siteConfig.contact.whatsappPhone}`}
       catalogHref="/catalogo/todos/"
       emptyCopy="Explora el catálogo de repuestos o escríbenos por WhatsApp para confirmar disponibilidad con un asesor."
+    />
+    <WhatsappFloatingButton
+      phone={siteConfig.contact.whatsappPhone}
+      message={whatsappDefaultMessage}
+      label={`Escribir por WhatsApp ${siteConfig.contact.whatsappDisplay}`}
+      position="bottom-right"
     />
   </body>
 </html>

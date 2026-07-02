@@ -44,6 +44,12 @@ export interface SiteConfig {
       gtmContainerId?: string;
     };
   };
+  contact: {
+    whatsappPhone: string;
+    whatsappDisplay: string;
+    whatsappDefaultMessage: string;
+    whatsappProductMessage: string;
+  };
   skills: {
     // Skills activas se leen de skills-active.json
   };
@@ -86,6 +92,12 @@ export default {
       gaMeasurementId: process.env.GA4_MEASUREMENT_ID || process.env.GOOGLE_ANALYTICS_ID || 'G-DQKQK612BV',
       gtmContainerId: process.env.GTM_CONTAINER_ID || ''
     }
+  },
+  contact: {
+    whatsappPhone: '12405891376',
+    whatsappDisplay: '+1 240 589 1376',
+    whatsappDefaultMessage: 'Hola Distribuidor Miranda, necesito ayuda con un repuesto. Estoy viendo: {url}',
+    whatsappProductMessage: 'Hola Distribuidor Miranda, me interesa "{name}". SKU/referencia: {sku}. Link del producto: {url}. ¿Me confirman precio, disponibilidad, forma de pago y envío?'
   },
   skills: {}
 } satisfies SiteConfig;

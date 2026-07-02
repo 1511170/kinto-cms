@@ -251,7 +251,7 @@ const collectionSchemas = [
 
         <div class="dm-help-card">
           <div class="dm-help-icon mono">?</div>
-          <div><strong>¿No encuentras la pieza?</strong><p>Envíanos VIN, código OEM o foto del repuesto y lo cotizamos.</p><a class="dm-help-btn" href="https://wa.me/593996140000?text=Hola%2C%20necesito%20ayuda%20para%20encontrar%20un%20repuesto" target="_blank" rel="noopener">Pedir por WhatsApp</a></div>
+          <div><strong>¿No encuentras la pieza?</strong><p>Envíanos VIN, código OEM o foto del repuesto y lo cotizamos.</p><a class="dm-help-btn" href="https://wa.me/12405891376?text=Hola%20Distribuidor%20Miranda%2C%20necesito%20ayuda%20para%20encontrar%20un%20repuesto.%20Link%3A%20https%3A%2F%2Fdistribuidormiranda.com.ec%2Fcatalogo%2Ftodos%2F" target="_blank" rel="noopener noreferrer" data-wa-cta data-wa-event="whatsapp_click_contact" data-wa-phone="12405891376" data-wa-payload='{"click_location":"catalog_filter_help"}'>Pedir por WhatsApp</a></div>
         </div>
       </aside>
 
@@ -363,14 +363,16 @@ const collectionSchemas = [
       const compare = Number(product.compareAtPrice || 0);
       const available = Boolean(product.availableForSale);
       const variantId = escapeHtml(product.variantId || '');
-      const whatsapp = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${product.title || product.handle} (${product.sku || product.handle || 'DM'})`)}`;
+      const productUrl = `${window.location.origin}/producto/${product.handle || product.sku || ''}/`;
+      const whatsapp = `https://wa.me/12405891376?text=${encodeURIComponent(`Hola Distribuidor Miranda, necesito consultar disponibilidad de ${product.title || product.handle} (${product.sku || product.handle || 'DM'}). Link: ${productUrl}`)}`;
+      const whatsappPayload = escapeHtml(JSON.stringify({ click_location: 'client_filtered_product_card', item_id: product.sku || product.handle || 'DM', item_name: product.title || product.handle || 'Producto', item_brand: product.vendor || '', item_category: product.productType || '', product_url: productUrl }));
       return `<article class="dm-card dm-product-card ${available ? '' : 'is-sold-out'}" data-product-id="${escapeHtml(product.handle || sku)}">
         <a href="${href}" class="dm-card-media ${img ? 'has-real-image' : 'has-placeholder'}">
           ${img ? `<img src="${escapeHtml(img)}" srcset="${escapeHtml(img.replace('width=640','width=320'))} 320w, ${escapeHtml(img)} 640w, ${escapeHtml(img.replace('width=640','width=960'))} 960w" sizes="(max-width: 720px) 92vw, (max-width: 1100px) 45vw, 25vw" alt="${title}" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="dm-lite-placeholder"><span>${sku.slice(0,6)}</span><strong>REPUESTO</strong></div>`}
           ${available ? '' : '<span class="dm-badge dm-badge--soldout">Agotado</span>'}
           ${compare > price && price > 0 ? `<span class="dm-badge dm-badge--sale">-${Math.round((1 - price / compare) * 100)}%</span>` : ''}
         </a>
-        <div class="dm-card-body"><div class="dm-card-sku mono">${sku}</div><h3 class="dm-card-title"><a href="${href}">${title}</a></h3><div class="dm-card-meta"><span class="dm-stock ${available ? 'is-in' : 'is-out'}"><span></span>${available ? 'Disponible' : 'Consultar'}</span></div><div class="dm-card-price"><span class="dm-card-price-now">${price > 0 ? `$${price.toFixed(2)}` : 'Consultar'}</span>${compare > price && price > 0 ? `<span class="dm-card-price-compare">$${compare.toFixed(2)}</span>` : ''}</div><div class="dm-card-actions">${available && variantId ? `<button class="dm-btn dm-btn-primary dm-btn-full" data-add-to-cart data-variant-id="${variantId}">Agregar al carrito</button>` : `<a class="dm-btn dm-btn-outline dm-btn-full" href="${whatsapp}" target="_blank" rel="noopener">Cotizar disponibilidad</a>`}</div></div>
+        <div class="dm-card-body"><div class="dm-card-sku mono">${sku}</div><h3 class="dm-card-title"><a href="${href}">${title}</a></h3><div class="dm-card-meta"><span class="dm-stock ${available ? 'is-in' : 'is-out'}"><span></span>${available ? 'Disponible' : 'Consultar'}</span></div><div class="dm-card-price"><span class="dm-card-price-now">${price > 0 ? `$${price.toFixed(2)}` : 'Consultar'}</span>${compare > price && price > 0 ? `<span class="dm-card-price-compare">$${compare.toFixed(2)}</span>` : ''}</div><div class="dm-card-actions">${available && variantId ? `<button class="dm-btn dm-btn-primary dm-btn-full" data-add-to-cart data-variant-id="${variantId}">Agregar al carrito</button>` : `<a class="dm-btn dm-btn-outline dm-btn-full dm-btn-whatsapp-card" href="${whatsapp}" target="_blank" rel="noopener noreferrer" data-wa-cta data-wa-event="whatsapp_click_product" data-wa-phone="12405891376" data-wa-payload="${whatsappPayload}">Cotizar disponibilidad</a>`}</div></div>
       </article>`;
     }
     const SYNONYMS = {

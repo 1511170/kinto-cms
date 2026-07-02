@@ -3,6 +3,8 @@
 import { productAvailable, productHref, productImageUrl, productKey as getProductKey, productPlaceholder, productSku, type Product } from '../lib/shopify-catalog';
 import PartPlaceholder from './PartPlaceholder.astro';
 import StockBadge from './StockBadge.astro';
+import siteConfig from '../../config/site.config';
+import { buildWhatsappUrl } from '@skills-community/whatsapp-cta/lib/whatsapp-ga4';
 
 interface Props {
   product: Product;
@@ -19,6 +21,21 @@ const imageUrl = productImageUrl(product, 720);
 const modalKey = providedProductKey || getProductKey(product);
 const placeholder = productPlaceholder(product);
 const href = productHref(product);
+const productUrl = `https://${siteConfig.site.domain}${href}`;
+const productCategory = product.productType || product.collections?.[0] || 'Repuesto';
+const whatsappMessage = siteConfig.contact.whatsappProductMessage
+  .replace('{name}', product.title)
+  .replace('{sku}', sku)
+  .replace('{url}', productUrl);
+const whatsappHref = buildWhatsappUrl(siteConfig.contact.whatsappPhone, whatsappMessage);
+const whatsappPayload = {
+  click_location: 'quick_view',
+  item_id: sku,
+  item_name: product.title,
+  item_brand: product.vendor || '',
+  item_category: productCategory,
+  product_url: productUrl,
+};
 ---
 
 <div class="dm-quickview" data-quickview={modalKey} hidden>
@@ -53,6 +70,9 @@ const href = productHref(product);
         <div class="dm-quickview-actions">
           <a href={href} class="dm-btn dm-btn-primary dm-btn-full">
             Ver detalles →
+          </a>
+          <a href={whatsappHref} class="dm-btn dm-btn-outline dm-btn-full dm-quickview-whatsapp" target="_blank" rel="noopener noreferrer" data-wa-cta data-wa-event="whatsapp_click_product" data-wa-phone={siteConfig.contact.whatsappPhone} data-wa-payload={JSON.stringify(whatsappPayload)}>
+            Consultar por WhatsApp
           </a>
         </div>
       </div>
@@ -185,6 +205,20 @@ const href = productHref(product);
   .dm-quickview-actions {
     margin-top: auto;
     padding-top: 16px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .dm-quickview-whatsapp {
+    border-color: rgba(37, 211, 102, 0.55);
+    color: #128c4a;
+    background: rgba(37, 211, 102, 0.08);
+  }
+
+  .dm-quickview-whatsapp:hover {
+    background: #25d366;
+    border-color: #25d366;
+    color: #fff;
   }
   
   @media (max-width: 640px) {

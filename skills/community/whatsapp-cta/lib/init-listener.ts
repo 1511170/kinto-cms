@@ -29,22 +29,39 @@ if (typeof window !== "undefined" && !window.__wa_listener_installed) {
       payload = {};
     }
 
+    const linkUrl = link.href;
+    const ctaText = link.textContent?.trim().replace(/\s+/g, " ") || link.getAttribute("aria-label") || "";
+    const whatsappPhone = link.dataset.waPhone || linkUrl.match(/wa\.me\/(\d+)/)?.[1] || "";
+
     // Enriquecer con contexto de la página al momento del click.
     const enriched = {
       event: eventName,
       page_url: window.location.href,
       page_path: window.location.pathname,
       page_title: document.title,
+      link_url: linkUrl,
+      outbound_url: linkUrl,
+      cta_text: ctaText,
+      whatsapp_phone: whatsappPhone,
       ...payload,
     };
 
     if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push(enriched);
-    } else {
+    }
+
+    // Compatibilidad directa con gtag/GA4 cuando no hay GTM o para medición redundante.
+    const gtag = (window as any).gtag;
+    if (typeof gtag === "function") {
+      const { event, ...params } = enriched;
+      gtag("event", event, params);
+    }
+
+    if (!Array.isArray(window.dataLayer) && typeof gtag !== "function") {
       // Sin GTM/GA4: log silencioso para debug. No bloquea la navegación.
       // eslint-disable-next-line no-console
       console.debug(
-        "[whatsapp-cta] dataLayer no disponible, evento omitido:",
+        "[whatsapp-cta] dataLayer/gtag no disponible, evento omitido:",
         enriched,
       );
     }

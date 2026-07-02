@@ -57,7 +57,7 @@ const schemas = [
         <h1>{title}</h1>
         <p class="lead">{description}</p>
         <div class="dm-landing-actions">
-          <a class="dm-btn dm-btn-primary" href={`https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito cotizar ${category.plural} ${brand.name}.`)}`} target="_blank" rel="noopener">Cotizar {category.name}</a>
+          <a class="dm-btn dm-btn-primary" href={`https://wa.me/12405891376?text=${encodeURIComponent(`Hola Distribuidor Miranda, necesito cotizar ${category.plural} ${brand.name}. Link: https://distribuidormiranda.com.ec/repuestos/${brand.slug}/${category.slug}/`)}`} target="_blank" rel="noopener noreferrer" data-wa-cta data-wa-event="whatsapp_click_contact" data-wa-phone="12405891376" data-wa-payload={JSON.stringify({ click_location: 'brand_category_landing_hero', item_category: category.name, item_brand: brand.name })}>Cotizar {category.name}</a>
           <a class="dm-btn dm-btn-outline" href={brandHref(brand)}>Ver todo {brand.name}</a>
         </div>
         <div class="dm-proof-grid">

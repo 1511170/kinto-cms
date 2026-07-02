@@ -27,6 +27,7 @@ const href = buildWhatsappUrl(phone, message);
   aria-label={label}
   data-wa-cta
   data-wa-event="whatsapp_click_floating"
+  data-wa-phone={phone.replace(/\D/g, '')}
   data-wa-payload={JSON.stringify({ click_location: 'floating_button' })}
 >
   <WhatsappIcon size={28} color="#fff" />

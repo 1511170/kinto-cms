@@ -30,6 +30,8 @@ const href = buildWhatsappUrl(phone, message);
 const payload: Record<string, string> = {
   click_location: 'product_page',
   item_name: productName,
+  product_url: productUrl,
+  message_template: messageTemplate,
 };
 if (productId) payload.item_id = productId;
 if (productBrand) payload.item_brand = productBrand;
@@ -44,6 +46,7 @@ if (productCategory) payload.item_category = productCategory;
   aria-label={`${label}: ${productName}`}
   data-wa-cta
   data-wa-event="whatsapp_click_product"
+  data-wa-phone={phone.replace(/\D/g, '')}
   data-wa-payload={JSON.stringify(payload)}
 >
   <WhatsappIcon size={20} color="#fff" />

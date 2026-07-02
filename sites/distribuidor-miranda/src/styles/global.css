@@ -839,3 +839,117 @@
   .dm-part-brand-card small{font-size:11px}
   .dm-card-brand{font-size:10px;padding:3px 6px}
 }
+
+
+/* Distribuidor Miranda PDP polish: calmer buybox + reliable quantity controls */
+.dm-pinfo{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.dm-pinfo-title{
+  font-size:clamp(34px,4.4vw,58px);
+  line-height:1.02;
+  letter-spacing:-.035em;
+}
+.dm-pinfo-rating,
+.dm-pinfo-price,
+.dm-vcheck,
+.dm-buybox{
+  margin-block:0;
+}
+.dm-pinfo-price{
+  padding:16px 0;
+}
+.dm-product .dm-part-brand-card{
+  margin-top:2px;
+}
+.dm-buybox{
+  padding:18px;
+  display:grid;
+  gap:12px;
+}
+.dm-buybox-row{
+  display:grid;
+  grid-template-columns:132px minmax(0,1fr);
+  gap:12px;
+  align-items:stretch;
+}
+.dm-buybox-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.dm-buybox .wa-product-cta{
+  width:100%;
+  min-height:60px;
+  border-radius:8px;
+  border:1px solid rgba(37,211,102,.34);
+  background:rgba(37,211,102,.08);
+  color:#137333;
+  font-weight:900;
+  box-shadow:none;
+}
+.dm-buybox .wa-product-cta:hover{
+  background:rgba(37,211,102,.14);
+  transform:translateY(-1px);
+}
+.dm-qty{
+  height:60px;
+  min-width:132px;
+  display:grid;
+  grid-template-columns:42px 1fr 42px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--paper);
+}
+.dm-qty button{
+  border:0;
+  background:var(--surface);
+  color:var(--ink);
+  font-size:20px;
+  font-weight:900;
+}
+.dm-qty button:hover{
+  background:var(--accent-soft);
+  color:var(--accent);
+}
+.dm-qty input[type="number"]{
+  width:100%;
+  min-width:0;
+  border:0;
+  border-inline:1px solid var(--line);
+  background:var(--paper);
+  color:var(--ink);
+  text-align:center;
+  font-weight:900;
+  font-size:16px;
+  outline:0;
+}
+.dm-buybox-extras{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  padding-top:4px;
+}
+.dm-buybox-extras button{
+  min-height:40px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--surface-2);
+  color:var(--ink-3);
+  font-size:13px;
+  font-weight:800;
+}
+@media(max-width:720px){
+  .dm-pinfo{gap:12px}
+  .dm-pinfo-title{font-size:34px}
+  .dm-buybox{padding:14px;gap:10px}
+  .dm-buybox-row,
+  .dm-buybox-actions{grid-template-columns:1fr}
+  .dm-qty{width:100%;min-width:0}
+}

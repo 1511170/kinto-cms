@@ -2,6 +2,8 @@
 import PartPlaceholder from './PartPlaceholder.astro';
 import StockBadge from './StockBadge.astro';
 import QuickView from './QuickView.astro';
+import siteConfig from '../../config/site.config';
+import { buildWhatsappUrl } from '@skills-community/whatsapp-cta/lib/whatsapp-ga4';
 import { formatPrice as formatLocalPrice, type Product as LocalProduct } from '../data/catalog';
 import { isShopifyProduct, productHref, productAvailable, productImage, productImageUrl, productKey, productPlaceholder, productSku, productTitle, productPartBrand, type Product as ShopifyProduct } from '../lib/shopify-catalog';
 
@@ -31,7 +33,20 @@ const formattedPrice = isShopify
   ? (price > 0 ? `$${price.toFixed(2)}` : 'Consultar')
   : formatLocalPrice(product.price);
 const placeholder = productPlaceholder(product);
-const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${title} (${sku})`)}`;
+const productUrl = `https://${siteConfig.site.domain}${href}`;
+const whatsappMessage = siteConfig.contact.whatsappProductMessage
+  .replace('{name}', title)
+  .replace('{sku}', sku)
+  .replace('{url}', productUrl);
+const whatsappHref = buildWhatsappUrl(siteConfig.contact.whatsappPhone, whatsappMessage);
+const whatsappPayload = {
+  click_location: 'product_card',
+  item_id: sku,
+  item_name: title,
+  item_brand: productBrand,
+  item_category: productCategory,
+  product_url: productUrl,
+};
 ---
 
 <article
@@ -94,11 +109,16 @@ const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola
     
     <div class="dm-card-actions">
       {available ? (
-        <button class="dm-btn dm-btn-primary dm-btn-full" data-add-to-cart data-variant-id={variant?.id ?? ''}>
-          Agregar al carrito
-        </button>
+        <>
+          <button class="dm-btn dm-btn-primary dm-btn-full" data-add-to-cart data-variant-id={variant?.id ?? ''}>
+            Agregar al carrito
+          </button>
+          <a class="dm-btn dm-btn-outline dm-btn-full dm-btn-whatsapp-card" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-wa-cta data-wa-event="whatsapp_click_product" data-wa-phone={siteConfig.contact.whatsappPhone} data-wa-payload={JSON.stringify(whatsappPayload)}>
+            Cotizar por WhatsApp
+          </a>
+        </>
       ) : (
-        <a class="dm-btn dm-btn-outline dm-btn-full" href={whatsappHref} target="_blank" rel="noopener">
+        <a class="dm-btn dm-btn-outline dm-btn-full dm-btn-whatsapp-card" href={whatsappHref} target="_blank" rel="noopener noreferrer" data-wa-cta data-wa-event="whatsapp_click_product" data-wa-phone={siteConfig.contact.whatsappPhone} data-wa-payload={JSON.stringify(whatsappPayload)}>
           Cotizar disponibilidad
         </a>
       )}
@@ -256,11 +276,25 @@ const whatsappHref = `https://wa.me/593996140000?text=${encodeURIComponent(`Hola
   
   .dm-card-actions {
     margin-top: 4px;
+    display: grid;
+    gap: 8px;
   }
   
   .dm-card-actions .dm-btn {
     height: 40px;
     font-size: 13px;
+  }
+
+  .dm-btn-whatsapp-card {
+    border-color: rgba(37, 211, 102, 0.55);
+    color: #128c4a;
+    background: rgba(37, 211, 102, 0.08);
+  }
+
+  .dm-btn-whatsapp-card:hover {
+    background: #25d366;
+    border-color: #25d366;
+    color: #fff;
   }
 
   @media (hover: none) {

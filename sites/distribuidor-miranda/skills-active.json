@@ -1,7 +1,8 @@
 {
   "site": "distribuidor-miranda",
   "skills": [
-    "shopify-ecommerce"
+    "shopify-ecommerce",
+    "whatsapp-cta"
   ],
   "_comment": "Skills se añaden con: kinto skill add <nombre> --site=<sitio>"
 }

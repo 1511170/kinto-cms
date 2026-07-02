@@ -4,6 +4,8 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import PartPlaceholder from '../../components/PartPlaceholder.astro';
 import ProductCard from '../../components/ProductCard.astro';
+import WhatsappProductCTA from '@skills-community/whatsapp-cta/components/WhatsappProductCTA.astro';
+import siteConfig from '../../../config/site.config';
 import { formatPrice as formatLocalPrice } from '../../data/catalog';
 import { formatPrice as formatShopifyPrice } from '@skills-official/shopify-ecommerce/lib/format-price';
 import { getStorefrontProducts, getStorefrontProduct, isShopifyProduct, productHref, productImageUrl, productPlaceholder, productAvailable, productPartBrand } from '../../lib/shopify-catalog';
@@ -50,6 +52,7 @@ const related = products
   .filter((product) => isShopifyProduct(product) && isShopify ? product.productType === p.productType : true)
   .slice(0, 4);
 const canonical = absoluteUrl(productHref(p));
+const whatsappProductTemplate = siteConfig.contact.whatsappProductMessage.replace('{sku}', sku);
 const productSchemas = [
   productSchema(p, { category, description }),
   breadcrumbSchema([
@@ -101,7 +104,25 @@ const productSchemas = [
         </div>
         <div class="dm-stockline"><span class="dm-stock-dot"></span><strong>{isShopify ? (available ? 'Disponible para compra' : 'Consultar precio y stock') : `${p.stock} unidades en stock`}</strong><span>·</span><span>Bodega Quito / Guayaquil</span></div>
         <div class="dm-vcheck"><div class="dm-vcheck-head">▰ ¿Calza en tu vehículo?</div><div class="dm-vcheck-row"><select><option>Aplicación</option>{applications.map(a => <option>{a}</option>)}</select><button class="dm-btn dm-btn-outline">Verificar</button></div></div>
-        <div class="dm-buybox"><div class="dm-buybox-row"><div class="dm-qty"><button type="button" aria-label="Restar unidad">−</button><input type="number" min="1" step="1" value="1" inputmode="numeric" aria-label="Unidades" /><button type="button" aria-label="Sumar unidad">+</button></div><button class="dm-btn dm-btn-primary dm-btn-lg" type="button" data-add-to-cart data-variant-id={canCart ? variant?.id : ''} data-fallback-href={`https://wa.me/593996140000?text=${encodeURIComponent(`Hola, necesito consultar disponibilidad de ${title} (${sku})`)}`}>{canCart ? `Agregar al carrito · ${price}` : 'Cotizar disponibilidad'}</button></div><button class="dm-btn dm-btn-dark dm-btn-lg dm-btn-full" type="button" data-buy-now data-variant-id={canCart ? variant?.id : ''} data-fallback-href={`https://wa.me/593996140000?text=${encodeURIComponent(`Hola, quiero comprar/cotizar ${title} (${sku})`)}`}>{canCart ? 'Comprar ahora' : 'Cotizar ahora'}</button><div class="dm-buybox-extras"><button type="button">♡ Guardar</button><button type="button">⇄ Comparar</button><button type="button">↗ Compartir</button></div></div>
+        <div class="dm-buybox" data-product-buybox>
+          <div class="dm-buybox-row">
+            <div class="dm-qty" data-product-qty>
+              <button type="button" aria-label="Restar unidad" data-qty-minus>−</button>
+              <input type="number" min="1" step="1" value="1" inputmode="numeric" aria-label="Unidades" data-qty-input />
+              <button type="button" aria-label="Sumar unidad" data-qty-plus>+</button>
+            </div>
+            <button class="dm-btn dm-btn-primary dm-btn-lg" type="button" data-add-to-cart data-variant-id={canCart ? variant?.id : ''} data-fallback-href={`https://wa.me/${siteConfig.contact.whatsappPhone}?text=${encodeURIComponent(siteConfig.contact.whatsappProductMessage.replace('{name}', title).replace('{sku}', sku).replace('{url}', canonical))}`}>{canCart ? `Agregar al carrito · ${price}` : 'Cotizar disponibilidad'}</button>
+          </div>
+          <div class="dm-buybox-actions">
+            <button class="dm-btn dm-btn-dark dm-btn-lg dm-btn-full" type="button" data-buy-now data-variant-id={canCart ? variant?.id : ''} data-fallback-href={`https://wa.me/${siteConfig.contact.whatsappPhone}?text=${encodeURIComponent(siteConfig.contact.whatsappProductMessage.replace('{name}', title).replace('{sku}', sku).replace('{url}', canonical))}`}>{canCart ? 'Comprar ahora' : 'Cotizar ahora'}</button>
+            <WhatsappProductCTA phone={siteConfig.contact.whatsappPhone} productName={title} productUrl={canonical} productId={sku} productBrand={brand} productCategory={category} messageTemplate={whatsappProductTemplate} label="Cotizar por WhatsApp" />
+          </div>
+          <div class="dm-buybox-extras">
+            <button type="button">♡ Guardar</button>
+            <button type="button">⇄ Comparar</button>
+            <button type="button">↗ Compartir</button>
+          </div>
+        </div>
         <ul class="dm-trust-list"><li>Garantía de 90 días</li><li>Verificación por VIN/foto antes de despacho</li><li>Envíos nacionales 24–48h</li></ul>
       </section>
     </div>
@@ -110,15 +131,27 @@ const productSchemas = [
   </main>
   <Footer />
   <script>
-    document.querySelectorAll('.dm-qty').forEach((qty) => {
-      const input = qty.querySelector('input');
-      const [minus, plus] = qty.querySelectorAll('button');
-      minus?.addEventListener('click', () => {
-        input.value = String(Math.max(1, Number(input.value || 1) - 1));
+    (() => {
+      const clampQty = (value) => String(Math.max(1, Math.floor(Number(value || 1) || 1)));
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const button = target.closest('[data-qty-minus], [data-qty-plus]');
+        if (!button) return;
+        const box = button.closest('[data-product-qty]');
+        const input = box?.querySelector('[data-qty-input]');
+        if (!(input instanceof HTMLInputElement)) return;
+        event.preventDefault();
+        const delta = button.matches('[data-qty-plus]') ? 1 : -1;
+        input.value = clampQty(Number(input.value || 1) + delta);
+        input.dispatchEvent(new Event('change', { bubbles: true }));
       });
-      plus?.addEventListener('click', () => {
-        input.value = String(Math.max(1, Number(input.value || 1) + 1));
+      document.addEventListener('input', (event) => {
+        const input = event.target;
+        if (input instanceof HTMLInputElement && input.matches('[data-qty-input]')) {
+          input.value = clampQty(input.value);
+        }
       });
-    });
+    })();
   </script>
 </Layout>
