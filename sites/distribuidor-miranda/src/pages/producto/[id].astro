@@ -107,9 +107,9 @@ const productSchemas = [
         <div class="dm-buybox" data-product-buybox>
           <div class="dm-buybox-row">
             <div class="dm-qty" data-product-qty>
-              <button type="button" aria-label="Restar unidad" data-qty-minus>−</button>
+              <button type="button" aria-label="Restar unidad" data-qty-minus onclick="const input=this.parentElement?.querySelector('[data-qty-input]'); if(input){ input.value=String(Math.max(1, Math.floor(Number(input.value||1)-1))); input.dispatchEvent(new Event('input',{bubbles:true})); input.dispatchEvent(new Event('change',{bubbles:true})); }">−</button>
               <input type="number" min="1" step="1" value="1" inputmode="numeric" aria-label="Unidades" data-qty-input />
-              <button type="button" aria-label="Sumar unidad" data-qty-plus>+</button>
+              <button type="button" aria-label="Sumar unidad" data-qty-plus onclick="const input=this.parentElement?.querySelector('[data-qty-input]'); if(input){ input.value=String(Math.max(1, Math.floor(Number(input.value||1)+1))); input.dispatchEvent(new Event('input',{bubbles:true})); input.dispatchEvent(new Event('change',{bubbles:true})); }">+</button>
             </div>
             <button class="dm-btn dm-btn-primary dm-btn-lg" type="button" data-add-to-cart data-variant-id={canCart ? variant?.id : ''} data-fallback-href={`https://wa.me/${siteConfig.contact.whatsappPhone}?text=${encodeURIComponent(siteConfig.contact.whatsappProductMessage.replace('{name}', title).replace('{sku}', sku).replace('{url}', canonical))}`}>{canCart ? `Agregar al carrito · ${price}` : 'Cotizar disponibilidad'}</button>
           </div>
@@ -130,22 +130,11 @@ const productSchemas = [
     <section class="dm-feature"><div class="dm-section-head"><div><div class="dm-section-eyebrow mono">/ RELACIONADOS</div><h2>También te puede servir</h2></div></div><div class="dm-product-grid">{related.map(product => <ProductCard product={product} />)}</div></section>
   </main>
   <Footer />
-  <script>
+  <script is:inline>
     (() => {
+      if (window.__dmProductQtyReady) return;
+      window.__dmProductQtyReady = true;
       const clampQty = (value) => String(Math.max(1, Math.floor(Number(value || 1) || 1)));
-      document.addEventListener('click', (event) => {
-        const target = event.target;
-        if (!(target instanceof HTMLElement)) return;
-        const button = target.closest('[data-qty-minus], [data-qty-plus]');
-        if (!button) return;
-        const box = button.closest('[data-product-qty]');
-        const input = box?.querySelector('[data-qty-input]');
-        if (!(input instanceof HTMLInputElement)) return;
-        event.preventDefault();
-        const delta = button.matches('[data-qty-plus]') ? 1 : -1;
-        input.value = clampQty(Number(input.value || 1) + delta);
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-      });
       document.addEventListener('input', (event) => {
         const input = event.target;
         if (input instanceof HTMLInputElement && input.matches('[data-qty-input]')) {
